@@ -1,0 +1,14 @@
+#THIS IS .GITIGNORE FILE FOR THE QPULSECAPTURE PROJECT
+#LIST OF IGNORE FILE EXTENSION
+*.iss
+*.chm
+*.exe
+*.obj
+*.~owd
+*.mp4
+*.avi
+*.wmv
+*.user
+*.db
+#A PATH TO ALGLIB LIBRARY SOURCES
+resources/ALGLIB_SOURCES/

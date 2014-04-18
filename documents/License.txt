@@ -1,0 +1,47 @@
+QPULSE CAPTURE
+=======================
+
+Feel free to use this software in terms of GNU GPL license.
+Copyright (C) Taranov Alex. All rights reserved.
+
+This software is provided "as-is," without any express or implied warranty.
+In no event shall the author be held liable for any damages arising from the
+use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+excluding commercial applications, and to alter and redistribute it,
+provided that the following conditions are met:
+
+1. All redistributions in binary form must retain all occurrences of the
+   above copyright notice.
+
+2. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software to
+   distribute a product, an acknowledgment in the product documentation
+   would be appreciated but is not required.
+
+3. Modified versions in source or binary form must be plainly marked as
+   such, and must not be misrepresented as being the original software.
+
+4. Application uses following libraries:,
+	- OpenCV (http://opencv.org/),
+	- FFTW (http://www.fftw.org/),
+	- ALGLIB (http://www.alglib.net/),
+	- Qt (http://qt-project.org/),
+   the licence requirements of which should be taken into account.
+
+5. The general idea of the implemented method belongs to:
+   1) Ming-Zher Poh, Daniel J. McDuff, and Rosalind W. Picard
+   Non-contact, automated cardiac pulse measurements using
+   video imaging and blind source separation
+   Optics Express, Vol. 18, Issue 10, pp. 10762-10774 (2010)
+   (http://dx.doi.org/10.1364/OE.18.010762),
+   2) Pratik Sahindrakar
+   Improving Motion Robustness of Contact-less Monitoring of Heart Rate
+   Using Video Analysis
+   (http://alexandria.tue.nl/extra1/afstversl/wsk-i/sahindrakar2011.pdf).
+
+mailto:pi-null-mezon@yandex.ru Taranov Alex 2014
+
+
+ 
