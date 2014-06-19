@@ -24,10 +24,10 @@ class TRealTimeProcessing
         void  WriteToDataBW(unsigned long int intensity, unsigned long int area, double time);
         MyFloatType ComputeFrequency(bool PCA_Enable);
         MyFloatType EvaluateFrequency();
-        MyFloatType getCurentSignalCount();
-        MyFloatType getRed();
-        MyFloatType getGreen();
-        MyFloatType getBlue();
+        MyFloatType getCurentSignalCount() const;
+        MyFloatType getRed() const;
+        MyFloatType getGreen() const;
+        MyFloatType getBlue() const;
 
 		MyFloatType *ptCNSignal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
 		fftwf_complex *ptSpectrum;  // a pointer to an array for FFT-spectrum
