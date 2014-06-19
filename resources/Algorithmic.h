@@ -25,6 +25,9 @@ class TRealTimeProcessing
         MyFloatType ComputeFrequency(bool PCA_Enable);
         MyFloatType EvaluateFrequency();
         MyFloatType getCurentSignalCount();
+        MyFloatType getRed();
+        MyFloatType getGreen();
+        MyFloatType getBlue();
 
 		MyFloatType *ptCNSignal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
 		fftwf_complex *ptSpectrum;  // a pointer to an array for FFT-spectrum
