@@ -248,8 +248,26 @@ MyFloatType  TRealTimeProcessing::EvaluateFrequency()
     return (60000 / time_interval);
 }
 //---------------------------------------------------------------------------
-
-MyFloatType TRealTimeProcessing::getCurentSignalCount()
+MyFloatType TRealTimeProcessing::getCurentSignalCount() const
 {
     return ptCNSignal[curpos];
 }
+//---------------------------------------------------------------------------
+MyFloatType TRealTimeProcessing::getRed() const
+{
+    return PCA_RAW_RGB(loop_for_PCA(curpos), 0) ;
+}
+//---------------------------------------------------------------------------
+MyFloatType TRealTimeProcessing::getGreen() const
+{
+    return PCA_RAW_RGB(loop_for_PCA(curpos), 1) ;
+}
+//---------------------------------------------------------------------------
+MyFloatType TRealTimeProcessing::getBlue() const
+{
+    return PCA_RAW_RGB(loop_for_PCA(curpos), 2) ;
+}
+//---------------------------------------------------------------------------
+
+
+
