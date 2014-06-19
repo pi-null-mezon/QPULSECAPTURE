@@ -401,14 +401,14 @@ void MainWindow::startRealTimeProcess(unsigned int datalength, unsigned int buff
     {
         ptcppwriter = new std::ofstream(ptdialog->getErecord_text().toLocal8Bit().constData(), std::ios::out);
         *ptcppwriter << "PULSE record\n";
-        *ptcppwriter << "dd.MM.yyyy HH:mm:ss    pulse,bpm\n";
+        *ptcppwriter << "dd.MM.yyyy HH:mm:ss\tpulse,bpm\n";
     }
 
     if(outputsignal)
     {
         ptsignalwriter = new std::ofstream( ptdialog->getEsignal_text().toLocal8Bit().constData() , std::ios::out);
         *ptsignalwriter << "PHOTOPLETHYSMOGRAPHY record\n";
-        *ptsignalwriter << "dd.MM.yyyy HH:mm:ss.zzz    signal,gen.unit\n";
+        *ptsignalwriter << "dd.MM.yyyy HH:mm:ss.zzz\tsignal,gen.unit\tRed\tGreen\tBlue\n";
     }
 }
 
@@ -429,7 +429,7 @@ void MainWindow::oncountready(unsigned int channum, const unsigned long sumred, 
 
         if(ptsignalwriter)
         {
-            *ptsignalwriter << QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm:ss.zzz").toLocal8Bit().constData()  << "    " << QString::number( ptRealTimeProcess->getCurentSignalCount(), 'f', 6 ).toLocal8Bit().constData() << "\n";
+            *ptsignalwriter << QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm:ss.zzz").toLocal8Bit().constData()  << "\t" << QString::number( ptRealTimeProcess->getCurentSignalCount(), 'f', 6 ).toLocal8Bit().constData() << "\t" << QString::number( ptRealTimeProcess->getRed(), 'f', 2 ).toLocal8Bit().constData() << "\t" << QString::number( ptRealTimeProcess->getGreen(), 'f', 2 ).toLocal8Bit().constData() << "\t" << QString::number( ptRealTimeProcess->getBlue(), 'f', 2 ).toLocal8Bit().constData() << "\n";
         }
 
     imagedisplay->putTextOnPeriod(  QString::number( time, 'g', 4 ) + " ms" );
