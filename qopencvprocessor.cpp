@@ -49,7 +49,7 @@ void QOpencvprocessor::process_custom_rule(const cv::Mat &input)
 
 void QOpencvprocessor::process_face_pulse(const cv::Mat& input_image)
 {
-        cv::Mat output_image = input_image.clone(); //Explicitly clone an input data matrix, if undo that there is memory collisions may ocur between current thread and mainwindow
+        cv::Mat output_image(input_image); //Explicitly clone an input data matrix, if undo that there is memory collisions may ocur between current thread and mainwindow
         cv::Mat gray_image;
         cv::cvtColor(output_image, gray_image, CV_BGR2GRAY);
         cv::equalizeHist(gray_image, gray_image);

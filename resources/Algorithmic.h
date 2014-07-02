@@ -8,7 +8,7 @@
 #include "dataanalysis.h" // ALGLIB header for PCA
 
 #define LOWER_HR_LIMIT 0.5 // in s^-1, it is 30 bpm
-#define SNR_TRESHOLD -1.5 // in most cases this value is suitable when (bufferlength == 256)
+#define SNR_TRESHOLD -1.0 // in most cases this value is suitable when (bufferlength == 256)
 #define HALF_INTERVAL 5 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define UNIT_SKO_PORTION 0.5 //defines threshold of the trigger, which determines time_interval values
 #define DIGITAL_FILTER_LENGTH 3 // in counts
@@ -56,23 +56,23 @@ class TRealTimeProcessing
 
         MyFloatType *ptX; // a pointer to input counts history, for digital filtration
 
-        unsigned int loop(int); //a function that return a loop-index (not '' because 'inline' )
-        unsigned int loop_for_ptX(int); //a function that return a loop-index (not '' because 'inline' )
-        unsigned int loop_for_PCA(int); //a function that return a loop-index (not '' because 'inline' )
+        unsigned int loop(int) const; //a function that return a loop-index (not '' because 'inline' )
+        unsigned int loop_for_ptX(int) const; //a function that return a loop-index (not '' because 'inline' )
+        unsigned int loop_for_PCA(int) const; //a function that return a loop-index (not '' because 'inline' )
 };
 
 // inline for speed, must therefore reside in header file
-inline unsigned int TRealTimeProcessing::loop(int difference)
+inline unsigned int TRealTimeProcessing::loop(int difference) const
 {
 	return ((datalength + (difference % datalength)) % datalength); // have finded it on wikipedia ), it always returns positive result
 }
 //---------------------------------------------------------------------------
-inline unsigned int TRealTimeProcessing::loop_for_ptX(int difference)
+inline unsigned int TRealTimeProcessing::loop_for_ptX(int difference) const
 {
     return ((DIGITAL_FILTER_LENGTH + (difference % DIGITAL_FILTER_LENGTH)) % DIGITAL_FILTER_LENGTH); // have finded it on wikipedia ), it always returns positive result
 }
 //---------------------------------------------------------------------------
-inline unsigned int TRealTimeProcessing::loop_for_PCA(int difference)
+inline unsigned int TRealTimeProcessing::loop_for_PCA(int difference) const
 {
 	return ((bufferlength + (difference % bufferlength)) % bufferlength); // have finded it on wikipedia ), it always returns positive result
 }
