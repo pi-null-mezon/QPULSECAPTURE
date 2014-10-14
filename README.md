@@ -1,3 +1,7 @@
+QPULSECAPTURE	
+
+	An application for the contactless heart rate measurement.
+
 	The "QPULSECAPTURE" project, a descendant of "PULSECAPTURE" project, firstly was designed
 for contactless heart rate measurements by means of an ordinary webcam. But later We have
 found that such technology can even provide a measurements of photoplethysmogram signal of
