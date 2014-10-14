@@ -1,6 +1,3 @@
-QPULSECAPTURE
-=================================================================================================
-	
 	The "QPULSECAPTURE" project, a descendant of "PULSECAPTURE" project, firstly was designed
 for contactless heart rate measurements by means of an ordinary webcam. But later We have
 found that such technology can even provide a measurements of photoplethysmogram signal of
@@ -9,8 +6,8 @@ face skin reflection. As mentioned before, this project had been created as next
 
 	Minimal system requirements:
 - Intel Pentium IV 3.0 GHz;
-- 512 Mb of RAM (or high);
-- A webcam 0,3 Mpx (or high, Logitech B910 HD is the best choice).
+- 512 Mb of RAM;
+- A webcam 0,3 Mpx (Logitech B910 HD is the best choice).
 
 	Acknowledgements:
 - OpenCV (http://opencv.org/);
