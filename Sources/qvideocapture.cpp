@@ -1,33 +1,44 @@
+/*-----------------------------------------------------------------------------------------------------
+Taranov Alex, 2014 									    SOURCE FILE
+QVideoCapture class was created as Qt SIGNAL/SLOT wrapper for OpenCV VideoCapture class
+Work with: call openfile(...) or opendevice(...) and on success, object will start to emit
+frame_was_captured(const cv::Mat& value) signal with determined period of time.
+To stop frame capturing use pause() or close(). Also
+class provides some GUI interface to cv::VideoCapture::set(...) function.
+------------------------------------------------------------------------------------------------------*/
+
 #include "qvideocapture.h"
 
 QVideoCapture::QVideoCapture(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    device_id(0)
 {
-
-    ptframetimer = new QTimer();
-    ptframetimer->setTimerType(Qt::PreciseTimer);
-    connect(ptframetimer, SIGNAL( timeout() ), this, SLOT( read_frame() )); // makes a connection between timer signal and class slot
+    pt_timer = new QTimer();
+    pt_timer->setTimerType(Qt::PreciseTimer);
+    connect(pt_timer, SIGNAL( timeout() ), this, SLOT( read_frame() )); // makes a connection between timer signal and class slot
 }
 
 bool QVideoCapture::openfile(const QString &filename)
 {
-    ptframetimer->stop();
-    if( cvcapture.open( filename.toLocal8Bit().constData() ) )
+    pt_timer->stop();
+    if( m_cvCapture.open( filename.toLocal8Bit().constData() ) )
     {
-        device_flag = false;
-        ptframetimer->setInterval( (int)1000/cvcapture.get(CV_CAP_PROP_FPS) ); // CV_CAP_PROP_FPS - Frame rate
+        deviceFlag = false;
+        pt_timer->setInterval( 1000/m_cvCapture.get(CV_CAP_PROP_FPS) ); // CV_CAP_PROP_FPS - m_frame rate
+        //resume();
         return true;
     }
     return false;
 }
 
-bool QVideoCapture::opendevice(int device_id, int period) // period should be entered in ms
+bool QVideoCapture::opendevice(int period) // period should be entered in ms
 {
-    ptframetimer->stop();
-    if( cvcapture.open( device_id ) )
+    pt_timer->stop();
+    if( m_cvCapture.open( device_id ) )
     {
-        device_flag = true;
-        ptframetimer->setInterval( period );
+        deviceFlag = true;
+        pt_timer->setInterval( period );
+        //resume();
         return true;
     }
     return false;
@@ -35,14 +46,31 @@ bool QVideoCapture::opendevice(int device_id, int period) // period should be en
 
 bool QVideoCapture::set(int propertyID, double value)
 {
-    return cvcapture.set( propertyID, value);
+    return m_cvCapture.set( propertyID, value);
+}
+
+bool QVideoCapture::resume()
+{
+    if( m_cvCapture.isOpened() )
+    {
+        pt_timer->start();
+        return true;
+    }
+    return false;
 }
 
 bool QVideoCapture::start()
 {
-    if( cvcapture.isOpened() )
+    if( m_cvCapture.isOpened() )
     {
-        ptframetimer->start();
+        if(deviceFlag)
+        {
+            pt_timer->start();
+        }
+        else
+        {
+            //TO DO
+        }
         return true;
     }
     return false;
@@ -50,11 +78,10 @@ bool QVideoCapture::start()
 
 bool QVideoCapture::close()
 {
-    if( cvcapture.isOpened() )
+    if( m_cvCapture.isOpened() )
     {
-        ptframetimer->stop();
-        cvcapture.release();
-
+        pt_timer->stop();
+        m_cvCapture.release();
         return true;
     }
     return false;
@@ -62,9 +89,9 @@ bool QVideoCapture::close()
 
 bool QVideoCapture::pause()
 {
-    if( cvcapture.isOpened() )
+    if( m_cvCapture.isOpened() )
     {
-        ptframetimer->stop();
+        pt_timer->stop();
         return true;
     }
     return false;
@@ -72,27 +99,26 @@ bool QVideoCapture::pause()
 
 bool QVideoCapture::read_frame()
 {
-    //there is no need to cvcapture.isOpen check because a class interface guarantees that timer could only was launched after cvcapture has been opened
-    if( ( cvcapture.read(frame) ) && ( !frame.empty() ) )
+    if( ( m_cvCapture.read(m_frame) ) && ( !m_frame.empty() ) )
     {
-        emit frame_was_captured(frame);
+        emit frame_was_captured(m_frame);
         return true;
     }
     else
     {
-        pause();
+        this->pause();
         return false;
     }
 }
 
-bool QVideoCapture::open_resolution_dialog()
+bool QVideoCapture::open_resolutionDialog()
 {
-    if (cvcapture.isOpened() && device_flag)
+    if (m_cvCapture.isOpened() && deviceFlag)
     {
     //GUI CONSTRUCTION//
     QDialog dialog;
-    dialog.setFixedSize(256,256);
-    dialog.setWindowTitle("Camcorder resolution");
+    dialog.setFixedSize(384,256);
+    dialog.setWindowTitle(tr("Camcorder resolution"));
 
     QVBoxLayout toplevellayout;
     toplevellayout.setMargin(5);
@@ -100,31 +126,33 @@ bool QVideoCapture::open_resolution_dialog()
     QVBoxLayout layout;
     layout.setMargin(5);
         QGroupBox groupbox;
-        groupbox.setTitle("Resolution/framerate");
+        groupbox.setTitle("Resolution & framerate");
             QVBoxLayout comboboxes;
             comboboxes.setMargin(5);
                 QComboBox CBresolution;
-                CBresolution.addItem("640 x 480"); // 0
-                CBresolution.addItem("800 x 600"); // 1
-                CBresolution.addItem("1024 x 768"); // 2
-                CBresolution.addItem("1280 x 960"); // 3
-                CBresolution.addItem("1600 x 1200"); // 4
+                CBresolution.addItem("320 x 240"); // 0
+                CBresolution.addItem("640 x 480"); // 1
+                CBresolution.addItem("800 x 600"); // 2
+                CBresolution.addItem("1024 x 768"); // 3
+                CBresolution.addItem("1280 x 720"); // 4
+                CBresolution.addItem("1920 x 1080"); // 5
                 CBresolution.setSizeAdjustPolicy(QComboBox::AdjustToContents);
                 CBresolution.setCurrentIndex(0);
                 QLabel Lresolution("Set resolution:");
-                QComboBox CBframerate(&dialog);
-                CBframerate.addItem("30 fps"); // 0
-                CBframerate.addItem("25 fps"); // 1
-                CBframerate.addItem("20 fps"); // 2
-                CBframerate.addItem("15 fps"); // 3
-                CBframerate.addItem("10 fps"); // 4
-                CBframerate.setSizeAdjustPolicy(QComboBox::AdjustToContents);
-                CBframerate.setCurrentIndex(0);
-                QLabel Lframerate("Set framerate:");
+                QComboBox CBm_framerate(&dialog);
+                CBm_framerate.addItem("30 fps"); // 0
+                CBm_framerate.addItem("25 fps"); // 1
+                CBm_framerate.addItem("20 fps"); // 2
+                CBm_framerate.addItem("15 fps"); // 3
+                CBm_framerate.addItem("10 fps"); // 4
+                CBm_framerate.addItem("5 fps"); // 4
+                CBm_framerate.setSizeAdjustPolicy(QComboBox::AdjustToContents);
+                CBm_framerate.setCurrentIndex(0);
+                QLabel Lm_framerate("Set framerate:");
             comboboxes.addWidget(&Lresolution,1,Qt::AlignLeft);
             comboboxes.addWidget(&CBresolution);
-            comboboxes.addWidget(&Lframerate,1,Qt::AlignLeft);
-            comboboxes.addWidget(&CBframerate);            
+            comboboxes.addWidget(&Lm_framerate,1,Qt::AlignLeft);
+            comboboxes.addWidget(&CBm_framerate);
         groupbox.setLayout(&comboboxes);
     layout.addWidget(&groupbox);
 
@@ -146,23 +174,23 @@ bool QVideoCapture::open_resolution_dialog()
 
         if(dialog.exec() == QDialog::Accepted)
         {
-            cvcapture.set(CV_CAP_PROP_FRAME_WIDTH, CBresolution.itemText(CBresolution.currentIndex()).section(" x ",0,0).toDouble());
-            cvcapture.set(CV_CAP_PROP_FRAME_HEIGHT, CBresolution.itemText(CBresolution.currentIndex()).section(" x ",1,1).toDouble());
-            ptframetimer->setInterval((int)1000/CBframerate.itemText(CBframerate.currentIndex()).section(" ",0,0).toDouble());
+            m_cvCapture.set( CV_CAP_PROP_FRAME_WIDTH, CBresolution.itemText(CBresolution.currentIndex()).section(" x ",0,0).toDouble() );
+            m_cvCapture.set( CV_CAP_PROP_FRAME_HEIGHT, CBresolution.itemText(CBresolution.currentIndex()).section(" x ",1,1).toDouble() );
+            pt_timer->setInterval( 1000/CBm_framerate.itemText(CBm_framerate.currentIndex()).section(" ",0,0).toDouble() );
             return true;
         }
     }
-    return false; // false if device was not opened or dialog.exec() == QDialog::Rejected
+    return false; // will return false if device was not opened or dialog.exec() == QDialog::Rejected
 }
 
-bool QVideoCapture::open_settings_dialog()
+bool QVideoCapture::open_settingsDialog()
 {
-    if (cvcapture.isOpened() && device_flag)
+    if (m_cvCapture.isOpened() && deviceFlag)
     {
-    //GUI CONSTRUCTION//
+    //DIALOG CONSTRUCTION//
     QDialog dialog;
     dialog.setFixedSize(384,256);
-    dialog.setWindowTitle("Camcorder settings");
+    dialog.setWindowTitle(tr("Camcorder settings"));
 
     QVBoxLayout toplevellayout;
     toplevellayout.setMargin(5);
@@ -182,9 +210,9 @@ bool QVideoCapture::open_settings_dialog()
                 Sbrightness.setOrientation(Qt::Horizontal);
                 Sbrightness.setMinimum(MIN_BRIGHTNESS);
                 Sbrightness.setMaximum(MAX_BRIGHTNESS);
-                Sbrightness.setValue( (int)cvcapture.get(CV_CAP_PROP_BRIGHTNESS) );
+                Sbrightness.setValue( (int)m_cvCapture.get(CV_CAP_PROP_BRIGHTNESS) );
                 QLabel Lbrightness;
-                Lbrightness.setNum( (int)cvcapture.get(CV_CAP_PROP_BRIGHTNESS) );
+                Lbrightness.setNum( (int)m_cvCapture.get(CV_CAP_PROP_BRIGHTNESS) );
                 connect(&Sbrightness, SIGNAL(valueChanged(int)), &Lbrightness, SLOT(setNum(int)));
                 connect(&Sbrightness, SIGNAL(valueChanged(int)), this, SLOT(set_brightness(int)));
                 connect(this, SIGNAL(set_default_brightness(int)), &Sbrightness, SLOT(setValue(int)));
@@ -194,9 +222,9 @@ bool QVideoCapture::open_settings_dialog()
                 Scontrast.setOrientation(Qt::Horizontal);
                 Scontrast.setMinimum(MIN_CONTRAST);
                 Scontrast.setMaximum(MAX_CONTRAST);
-                Scontrast.setValue( (int)cvcapture.get(CV_CAP_PROP_CONTRAST) );
+                Scontrast.setValue( (int)m_cvCapture.get(CV_CAP_PROP_CONTRAST) );
                 QLabel Lcontrast;
-                Lcontrast.setNum( (int)cvcapture.get(CV_CAP_PROP_CONTRAST) );
+                Lcontrast.setNum( (int)m_cvCapture.get(CV_CAP_PROP_CONTRAST) );
                 connect(&Scontrast, SIGNAL(valueChanged(int)), &Lcontrast, SLOT(setNum(int)));
                 connect(&Scontrast,SIGNAL(valueChanged(int)), this, SLOT(set_contrast(int)));
                 connect(this, SIGNAL(set_default_contrast(int)), &Scontrast, SLOT(setValue(int)));
@@ -206,9 +234,9 @@ bool QVideoCapture::open_settings_dialog()
                 Ssaturation.setOrientation(Qt::Horizontal);
                 Ssaturation.setMinimum(MIN_SATURATION);
                 Ssaturation.setMaximum(MAX_SATURATION);
-                Ssaturation.setValue( (int)cvcapture.get(CV_CAP_PROP_SATURATION) );
+                Ssaturation.setValue( (int)m_cvCapture.get(CV_CAP_PROP_SATURATION) );
                 QLabel Lsaturation;
-                Lsaturation.setNum( (int)cvcapture.get(CV_CAP_PROP_SATURATION) );
+                Lsaturation.setNum( (int)m_cvCapture.get(CV_CAP_PROP_SATURATION) );
                 connect(&Ssaturation, SIGNAL(valueChanged(int)), &Lsaturation, SLOT(setNum(int)));
                 connect(&Ssaturation,SIGNAL(valueChanged(int)), this, SLOT(set_saturation(int)));
                 connect(this, SIGNAL(set_default_saturation(int)), &Ssaturation, SLOT(setValue(int)));
@@ -218,9 +246,9 @@ bool QVideoCapture::open_settings_dialog()
                 SwhitebalanceU.setOrientation(Qt::Horizontal);
                 SwhitebalanceU.setMinimum(MIN_WHITE_BALANCE);
                 SwhitebalanceU.setMaximum(MAX_WHITE_BALANCE);
-                SwhitebalanceU.setValue( (int)cvcapture.get(CV_CAP_PROP_WHITE_BALANCE_BLUE_U) );
+                SwhitebalanceU.setValue( (int)m_cvCapture.get(CV_CAP_PROP_WHITE_BALANCE_BLUE_U) );
                 QLabel LwhitebalanceU;
-                LwhitebalanceU.setNum( (int)cvcapture.get(CV_CAP_PROP_WHITE_BALANCE_BLUE_U) );
+                LwhitebalanceU.setNum( (int)m_cvCapture.get(CV_CAP_PROP_WHITE_BALANCE_BLUE_U) );
                 connect(&SwhitebalanceU, SIGNAL(valueChanged(int)), &LwhitebalanceU, SLOT(setNum(int)));
                 connect(&SwhitebalanceU,SIGNAL(valueChanged(int)), this, SLOT(set_white_balanceU(int)));
                 connect(this, SIGNAL(set_default_white_balanceU(int)), &SwhitebalanceU, SLOT(setValue(int)));
@@ -230,9 +258,9 @@ bool QVideoCapture::open_settings_dialog()
                 SwhitebalanceV.setOrientation(Qt::Horizontal);
                 SwhitebalanceV.setMinimum(MIN_WHITE_BALANCE);
                 SwhitebalanceV.setMaximum(MAX_WHITE_BALANCE);
-                SwhitebalanceV.setValue( (int)cvcapture.get(CV_CAP_PROP_WHITE_BALANCE_RED_V) );
+                SwhitebalanceV.setValue( (int)m_cvCapture.get(CV_CAP_PROP_WHITE_BALANCE_RED_V) );
                 QLabel LwhitebalanceV;
-                LwhitebalanceV.setNum( (int)cvcapture.get(CV_CAP_PROP_WHITE_BALANCE_RED_V) );
+                LwhitebalanceV.setNum( (int)m_cvCapture.get(CV_CAP_PROP_WHITE_BALANCE_RED_V) );
                 connect(&SwhitebalanceV, SIGNAL(valueChanged(int)), &LwhitebalanceV, SLOT(setNum(int)));
                 connect(&SwhitebalanceV,SIGNAL(valueChanged(int)), this, SLOT(set_white_balanceV(int)));
                 connect(this, SIGNAL(set_default_white_balanceV(int)), &SwhitebalanceV, SLOT(setValue(int)));
@@ -277,9 +305,9 @@ bool QVideoCapture::open_settings_dialog()
             Sgain.setOrientation(Qt::Horizontal);
             Sgain.setMinimum(MIN_GAIN);
             Sgain.setMaximum(MAX_GAIN);
-            Sgain.setValue( (int)cvcapture.get(CV_CAP_PROP_GAIN) );
+            Sgain.setValue( (int)m_cvCapture.get(CV_CAP_PROP_GAIN) );
             QLabel Lgain;
-            Lgain.setNum( (int)cvcapture.get(CV_CAP_PROP_GAIN) );
+            Lgain.setNum( (int)m_cvCapture.get(CV_CAP_PROP_GAIN) );
             connect(&Sgain, SIGNAL(valueChanged(int)), &Lgain, SLOT(setNum(int)));
             connect(&Sgain,SIGNAL(valueChanged(int)), this, SLOT(set_gain(int)));
             connect(this, SIGNAL(set_default_gain(int)), &Sgain, SLOT(setValue(int)),Qt::DirectConnection);
@@ -289,9 +317,9 @@ bool QVideoCapture::open_settings_dialog()
             Sexposure.setOrientation(Qt::Horizontal);
             Sexposure.setMinimum(MIN_EXPOSURE);
             Sexposure.setMaximum(MAX_EXPOSURE);
-            Sexposure.setValue( (int)cvcapture.get(CV_CAP_PROP_EXPOSURE) );
+            Sexposure.setValue( (int)m_cvCapture.get(CV_CAP_PROP_EXPOSURE) );
             QLabel Lexposure;
-            Lexposure.setNum( (int)cvcapture.get(CV_CAP_PROP_EXPOSURE) );
+            Lexposure.setNum( (int)m_cvCapture.get(CV_CAP_PROP_EXPOSURE) );
             connect(&Sexposure, SIGNAL(valueChanged(int)), &Lexposure, SLOT(setNum(int)));
             connect(&Sexposure,SIGNAL(valueChanged(int)), this, SLOT(set_exposure(int)));
             connect(this, SIGNAL(set_default_exposure(int)), &Sexposure, SLOT(setValue(int)));
@@ -314,13 +342,13 @@ bool QVideoCapture::open_settings_dialog()
     QHBoxLayout buttons;
     buttons.setMargin(5);
         QPushButton Baccept;
-        Baccept.setText("Accept");
+        Baccept.setText(tr("Accept"));
         connect(&Baccept, SIGNAL(clicked()), &dialog, SLOT(accept()));
         QPushButton Bcancel;
-        Bcancel.setText("Cancel");
+        Bcancel.setText(tr("Cancel"));
         connect(&Bcancel, SIGNAL(clicked()), &dialog, SLOT(reject()));
         QPushButton Bdefault;
-        Bdefault.setText("Default");
+        Bdefault.setText(tr("Default"));
         connect(&Bdefault, SIGNAL(clicked()), this, SLOT(set_default_settings()));
     buttons.addWidget(&Baccept);
     buttons.addWidget(&Bcancel);
@@ -331,56 +359,56 @@ bool QVideoCapture::open_settings_dialog()
     toplevellayout.addWidget(&tabwidget);
     toplevellayout.addLayout(&buttons);
     dialog.setLayout(&toplevellayout);
-    //GUI CONSTRUCTION END//
+    //DIALOG CONSTRUCTION END//
     dialog.exec();
     return true;
     }
-    return false; // false if device was not opened
+    return false; // false if device was not opened yet
 }
 
 bool QVideoCapture::isOpened()
 {
-    return cvcapture.isOpened();
+    return m_cvCapture.isOpened();
 }
 
 QVideoCapture::~QVideoCapture()
 {
-    delete ptframetimer;
+    delete pt_timer;
 }
 
 bool QVideoCapture::set_brightness(int value)
 {
-    return cvcapture.set(CV_CAP_PROP_BRIGHTNESS, (double)value);
+    return m_cvCapture.set(CV_CAP_PROP_BRIGHTNESS, (double)value);
 }
 
 bool QVideoCapture::set_contrast(int value)
 {
-    return cvcapture.set(CV_CAP_PROP_CONTRAST, (double)value);
+    return m_cvCapture.set(CV_CAP_PROP_CONTRAST, (double)value);
 }
 
 bool QVideoCapture::set_saturation(int value)
 {
-    return cvcapture.set(CV_CAP_PROP_SATURATION, (double)value);
+    return m_cvCapture.set(CV_CAP_PROP_SATURATION, (double)value);
 }
 
 bool QVideoCapture::set_gain(int value)
 {
-    return cvcapture.set(CV_CAP_PROP_GAIN, (double)value);
+    return m_cvCapture.set(CV_CAP_PROP_GAIN, (double)value);
 }
 
 bool QVideoCapture::set_exposure(int value)
 {
-    return cvcapture.set(CV_CAP_PROP_EXPOSURE, (double)value);
+    return m_cvCapture.set(CV_CAP_PROP_EXPOSURE, (double)value);
 }
 
 bool QVideoCapture::set_white_balanceU(int value)
 {
-    return cvcapture.set(CV_CAP_PROP_WHITE_BALANCE_BLUE_U, (double)value);
+    return m_cvCapture.set(CV_CAP_PROP_WHITE_BALANCE_BLUE_U, (double)value);
 }
 
 bool QVideoCapture::set_white_balanceV(int value)
 {
-    return cvcapture.set(CV_CAP_PROP_WHITE_BALANCE_RED_V, (double)value);
+    return m_cvCapture.set(CV_CAP_PROP_WHITE_BALANCE_RED_V, (double)value);
 }
 
 void QVideoCapture::set_default_settings()
@@ -394,29 +422,30 @@ void QVideoCapture::set_default_settings()
     emit set_default_exposure(DEFAULT_EXPOSURE);
 }
 
-int QVideoCapture::device_select_dialog()
+int QVideoCapture::open_deviceSelectDialog()
 {
-    int device_id = 0;
-
+    //TO DO interface with QCamera...
     QDialog dialog;
     dialog.setFixedSize(256,128);
-    dialog.setWindowTitle("Device select dialog");
+    dialog.setWindowTitle(tr("Device select dialog"));
     QVBoxLayout layout;
-        QGroupBox GBid("Select device from list");
+        QGroupBox GBid(tr("Select device from list"));
             QVBoxLayout Lid;
-            QComboBox CBid;
-            for(int i = 0; i < DEFAULT_DEVICES_AMMOUNT; i++)
+            QComboBox CBid;           
+            QList<QByteArray> devices = QCamera::availableDevices();
+            for(int i = 0; i < devices.size(); i++)
             {
-                CBid.addItem("Device №" + QString::number(i));
+                CBid.addItem(QCamera::deviceDescription(devices.at(i)), qVariantFromValue(devices.at(i)));
             }
             Lid.addWidget( &CBid );
        GBid.setLayout(&Lid);
 
        QHBoxLayout Lbuttons;
-            QPushButton Baccept("Accept");
+            QPushButton Baccept(tr("Accept"));
             connect(&Baccept, &QPushButton::clicked, &dialog, &QDialog::accept);
-            QPushButton Breject("Reject");
+            QPushButton Breject(tr("Reject"));
             connect(&Breject, &QPushButton::clicked, &dialog, &QDialog::reject);
+            Breject.setToolTip("Default device will be used if available");
        Lbuttons.addWidget(&Baccept);
        Lbuttons.addWidget(&Breject);
    layout.addWidget(&GBid);

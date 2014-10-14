@@ -1,14 +1,40 @@
-#THIS IS .GITIGNORE FILE FOR THE QPULSECAPTURE PROJECT
-#LIST OF IGNORE FILE EXTENSION
-*.iss
-*.chm
-*.exe
+# Compiled Object files
+*.slo
+*.lo
+*.o
 *.obj
-*.~owd
-*.mp4
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Path
+*.pro.user
+/Install
+/Resources/WVCF_utility
+/Resources/FFTW
+/Resources/ALGLIB
+
 *.avi
+*.mp4
 *.wmv
-*.user
 *.db
-#A PATH TO ALGLIB LIBRARY SOURCES
-resources/ALGLIB_SOURCES/
