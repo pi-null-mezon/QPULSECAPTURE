@@ -117,7 +117,7 @@ bool QVideoCapture::open_resolutionDialog()
     {
     //GUI CONSTRUCTION//
     QDialog dialog;
-    dialog.setFixedSize(384,256);
+    dialog.setFixedSize(200,180);
     dialog.setWindowTitle(tr("Camcorder resolution"));
 
     QVBoxLayout toplevellayout;
@@ -137,7 +137,7 @@ bool QVideoCapture::open_resolutionDialog()
                 CBresolution.addItem("1280 x 720"); // 4
                 CBresolution.addItem("1920 x 1080"); // 5
                 CBresolution.setSizeAdjustPolicy(QComboBox::AdjustToContents);
-                CBresolution.setCurrentIndex(0);
+                CBresolution.setCurrentIndex(1);
                 QLabel Lresolution("Set resolution:");
                 QComboBox CBm_framerate(&dialog);
                 CBm_framerate.addItem("30 fps"); // 0
@@ -189,7 +189,7 @@ bool QVideoCapture::open_settingsDialog()
     {
     //DIALOG CONSTRUCTION//
     QDialog dialog;
-    dialog.setFixedSize(384,256);
+    dialog.setFixedSize(256,320);
     dialog.setWindowTitle(tr("Camcorder settings"));
 
     QVBoxLayout toplevellayout;
@@ -426,7 +426,7 @@ int QVideoCapture::open_deviceSelectDialog()
 {
     //TO DO interface with QCamera...
     QDialog dialog;
-    dialog.setFixedSize(256,128);
+    dialog.setFixedSize(200,120);
     dialog.setWindowTitle(tr("Device select dialog"));
     QVBoxLayout layout;
         QGroupBox GBid(tr("Select device from list"));
