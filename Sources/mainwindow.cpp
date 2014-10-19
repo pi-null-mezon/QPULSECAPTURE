@@ -4,7 +4,7 @@
 
 #define FRAME_WIDTH 480
 #define FRAME_HEIGHT 320
-#define FRAME_MARGIN 7
+#define FRAME_MARGIN 5
 
 //------------------------------------------------------------------------------------
 const char * MainWindow::QPlotDialogName[]=
@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent):
     pt_infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     pt_infoLabel->setAlignment(Qt::AlignCenter);
     pt_infoLabel->setWordWrap( true );
-    pt_infoLabel->setFont( QFont("Tahoma", 15, QFont::DemiBold) );
+    pt_infoLabel->setFont( QFont("Tahoma", 14, QFont::DemiBold) );
     pt_mainLayout->addWidget(pt_infoLabel);
 
     //--------------------------------------------------------------

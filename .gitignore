@@ -27,7 +27,7 @@
 *.out
 *.app
 
-# Path
+# Paths
 *.pro.user
 /Install
 /Resources/WVCF_utility

@@ -72,9 +72,9 @@ void QSettingsDialog::on_ButtonDefault_clicked()
 {
     ui->dialDatalength->setValue(8);
     ui->dialBufferlength->setValue(8);
-    ui->checkBoxColor->setChecked(true);
+    ui->checkBoxColor->setChecked(false);
     ui->checkBoxRecord->setChecked(false);
-    ui->checkBoxCascade->setChecked(true);
+    ui->checkBoxCascade->setChecked(false);
     ui->lineEditCascade->setText("haarcascades/haarcascade_frontalface_alt.xml");
     ui->lineEditRecord->setText("Records/Record.txt");
     ui->checkBoxVideoFile->setChecked(false);

@@ -104,6 +104,7 @@
       </property>
       <property name="font">
        <font>
+        <family>MicraC</family>
         <pointsize>16</pointsize>
        </font>
       </property>
@@ -172,6 +173,7 @@
       </property>
       <property name="font">
        <font>
+        <family>MicraC</family>
         <pointsize>16</pointsize>
        </font>
       </property>
@@ -193,13 +195,13 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>210</y>
+       <y>230</y>
        <width>271</width>
        <height>17</height>
       </rect>
      </property>
      <property name="text">
-      <string>Process all three RGB channels instead of only Green</string>
+      <string>Process RGB colors instead of only green</string>
      </property>
      <property name="checked">
       <bool>false</bool>
@@ -218,14 +220,14 @@
       </rect>
      </property>
      <property name="text">
-      <string>Make PCA alignment of data before freq. evaluation</string>
+      <string>Make PCA alignment of data before freq. estimation</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="checkBoxFFT">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>230</y>
+       <y>210</y>
        <width>271</width>
        <height>17</height>
       </rect>
@@ -234,7 +236,7 @@
       <string>if unchecked, frequency will be evaluated from digital filter output</string>
      </property>
      <property name="text">
-      <string>Evaluate frequency by means of harmonic analysis</string>
+      <string>Use harmonic analysis for frequency estimation</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -247,7 +249,7 @@
     </attribute>
     <widget class="QGroupBox" name="groupBoxCascade">
      <property name="enabled">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -300,7 +302,7 @@
       <string>Use cascade classifier for region detection</string>
      </property>
      <property name="checked">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="Line" name="line">

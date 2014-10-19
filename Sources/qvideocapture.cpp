@@ -176,9 +176,9 @@ bool QVideoCapture::open_resolutionDialog()
         {
             m_cvCapture.set( CV_CAP_PROP_FRAME_WIDTH, CBresolution.itemText(CBresolution.currentIndex()).section(" x ",0,0).toDouble() );
             m_cvCapture.set( CV_CAP_PROP_FRAME_HEIGHT, CBresolution.itemText(CBresolution.currentIndex()).section(" x ",1,1).toDouble() );
-            pt_timer->setInterval( 1000/CBm_framerate.itemText(CBm_framerate.currentIndex()).section(" ",0,0).toDouble() );
-            return true;
+            pt_timer->setInterval( 1000/CBm_framerate.itemText(CBm_framerate.currentIndex()).section(" ",0,0).toDouble() );          
         }
+        return true;
     }
     return false; // will return false if device was not opened or dialog.exec() == QDialog::Rejected
 }
