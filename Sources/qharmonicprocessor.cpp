@@ -103,7 +103,7 @@ void QHarmonicProcessor::WriteToDataRGB(unsigned long red, unsigned long green, 
     ch2_sko = sqrt(ch2_sko / (datalength - 1));
 
     ptX[loop_for_ptX(curpos)] = (ptData_ch1[curpos] - ch1_mean) / ch1_sko  - (ptData_ch2[curpos] - ch2_mean) / ch2_sko;
-    ptCNSignal[curpos] = ( ptX[loop_for_ptX(curpos)] + ptCNSignal[loop(curpos - 1)] ) / 2;
+    ptCNSignal[curpos] = ( ptX[loop_for_ptX(curpos)] + ptCNSignal[loop(curpos - 1)] ) / 2.0;
 
     //----------------------------------------------------------------------------
     qreal outputValue = 0.0;
@@ -162,7 +162,7 @@ void QHarmonicProcessor::WriteToDataOneColor(unsigned long red, unsigned long gr
     ch1_sko = sqrt(ch1_sko / (datalength - 1));
 
     ptX[loop_for_ptX(curpos)] = (ptData_ch1[curpos] - ch1_mean)/ ch1_sko;
-    ptCNSignal[curpos] = (ptX[loop_for_ptX(curpos)] + ptCNSignal[loop(curpos-1)]) / 2;
+    ptCNSignal[curpos] = (ptX[loop_for_ptX(curpos)] + ptCNSignal[loop(curpos-1)]) / 2.0;
 
     //----------------------------------------------------------------------------
     qreal outputValue = 0.0;
@@ -243,10 +243,15 @@ qreal QHarmonicProcessor::ComputeFrequency()
     }
     emit SpectrumWasUpdated(ptAmplitudeSpectrum, bufferlength/2 + 1);
 
-    quint16 lower_bound = (unsigned int)(LOWER_HR_LIMIT * buffer_duration / 1000);   // You should ensure that ( LOW_HR_LIMIT < discretization frequency / 2 )
+    quint16 bottom_bound = (quint16)(BOTTOM_LIMIT * buffer_duration / 1000.0);   // You should ensure that ( LOW_HR_LIMIT < discretization frequency / 2 )
+    quint16 top_bound = (quint16)(TOP_LIMIT * buffer_duration / 1000.0);
+    if(top_bound > (bufferlength / 2 + 1))
+    {
+        top_bound = bufferlength / 2 + 1;
+    }
     quint16 index_of_maxpower = 0;
     qreal maxpower = 0.0;
-    for (quint16 i = ( lower_bound + HALF_INTERVAL ); i < ( (bufferlength / 2 + 1) - HALF_INTERVAL ); i++)
+    for (quint16 i = ( bottom_bound + HALF_INTERVAL ); i < ( top_bound - HALF_INTERVAL ); i++)
     {
         qreal temp_power = ptAmplitudeSpectrum[i];
         if ( maxpower < temp_power )
@@ -258,9 +263,9 @@ qreal QHarmonicProcessor::ComputeFrequency()
     /*-------------------------SNR estimation evaluation-----------------------*/
     qreal noise_power = 0.0;
     qreal signal_power = 0.0;
-    for (quint16 i = lower_bound; i < (bufferlength / 2 + 1); i++)
+    for (quint16 i = bottom_bound; i < top_bound; i++)
     {
-        if ( ( (i > (index_of_maxpower - HALF_INTERVAL )) && (i < (index_of_maxpower + HALF_INTERVAL) ) ) || ( (i > (2 * index_of_maxpower - HALF_INTERVAL )) && (i < (2 * index_of_maxpower + HALF_INTERVAL) ) ) )
+        if ( (i >= (index_of_maxpower - HALF_INTERVAL )) && (i <= (index_of_maxpower + HALF_INTERVAL)) )
         {
             signal_power += ptAmplitudeSpectrum[i];
         }
@@ -276,22 +281,29 @@ qreal QHarmonicProcessor::ComputeFrequency()
         {
             qreal power_multiplyed_by_index = 0.0;
             qreal power_of_first_harmonic = 0.0;
-            for (qint16 i = (index_of_maxpower - HALF_INTERVAL + 1); i < (index_of_maxpower + HALF_INTERVAL); i++)
+            for (qint16 i = (index_of_maxpower - HALF_INTERVAL); i <= (index_of_maxpower + HALF_INTERVAL); i++)
             {
                 power_of_first_harmonic += ptAmplitudeSpectrum[i];
                 power_multiplyed_by_index += i * ptAmplitudeSpectrum[i];
             }
-            HRfrequency = (power_multiplyed_by_index / power_of_first_harmonic) * 60000 / buffer_duration;
+            HRfrequency = (power_multiplyed_by_index / power_of_first_harmonic) * 60000.0 / buffer_duration;
         }
     }
 
-    if(SNRE > SNR_TRESHOLD + 1.0)
+    if(HRfrequency > MIN_FREQUENCY)
     {
-        emit HRfrequencyWasUpdated(HRfrequency, SNRE, true);
+        if(SNRE > SNR_TRESHOLD)
+        {
+            emit HRfrequencyWasUpdated(HRfrequency, SNRE, true);
+        }
+        else
+        {
+            emit HRfrequencyWasUpdated(HRfrequency, SNRE, false);
+        }
     }
     else
     {
-        emit HRfrequencyWasUpdated(HRfrequency, SNRE, false);
+        emit frequencyOutOfRange();
     }
     return HRfrequency;
 }

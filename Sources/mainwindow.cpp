@@ -367,6 +367,7 @@ void MainWindow::configure_and_start_session()
     QSettingsDialog dialog;
     if(dialog.exec() == QDialog::Accepted)
     {     
+        pt_display->clearStrings();
         if(pt_harmonicProcessor)
         {
             pt_harmonicThread->quit();
@@ -407,6 +408,8 @@ void MainWindow::configure_and_start_session()
         {
             connect(pt_opencvProcessor,SIGNAL(colors_were_evaluated(ulong,ulong,ulong,ulong,double)),pt_harmonicProcessor,SLOT(WriteToDataOneColor(ulong,ulong,ulong,ulong,double)));
         }
+        //---------------------------------------------------------------
+        connect(pt_harmonicProcessor, SIGNAL(frequencyOutOfRange()), pt_display, SLOT(clearStrings()));
         //---------------------------------------------------------------
         disconnect(pt_videoCapture,0,0,0);
         if(dialog.get_flagCascade())

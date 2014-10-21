@@ -127,8 +127,15 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                 painter.setFont( font );
                 painter.setPen( m_informationColor );
 
-                painter.drawText(startX + m_frequencyString.size() * pointsize * 2.25, startY, "bpm");
-                painter.drawText(startX, startY + pointsize*1.5, m_snrString);
+                if(m_frequencyString.isEmpty())
+                {
+                    painter.drawText(startX, startY, "Bufferization");
+                }
+                else
+                {
+                    painter.drawText(startX + m_frequencyString.size() * pointsize * 2.25, startY, "bpm");
+                    painter.drawText(startX, startY + pointsize*1.5, m_snrString);
+                }
             }
         }
     }
@@ -175,8 +182,15 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
 
                 painter.setBrush(m_fillColor);
                 font.setPointSizeF( pointsize );
-                path.addText(startX + m_frequencyString.size() * pointsize * 2.25, startY, font ,"bpm");
-                path.addText(startX, startY + pointsize*1.5, font, m_snrString);
+                if(m_frequencyString.isEmpty())
+                {
+                    path.addText(startX, startY, font ,"Bufferization");
+                }
+                else
+                {
+                    path.addText(startX + m_frequencyString.size() * pointsize * 2.25, startY, font ,"bpm");
+                    path.addText(startX, startY + pointsize*1.5, font, m_snrString);
+                }
             }
             painter.drawPath(path);
         }
@@ -206,7 +220,7 @@ void QImageWidget::updateValues(qreal value1, qreal value2, bool flag) // value1
     {
         m_frequencyColor = QColor(Qt::red);
     }
-    m_frequencyString = QString::number(value1,'f',0);
+    m_frequencyString = QString::number(value1, 'f', 0);
     m_snrString = "SNR: " +QString::number(value2,'f',2) + " dB";
 }
 
@@ -291,4 +305,12 @@ void QImageWidget::toggle_advancedvisualization(bool value)
 void QImageWidget::set_drawDataFlag(bool value)
 {
     m_drawDataFlag = value;
+}
+
+//----------------------------------------------------------------------------------
+
+void QImageWidget::clearStrings()
+{
+    m_frequencyString.clear();
+    m_snrString.clear();
 }

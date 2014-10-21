@@ -6,7 +6,7 @@ The simplest way to use it - rewrite appropriate section in QOpencvProcessor::cu
 
 #include "qopencvprocessor.h"
 
-#define OBJECT_MINSIZE 200
+#define OBJECT_MINSIZE 150
 //------------------------------------------------------------------------------------------------------
 
 QOpencvProcessor::QOpencvProcessor(QObject *parent):
@@ -94,7 +94,7 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
     unsigned int dX = 0;
     unsigned int dY = 0;
 
-    if(faces_vector.size() != 0) // if classifier find something, then do...
+   /* if(faces_vector.size() != 0) // if classifier find something, then do...
     {
         unsigned char *p; // this pointer will be used to store adresses of the image rows
         X = faces_vector[0].x; // take actual coordinate
@@ -116,7 +116,7 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
                     red += p[3*i+2];
                     //Uncomment if want to see the enrolled domain on image
                         //p[3*i] = 0;
-                        //p[3*i+1] = 0;
+                        p[3*i+1] = 255;
                         //p[3*i+2] = 0;
                     }
                 }
@@ -130,8 +130,8 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
                         red += p[3*i+2];
                         //Uncomment if want to see the enrolled domain on image
                             //p[3*i] = 0;
-                            //p[3*i+1] = 0;
-                            //p[3*i+2] = 0;*/
+                            p[3*i+1] = 255;
+                            //p[3*i+2] = 0;
                     }
                 }
             }
@@ -159,13 +159,56 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
             }
         }
     }
+    unsigned int area = (rectwidth - 2*dX)*(5*dY);*/
+
+    if(faces_vector.size() != 0) // if classifier find something, then do...
+    {
+        unsigned char *p; // this pointer will be used to store adresses of the image rows
+        X = faces_vector[0].x; // take actual coordinate
+        Y = faces_vector[0].y; // take actual coordinate
+        rectwidth = faces_vector[0].width; // take actual size
+        rectheight = faces_vector[0].height; // take actual size
+
+        if(output.channels() == 3)
+        {
+            for(unsigned int j = Y; j < Y + rectheight; j++)
+            {
+                p = output.ptr(j); //takes pointer to beginning of data on row
+                for(unsigned int i = X; i < X + rectwidth; i++)
+                {
+                    blue += p[3*i];
+                    green += p[3*i+1];
+                    red += p[3*i+2];
+                    //Uncomment if want to see the enrolled domain on image
+                        //p[3*i] = 0;
+                        p[3*i+1] = 255;
+                        //p[3*i+2] = 0;
+                    }
+                }
+            }
+        else
+        {
+            for(unsigned int j = Y; j < Y + rectheight; j++)
+            {
+                p = output.ptr(j);//pointer to beginning of data on rows
+                for(unsigned int i = X; i < X + rectwidth; i++)
+                {
+                    green += p[i];
+                    //Uncomment if want to see the enrolled domain on image
+                        //p[i] = 0;
+                }
+            }
+        }
+    }
+    unsigned int area = rectwidth*rectheight;
+
     //-----end of if(faces_vector.size() != 0)-----
     m_framePeriod = ((double)cv::getTickCount() -  m_timeCounter)*1000.0 / cv::getTickFrequency();
     m_timeCounter = cv::getTickCount();
     if(faces_vector.size() != 0)
     {
         cv::rectangle( output, faces_vector[0] , cv::Scalar(255,25,25));
-        emit colors_were_evaluated( red , green, blue, (rectwidth - 2*dX)*(5*dY), m_framePeriod);
+        emit colors_were_evaluated( red , green, blue, area, m_framePeriod);
     }
     else
     {

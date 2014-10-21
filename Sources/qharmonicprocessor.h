@@ -6,11 +6,12 @@
 #include "ap.h" // ALGLIB types
 #include "dataanalysis.h" // ALGLIB functions
 
-#define LOWER_HR_LIMIT 0.5 // in s^-1, it is 30 bpm
-#define SNR_TRESHOLD -1.0 // in most cases this value is suitable when (bufferlength == 256)
-#define HALF_INTERVAL 5 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
+#define BOTTOM_LIMIT 0.6 // in s^-1, it is 36 bpm
+#define TOP_LIMIT 4.5 // in s^-1, it is 270 bpm
+#define SNR_TRESHOLD 2.0 // in most cases this value is suitable when (bufferlength == 256)
+#define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
-
+#define MIN_FREQUENCY 50 // in bpm
 
 class QHarmonicProcessor : public QObject
 {
@@ -28,7 +29,7 @@ signals:
     void PCAProjectionWasUpdated(const qreal * ppointer_to_vector, quint16 length_of_vector);
     void pt_YoutputWasUpdated(const qreal *pointer_to_vector, quint16 length_of_vector);
     void SignalActualValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
-
+    void frequencyOutOfRange(); // signal that HRfrequency comes out of the allowed range
 public slots:
     void WriteToDataRGB(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
     void WriteToDataOneColor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
