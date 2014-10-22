@@ -12,6 +12,7 @@
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
 #define MIN_FREQUENCY 50 // in bpm
+#define DEFAULT_STROBE_FOR_30_FRAMES_PER_SECOND 4
 
 class QHarmonicProcessor : public QObject
 {
@@ -30,6 +31,7 @@ signals:
     void pt_YoutputWasUpdated(const qreal *pointer_to_vector, quint16 length_of_vector);
     void SignalActualValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void frequencyOutOfRange(); // signal that HRfrequency comes out of the allowed range
+    void SlowPPGWasUpdated(const qreal *pointer, quint16 legth);
 public slots:
     void WriteToDataRGB(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
     void WriteToDataOneColor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
@@ -72,6 +74,11 @@ private:
     qreal m_output; // will store value that will be written in pt_Youtput[i]
     quint8 loop_on_two(qint16 difference) const;
     qint16 m_zerocrossingCounter; // will store the number of pulse waves for averaging HRfrequency estimation
+
+    qreal *pt_SlowPPG;
+    qreal m_strobeValue;
+    qreal m_accumulator;
+    quint16 m_pos;
 };
 
 // inline, for speed, must therefore reside in header file

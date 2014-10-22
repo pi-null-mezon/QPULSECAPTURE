@@ -15,7 +15,10 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_channel(Green),
     m_zerocrossing(0),
     m_output(1.0),
-    m_zerocrossingCounter(4)
+    m_zerocrossingCounter(4),
+    m_strobeValue(DEFAULT_STROBE_FOR_30_FRAMES_PER_SECOND),
+    m_accumulator(0.0),
+    m_pos(0)
 {
     // Memory allocation
     ptData_ch1 = new qreal[datalength];
@@ -29,6 +32,7 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_plan = fftw_plan_dft_r2c_1d(bufferlength, ptDataForFFT, ptSpectrum, FFTW_ESTIMATE);
     pt_Youtput = new qreal[datalength];
     pt_Xoutput = new qreal[DIGITAL_FILTER_LENGTH];
+    pt_SlowPPG = new qreal[datalength];
 
     // Vectors initialization
     for (quint16 i = 0; i < datalength; i++)
@@ -37,6 +41,7 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
         ptData_ch2[i] = 0.0; // it should be equal to zero at start
         ptTime[i] = 35.0; // just for ensure that at the begining there is not any "division by zero"
         ptCNSignal[i] = 0.0;
+        pt_SlowPPG[i] = 0.0;
         if(i % 4)
         {
             pt_Youtput[i] = m_output;
@@ -69,6 +74,7 @@ QHarmonicProcessor::~QHarmonicProcessor()
     delete[] ptAmplitudeSpectrum;
     delete[] pt_Youtput;
     delete[] pt_Xoutput;
+    delete[] pt_SlowPPG;
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -183,6 +189,17 @@ void QHarmonicProcessor::WriteToDataOneColor(unsigned long red, unsigned long gr
     pt_Youtput[curpos] = m_output; // note, however, that pt_Youtput accumulate phase delay about DIGITAL_FILTER_LENGTH
     emit pt_YoutputWasUpdated(pt_Youtput, datalength);
     //----------------------------------------------------------------------------
+
+    m_accumulator += ptCNSignal[curpos];
+    m_strobeValue--;
+    if( m_strobeValue == 0)
+    {
+        pt_SlowPPG[m_pos] = m_accumulator / DEFAULT_STROBE_FOR_30_FRAMES_PER_SECOND;
+        emit SlowPPGWasUpdated(pt_SlowPPG, datalength);
+        m_pos = (++m_pos) % datalength;
+        m_strobeValue = DEFAULT_STROBE_FOR_30_FRAMES_PER_SECOND;
+        m_accumulator = 0.0;
+    }
 
     emit CNSignalWasUpdated(ptCNSignal, datalength);
     emit SignalActualValues(ptCNSignal[curpos], ptData_ch1[curpos], ptData_ch1[curpos], ptData_ch1[curpos], HRfrequency, SNRE);

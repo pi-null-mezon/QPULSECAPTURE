@@ -21,7 +21,8 @@ SOURCES +=  main.cpp\
             qvideocapture.cpp \
             qharmonicprocessor.cpp \
             qsettingsdialog.cpp \
-            qeasyplot.cpp
+            qeasyplot.cpp \
+    qbackgroundwidget.cpp
 
 HEADERS  += mainwindow.h \
             qimagewidget.h \
@@ -30,11 +31,13 @@ HEADERS  += mainwindow.h \
             about.h \
             qharmonicprocessor.h \
             qsettingsdialog.h \
-            qeasyplot.h
+            qeasyplot.h \
+    qbackgroundwidget.h
 
 FORMS += qsettingsdialog.ui
 
 RC_ICONS = $$PWD/../Resources/Images/App_ico.ico
+#RESOURCES = $$PWD/../Resources/Images/App_resources.qrc
 
 CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT
 

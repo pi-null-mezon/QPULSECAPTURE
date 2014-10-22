@@ -4,7 +4,7 @@
 
 #define FRAME_WIDTH 480
 #define FRAME_HEIGHT 320
-#define FRAME_MARGIN 5
+#define FRAME_MARGIN 3
 
 //------------------------------------------------------------------------------------
 const char * MainWindow::QPlotDialogName[]=
@@ -14,7 +14,8 @@ const char * MainWindow::QPlotDialogName[]=
     "Frame time vs frame",
     "PCA 1-st projection",
     "Filter output vs frame",
-    "Signal phase diagram"
+    "Signal phase diagram",
+    "Breath curve vs frameSet"
 };
 //------------------------------------------------------------------------------------
 
@@ -24,21 +25,24 @@ MainWindow::MainWindow(QWidget *parent):
     setWindowTitle(APP_NAME);
     setMinimumSize(FRAME_WIDTH, FRAME_HEIGHT);
 
+    pt_centralWidget = new QBackgroundWidget(NULL, palette().color(backgroundRole()), QColor(120,120,120), Qt::Dense6Pattern);
+    pt_centralWidgetLayout = new QVBoxLayout();
+    this->setCentralWidget(pt_centralWidget);
+    pt_centralWidget->setLayout(pt_centralWidgetLayout);
+    pt_centralWidgetLayout->setMargin(FRAME_MARGIN);
+
     //--------------------------------------------------------------
     pt_display = new QImageWidget(); // Widgets without a parent are “top level” (independent) widgets. All other widgets are drawn within their parent
-    this->setCentralWidget(pt_display);
-
-    //--------------------------------------------------------------
     pt_mainLayout = new QVBoxLayout();
-    pt_mainLayout->setMargin(FRAME_MARGIN);
     pt_display->setLayout(pt_mainLayout);
+    pt_centralWidgetLayout->addWidget(pt_display);
 
     //--------------------------------------------------------------
-    pt_infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to invoke a context menu</i>"));
-    pt_infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    pt_infoLabel = new QLabel(tr("<i>Choose a menu option, or make right-click to invoke a context menu</i>"));
+    pt_infoLabel->setFrameStyle(QFrame::Box | QFrame::Sunken);
     pt_infoLabel->setAlignment(Qt::AlignCenter);
     pt_infoLabel->setWordWrap( true );
-    pt_infoLabel->setFont( QFont("Tahoma", 14, QFont::DemiBold) );
+    pt_infoLabel->setFont( QFont("MS Shell Dlg 2", 14, QFont::Normal) );
     pt_mainLayout->addWidget(pt_infoLabel);
 
     //--------------------------------------------------------------
@@ -55,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent):
     m_timer.stop();
 
     //--------------------------------------------------------------
-    resize(580, 480);
+    resize(570, 480);
     statusBar()->showMessage(tr("A context menu is available by right-clicking"));
 }
 //------------------------------------------------------------------------------------
@@ -559,6 +563,13 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_horizontal_Borders(-5.0, 5.0);
                         pt_plot->set_X_Ticks(11);
                         pt_plot->set_coordinatesPrecision(2,2);
+                    break;
+                    case 6: // breath curve
+                        connect(pt_harmonicProcessor, SIGNAL(SlowPPGWasUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        pt_plot->set_axis_names("Set of frames","SlowPPG");
+                        pt_plot->set_vertical_Borders(-5.0,5.0);
+                        pt_plot->set_X_Ticks(11);
+                        pt_plot->set_coordinatesPrecision(0,2);
                     break;
                 }
             pt_dialogSet[ m_dialogSetCounter ]->setContextMenuPolicy(Qt::ActionsContextMenu);

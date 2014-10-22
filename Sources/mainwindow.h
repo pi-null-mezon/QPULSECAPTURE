@@ -25,6 +25,7 @@
 #include "qharmonicprocessor.h"
 #include "qsettingsdialog.h"
 #include "qeasyplot.h"
+#include "qbackgroundwidget.h"
 
 //------------------------------------------------------------------------------------------------------
 
@@ -65,6 +66,8 @@ private:
     void createThreads();
     QImageWidget *pt_display;
     QVBoxLayout *pt_mainLayout;
+    QBackgroundWidget *pt_centralWidget;
+    QVBoxLayout *pt_centralWidgetLayout;
     QLabel *pt_infoLabel;
     QAction *pt_openSessionAct;
     QAction *pt_exitAct;
