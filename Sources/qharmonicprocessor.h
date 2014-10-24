@@ -9,11 +9,9 @@
 
 #define BOTTOM_LIMIT 0.6 // in s^-1, it is 36 bpm
 #define TOP_LIMIT 4.5 // in s^-1, it is 270 bpm
-#define SNR_TRESHOLD 2.0 // in most cases this value is suitable when (bufferlength == 256)
+#define SNR_TRESHOLD 3.0 // in most cases this value is suitable when (bufferlength == 256)
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
-#define MIN_FREQUENCY 50 // in bpm
-#define DEFAULT_STROBE_FOR_30_FRAMES_PER_SECOND 4
 
 class QHarmonicProcessor : public QObject
 {
@@ -21,9 +19,10 @@ class QHarmonicProcessor : public QObject
 public:
     explicit QHarmonicProcessor(QObject *parent = 0, quint16 length_of_data = 256, quint16 length_of_buffer = 256 );
     ~QHarmonicProcessor();
-    enum color_channel {Red, Green, Blue};
-    enum XMLparserError {NoError, FileOpenError, FileExistanceError, AttributeError, ElementError, ParseFailure};
-    enum SexID {Male, Female};
+    enum color_channel { Red, Green, Blue };
+    enum XMLparserError { NoError, FileOpenError, FileExistanceError, ReadError, ParseFailure };
+    enum SexID { Male, Female };
+    enum TwoSideAlpha { FiftyPercents, TwentyPercents, TenPercents, FivePercents, TwoPercents };
 
 signals:
     void CNSignalWasUpdated(const qreal * pointer_to_vector, quint16 length_of_vector);
@@ -33,22 +32,20 @@ signals:
     void PCAProjectionWasUpdated(const qreal * ppointer_to_vector, quint16 length_of_vector);
     void pt_YoutputWasUpdated(const qreal *pointer_to_vector, quint16 length_of_vector);
     void SignalActualValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
-    void frequencyOutOfRange(); // signal that HRfrequency comes out of the allowed range
+    void TooNoisy(qreal snr_value);
     void SlowPPGWasUpdated(const qreal *pointer, quint16 legth);
+
 public slots:
     void WriteToDataRGB(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
     void WriteToDataOneColor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
-    qreal ComputeFrequency();
+    void ComputeFrequency();
     void set_PCA_flag(bool value);
     void switch_to_channel(color_channel value);
     qreal CountFrequency(); // inertion of a result depends on how frequently this function is called, if with period of 1 sec result is averaged frequency on 1 sec, if 1 min then averaged on 1 min etc.
     void set_zerocrossingCounter(quint16 value);
-    int loadThresholds(const char *fileName, SexID sex, int age);
-
+    int loadThresholds(const char *fileName, SexID sex, int age, TwoSideAlpha alpha);
 
 private:
-    qreal v_Percentile[11]; // stores current percentiles, updates by loadThresholds(...)
-
     qreal *ptCNSignal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
     fftw_complex *ptSpectrum;  // a pointer to an array for FFT-spectrum
     qreal SNRE; // a variable for signal-to-noise ratio estimation storing

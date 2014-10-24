@@ -1,3 +1,5 @@
+#include <QDate>
+
 #include "qsettingsdialog.h"
 #include "ui_qsettingsdialog.h"
 
@@ -81,6 +83,9 @@ void QSettingsDialog::on_ButtonDefault_clicked()
     ui->lineEditVideoFile->setText("Video/Sample.avi");
     ui->checkBoxFFT->setChecked(true);
     ui->horizontalSliderTimer->setValue(2); //
+    ui->checkBoxPatient->setChecked(true);
+    ui->comboBoxPatient->setCurrentIndex(0);
+    ui->lineEditPatient->setText("normal_heart_rate_at_rest.xml");
 }
 
 void QSettingsDialog::on_pushButtonVideoFile_clicked()
@@ -210,3 +215,56 @@ bool QSettingsDialog::get_FFTflag() const
 {
     return ui->checkBoxFFT->isChecked();
 }
+
+void QSettingsDialog::on_checkBoxPatient_stateChanged(int arg1)
+{
+    switch(arg1) {
+        case Qt::Checked:
+            ui->groupBoxPatient->setEnabled(true);
+            break;
+        case Qt::Unchecked:
+            ui->groupBoxPatient->setEnabled(false);
+            break;
+    }
+}
+
+void QSettingsDialog::on_pushButtonPatient_clicked()
+{
+    QString str = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("distribution (*.xml)"));
+    if(!str.isEmpty())
+    {
+        ui->lineEditPatient->setText(str);
+    }
+}
+
+int QSettingsDialog::get_patientPercentile() const
+{
+    return ui->comboBoxPatient->currentIndex();
+}
+
+QString QSettingsDialog::get_stringDistribution() const
+{
+    return ui->lineEditPatient->text();
+}
+
+int QSettingsDialog::get_patientAge() const
+{
+    int age = QDate::currentDate().year() - ui->dateEditPatient->date().year();
+    if(QDate::currentDate().month() <= ui->dateEditPatient->date().month())
+        age--;
+    return age;
+}
+
+void QSettingsDialog::on_radioButtonMale_clicked(bool checked)
+{
+    ui->radioButtonMale->setChecked(checked);
+    ui->radioButtonFemale->setChecked(!checked);
+}
+
+
+void QSettingsDialog::on_radioButtonFemale_clicked(bool checked)
+{
+    ui->radioButtonFemale->setChecked(checked);
+    ui->radioButtonMale->setChecked(!checked);
+}
+

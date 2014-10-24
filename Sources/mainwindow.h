@@ -98,6 +98,7 @@ private:
     static const char *QPlotDialogName[];
 private slots:
     void decrease_dialogSetCounter();
+    void closeAllDialogs();
 };
 //------------------------------------------------------------------------------------------------------
 #endif // MAINWINDOW_H

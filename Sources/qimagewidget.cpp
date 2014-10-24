@@ -129,13 +129,13 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
 
                 if(m_frequencyString.isEmpty())
                 {
-                    painter.drawText(startX, startY, "Bufferization");
+                    painter.drawText(startX, startY, "Adaptation");
                 }
                 else
                 {
-                    painter.drawText(startX + m_frequencyString.size() * pointsize * 2.25, startY, "bpm");
-                    painter.drawText(startX, startY + pointsize*1.5, m_snrString);
+                    painter.drawText(startX + m_frequencyString.size() * pointsize * 2.25, startY, "bpm");                   
                 }
+                painter.drawText(startX, startY + pointsize*1.5, m_snrString);
             }
         }
     }
@@ -184,13 +184,13 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                 font.setPointSizeF( pointsize );
                 if(m_frequencyString.isEmpty())
                 {
-                    path.addText(startX, startY, font ,"Bufferization");
+                    path.addText(startX, startY, font ,"Adaptation");
                 }
                 else
                 {
                     path.addText(startX + m_frequencyString.size() * pointsize * 2.25, startY, font ,"bpm");
-                    path.addText(startX, startY + pointsize*1.5, font, m_snrString);
                 }
+                path.addText(startX, startY + pointsize*1.5, font, m_snrString);
             }
             painter.drawPath(path);
         }
@@ -309,8 +309,8 @@ void QImageWidget::set_drawDataFlag(bool value)
 
 //----------------------------------------------------------------------------------
 
-void QImageWidget::clearStrings()
+void QImageWidget::clearFrequencyString(qreal value)
 {
     m_frequencyString.clear();
-    m_snrString.clear();
+    m_snrString = "SNR: " + QString::number(value,'f',2) + " dB";
 }

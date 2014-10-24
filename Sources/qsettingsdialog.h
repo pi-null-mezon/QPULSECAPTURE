@@ -31,6 +31,9 @@ public:
     quint32 get_datalength() const;
     quint32 get_bufferlength() const;
     int get_timerValue() const;
+    int get_patientPercentile() const;
+    QString get_stringDistribution() const;
+    int get_patientAge() const;
 
 private slots:
 
@@ -60,6 +63,14 @@ private slots:
     void on_checkBoxColor_stateChanged(int arg1);
 
     void on_horizontalSliderTimer_valueChanged(int value);
+
+    void on_checkBoxPatient_stateChanged(int arg1);
+
+    void on_pushButtonPatient_clicked();
+
+    void on_radioButtonMale_clicked(bool checked);
+
+    void on_radioButtonFemale_clicked(bool checked);
 
 private:
     Ui::QSettingsDialog *ui;

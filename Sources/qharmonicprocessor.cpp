@@ -18,9 +18,11 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_zerocrossing(0),
     m_output(1.0),
     m_zerocrossingCounter(4),
-    m_strobeValue(DEFAULT_STROBE_FOR_30_FRAMES_PER_SECOND),
+    m_strobeValue(32),
     m_accumulator(0.0),
-    m_pos(0)
+    m_pos(0),
+    m_leftThreshold(70),
+    m_rightTreshold(80)
 {
     // Memory allocation
     ptData_ch1 = new qreal[datalength];
@@ -196,10 +198,10 @@ void QHarmonicProcessor::WriteToDataOneColor(unsigned long red, unsigned long gr
     m_strobeValue--;
     if( m_strobeValue == 0)
     {
-        pt_SlowPPG[m_pos] = m_accumulator / DEFAULT_STROBE_FOR_30_FRAMES_PER_SECOND;
+        pt_SlowPPG[m_pos] = m_accumulator / 32;
         emit SlowPPGWasUpdated(pt_SlowPPG, datalength);
         m_pos = (++m_pos) % datalength;
-        m_strobeValue = DEFAULT_STROBE_FOR_30_FRAMES_PER_SECOND;
+        m_strobeValue = 32;
         m_accumulator = 0.0;
     }
 
@@ -211,7 +213,7 @@ void QHarmonicProcessor::WriteToDataOneColor(unsigned long red, unsigned long gr
 
 //----------------------------------------------------------------------------------------------------------
 
-qreal QHarmonicProcessor::ComputeFrequency()
+void QHarmonicProcessor::ComputeFrequency()
 {
     qint16 temp_position = curpos - 1;
     qreal buffer_duration = 0.0; // for buffer duration accumulation without first time interval
@@ -309,22 +311,15 @@ qreal QHarmonicProcessor::ComputeFrequency()
         }
     }
 
-    if(HRfrequency > MIN_FREQUENCY)
+    if(SNRE > SNR_TRESHOLD)
     {
-        if(SNRE > SNR_TRESHOLD)
-        {
+        if((HRfrequency <= m_rightTreshold) && (HRfrequency >= m_leftThreshold))
             emit HRfrequencyWasUpdated(HRfrequency, SNRE, true);
-        }
         else
-        {
             emit HRfrequencyWasUpdated(HRfrequency, SNRE, false);
-        }
     }
     else
-    {
-        emit frequencyOutOfRange();
-    }
-    return HRfrequency;
+        emit TooNoisy(SNRE);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -381,65 +376,92 @@ void QHarmonicProcessor::set_zerocrossingCounter(quint16 value)
 
 //----------------------------------------------------------------------------------------------------
 
-int QHarmonicProcessor::loadThresholds(const char *fileName, SexID sex, int age)
+int QHarmonicProcessor::loadThresholds(const char *fileName, SexID sex, int age, TwoSideAlpha alpha)
 {
-    if( !QFile::exists( fileName ) )
-    {
+    if( !QFile::exists( fileName ) ) {
         return FileExistanceError;
     }
 
     QFile file(fileName);
-    if ( !file.open(QIODevice::ReadOnly) )
-    {
+    if ( !file.open(QIODevice::ReadOnly) ) {
         return FileOpenError;
     }
 
     QXmlStreamReader reader(&file);
-    QString desiredValue;
-    switch(sex)
-    {
+    QString desiredSex;
+    switch(sex)   {
         case Male:
-            desiredValue = "male";
+            desiredSex = "male";
             break;
-        case Female:
-            desiredValue = "female";
+        default:
+            desiredSex = "female";
+            break;
+    }
+    QString lowerPercentile;
+    QString highestPercentile;
+    switch(alpha) {
+        case TwoPercents:
+            lowerPercentile = "percentile1.0";
+            highestPercentile = "percentile99.0";
+            break;
+        case FivePercents:
+            lowerPercentile = "percentile2.5";
+            highestPercentile = "percentile97.5";
+            break;
+        case TenPercents:
+            lowerPercentile = "percentile5.0";
+            highestPercentile = "percentile95.0";
+            break;
+        case TwentyPercents:
+            lowerPercentile = "percentile10.0";
+            highestPercentile = "percentile90.0";
+            break;
+        default:
+            lowerPercentile = "percentile25.0";
+            highestPercentile = "percentile75.0";
             break;
     }
 
     bool FoundSexSection = false;
     bool FoundAgeSection = false;
+    bool FoundLowerPercentile = false;
+    bool FoundHighestPercentile = false;
+    bool ConversionResult1 = false;
+    bool ConversionResult2 = false;
 
-    while(!reader.atEnd()) // read to the end of xml file
-    {
+    while(!reader.atEnd())   { // read to the end of xml file
         reader.readNext();
-        if(reader.error())
-        {
+        if(reader.error()) {
             return ParseFailure;
         }
-        else
-        {
-            if(reader.attributes().hasAttribute("type"))
-            {
-                if(reader.attributes().value("type") == desiredValue)
+        else {
+            if(reader.attributes().hasAttribute("type")) {
+                if(reader.attributes().value("type") == desiredSex)
                     FoundSexSection = true;
-                else
-                    FoundSexSection = false;
             }
-            if(reader.attributes().hasAttribute("agefrom"))
-            {
+            if(FoundSexSection && reader.attributes().hasAttribute("agefrom")) {
                 if( (age >= reader.attributes().value("agefrom").toInt()) && (age <= reader.attributes().value("ageto").toInt()))
                     FoundAgeSection = true;
-                else
-                    FoundAgeSection = false;
             }
-
+            if(FoundSexSection && FoundAgeSection) {
+                if(reader.isStartElement() && (reader.name() == lowerPercentile))
+                    FoundLowerPercentile = true;
+                if(reader.isStartElement() && (reader.name() == highestPercentile))
+                    FoundHighestPercentile = true;
+            }
+            if(FoundLowerPercentile && reader.isCharacters()) {
+                m_leftThreshold = reader.text().toDouble(&ConversionResult1);
+                qWarning("leftTreshold: %f", m_leftThreshold);
+            }
+            if(FoundHighestPercentile && reader.isCharacters()) {
+                m_rightTreshold = reader.text().toDouble(&ConversionResult2);
+                qWarning("leftTreshold: %f", m_leftThreshold);
+            }
+            if(ConversionResult1 && ConversionResult2)
+                return NoError;
         }
-
     }
-
-
-
-
-
+    qWarning("Xml parsing:can not find appropriate record in file!");
+    return ReadError;
 }
 

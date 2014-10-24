@@ -36,7 +36,7 @@ public slots:
     void set_warning_status(const char *input_string);
     void toggle_advancedvisualization(bool value); // interface to switch m_advancedvisualizationFlag
     void set_drawDataFlag(bool value); // read m_drawDataFlag comment
-    void clearStrings();
+    void clearFrequencyString(qreal value);
 protected:
     void paintEvent(QPaintEvent*);
     void mousePressEvent(QMouseEvent* event);

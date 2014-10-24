@@ -371,17 +371,13 @@ void MainWindow::configure_and_start_session()
     QSettingsDialog dialog;
     if(dialog.exec() == QDialog::Accepted)
     {     
-        pt_display->clearStrings();
         if(pt_harmonicProcessor)
         {
             pt_harmonicThread->quit();
             pt_harmonicThread->wait();
         }
         //------------------Close all opened plot dialogs---------------------
-        for(qint8 i = m_dialogSetCounter; i > 0; i--)
-        {
-            pt_dialogSet[ i-1 ]->close(); // there is no need to explicitly decrement m_dialogSetCounter value because pt_dialogSet[i] was preset to Qt::WA_DeleteOnClose flag and on_destroy of pt_dialogSet[i] 'this' will decrease counter automatically
-        };
+        closeAllDialogs();
         //---------------------Harmonic processor------------------------
         pt_harmonicThread = new QThread(this);
         pt_harmonicProcessor = new QHarmonicProcessor(NULL, dialog.get_datalength(), dialog.get_bufferlength());
@@ -413,7 +409,7 @@ void MainWindow::configure_and_start_session()
             connect(pt_opencvProcessor,SIGNAL(colors_were_evaluated(ulong,ulong,ulong,ulong,double)),pt_harmonicProcessor,SLOT(WriteToDataOneColor(ulong,ulong,ulong,ulong,double)));
         }
         //---------------------------------------------------------------
-        connect(pt_harmonicProcessor, SIGNAL(frequencyOutOfRange()), pt_display, SLOT(clearStrings()));
+        connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
         //---------------------------------------------------------------
         disconnect(pt_videoCapture,0,0,0);
         if(dialog.get_flagCascade())
@@ -620,6 +616,11 @@ void MainWindow::make_record_to_file(qreal signalValue, qreal meanRed, qreal mea
 //-------------------------------------------------------------------------------------------
 
 void MainWindow::closeEvent(QCloseEvent*)
+{
+    closeAllDialogs();
+}
+
+void MainWindow::closeAllDialogs()
 {
     for(qint8 i = m_dialogSetCounter; i > 0; i--)
     {
