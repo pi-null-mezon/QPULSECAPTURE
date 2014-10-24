@@ -1,7 +1,9 @@
+#include <QXmlStreamReader>
+#include <QXmlStreamAttributes>
+#include <QFile>
 #include "qharmonicprocessor.h"
 
 //----------------------------------------------------------------------------------------------------------
-
 QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, quint16 length_of_buffer) :
     QObject(parent),
     datalength(length_of_data),
@@ -375,5 +377,69 @@ qreal QHarmonicProcessor::CountFrequency()
 void QHarmonicProcessor::set_zerocrossingCounter(quint16 value)
 {
     m_zerocrossingCounter = value;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+int QHarmonicProcessor::loadThresholds(const char *fileName, SexID sex, int age)
+{
+    if( !QFile::exists( fileName ) )
+    {
+        return FileExistanceError;
+    }
+
+    QFile file(fileName);
+    if ( !file.open(QIODevice::ReadOnly) )
+    {
+        return FileOpenError;
+    }
+
+    QXmlStreamReader reader(&file);
+    QString desiredValue;
+    switch(sex)
+    {
+        case Male:
+            desiredValue = "male";
+            break;
+        case Female:
+            desiredValue = "female";
+            break;
+    }
+
+    bool FoundSexSection = false;
+    bool FoundAgeSection = false;
+
+    while(!reader.atEnd()) // read to the end of xml file
+    {
+        reader.readNext();
+        if(reader.error())
+        {
+            return ParseFailure;
+        }
+        else
+        {
+            if(reader.attributes().hasAttribute("type"))
+            {
+                if(reader.attributes().value("type") == desiredValue)
+                    FoundSexSection = true;
+                else
+                    FoundSexSection = false;
+            }
+            if(reader.attributes().hasAttribute("agefrom"))
+            {
+                if( (age >= reader.attributes().value("agefrom").toInt()) && (age <= reader.attributes().value("ageto").toInt()))
+                    FoundAgeSection = true;
+                else
+                    FoundAgeSection = false;
+            }
+
+        }
+
+    }
+
+
+
+
+
 }
 

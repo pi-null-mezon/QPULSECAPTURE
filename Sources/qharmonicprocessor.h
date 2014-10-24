@@ -2,6 +2,7 @@
 #define QHARMONICPROCESSOR_H
 
 #include <QObject>
+
 #include "fftw3.h"
 #include "ap.h" // ALGLIB types
 #include "dataanalysis.h" // ALGLIB functions
@@ -21,6 +22,8 @@ public:
     explicit QHarmonicProcessor(QObject *parent = 0, quint16 length_of_data = 256, quint16 length_of_buffer = 256 );
     ~QHarmonicProcessor();
     enum color_channel {Red, Green, Blue};
+    enum XMLparserError {NoError, FileOpenError, FileExistanceError, AttributeError, ElementError, ParseFailure};
+    enum SexID {Male, Female};
 
 signals:
     void CNSignalWasUpdated(const qreal * pointer_to_vector, quint16 length_of_vector);
@@ -40,8 +43,12 @@ public slots:
     void switch_to_channel(color_channel value);
     qreal CountFrequency(); // inertion of a result depends on how frequently this function is called, if with period of 1 sec result is averaged frequency on 1 sec, if 1 min then averaged on 1 min etc.
     void set_zerocrossingCounter(quint16 value);
+    int loadThresholds(const char *fileName, SexID sex, int age);
+
 
 private:
+    qreal v_Percentile[11]; // stores current percentiles, updates by loadThresholds(...)
+
     qreal *ptCNSignal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
     fftw_complex *ptSpectrum;  // a pointer to an array for FFT-spectrum
     qreal SNRE; // a variable for signal-to-noise ratio estimation storing
@@ -79,6 +86,9 @@ private:
     qreal m_strobeValue;
     qreal m_accumulator;
     quint16 m_pos;
+
+    double m_leftThreshold; // a bottom threshold for warning about high pulse value
+    double m_rightTreshold; // a top threshold for warning aboul low pulse value
 };
 
 // inline, for speed, must therefore reside in header file
@@ -102,5 +112,6 @@ inline quint8 QHarmonicProcessor::loop_on_two(qint16 difference) const
     return ((2 + (difference % 2)) % 2);
 }
 //---------------------------------------------------------------------------
+
 
 #endif // QHARMONICPROCESSOR_H
