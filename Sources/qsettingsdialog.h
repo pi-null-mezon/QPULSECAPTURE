@@ -34,6 +34,8 @@ public:
     int get_patientPercentile() const;
     QString get_stringDistribution() const;
     int get_patientAge() const;
+    bool get_customPatientFlag() const;
+    int get_patientSex() const;
 
 private slots:
 

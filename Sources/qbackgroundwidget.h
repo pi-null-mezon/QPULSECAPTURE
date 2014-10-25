@@ -8,7 +8,7 @@ class QBackgroundWidget : public QWidget
     Q_OBJECT
 public:
     explicit QBackgroundWidget(QWidget *parent = 0);
-    explicit QBackgroundWidget(QWidget *parent, QColor backgroundColor = QColor(75,75,75), QColor foregroundColor = QColor(175,175,175), Qt::BrushStyle foregroundStyle = Qt::Dense7Pattern);
+    explicit QBackgroundWidget(QWidget *parent, QColor backgroundColor = QColor(75,75,75), QColor foregroundColor = QColor(175,175,175), Qt::BrushStyle foregroundStyle = Qt::Dense6Pattern);
     explicit QBackgroundWidget(QWidget *parent, const QString & fileName, Qt::ImageConversionFlags flags = Qt::AutoColor);
 
 protected:

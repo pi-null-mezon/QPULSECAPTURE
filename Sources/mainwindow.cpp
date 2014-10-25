@@ -4,7 +4,7 @@
 
 #define FRAME_WIDTH 480
 #define FRAME_HEIGHT 320
-#define FRAME_MARGIN 3
+#define FRAME_MARGIN 5
 
 //------------------------------------------------------------------------------------
 const char * MainWindow::QPlotDialogName[]=
@@ -25,11 +25,11 @@ MainWindow::MainWindow(QWidget *parent):
     setWindowTitle(APP_NAME);
     setMinimumSize(FRAME_WIDTH, FRAME_HEIGHT);
 
-    pt_centralWidget = new QBackgroundWidget(NULL, palette().color(backgroundRole()), QColor(120,120,120), Qt::Dense6Pattern);
+    pt_centralWidget = new QBackgroundWidget(NULL, palette().color(backgroundRole()));
     pt_centralWidgetLayout = new QVBoxLayout();
     this->setCentralWidget(pt_centralWidget);
     pt_centralWidget->setLayout(pt_centralWidgetLayout);
-    pt_centralWidgetLayout->setMargin(FRAME_MARGIN);
+    pt_centralWidgetLayout->setMargin(0);
 
     //--------------------------------------------------------------
     pt_display = new QImageWidget(); // Widgets without a parent are “top level” (independent) widgets. All other widgets are drawn within their parent
@@ -395,9 +395,10 @@ void MainWindow::configure_and_start_session()
             if(m_saveFile.open(QIODevice::WriteOnly))
             {
                 m_textStream.setDevice(&m_saveFile);
+
+                m_textStream << "dd.MM.yyyy hh:mm:ss.zzz \t CNSignal \t MeanRed \t MeanGreen \t MeanBlue \t PulseRate, bpm \t SNR, dB\n";
+                connect(pt_harmonicProcessor, SIGNAL(SignalActualValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
             }
-            m_textStream << "dd.MM.yyyy hh:mm:ss.zzz \t CNSignal \t MeanRed \t MeanGreen \t MeanBlue \t PulseRate, bpm \t SNR, dB\n";
-            connect(pt_harmonicProcessor, SIGNAL(SignalActualValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
         }
         //---------------------------------------------------------------
         if(dialog.get_flagColor())
@@ -407,6 +408,15 @@ void MainWindow::configure_and_start_session()
         else
         {
             connect(pt_opencvProcessor,SIGNAL(colors_were_evaluated(ulong,ulong,ulong,ulong,double)),pt_harmonicProcessor,SLOT(WriteToDataOneColor(ulong,ulong,ulong,ulong,double)));
+        }
+        //---------------------------------------------------------------
+        if(dialog.get_customPatientFlag())
+        {
+            if(pt_harmonicProcessor->loadThresholds(dialog.get_stringDistribution().toLocal8Bit().constData(),(QHarmonicProcessor::SexID)dialog.get_patientSex(),dialog.get_patientAge(),(QHarmonicProcessor::TwoSideAlpha)dialog.get_patientPercentile()) == QHarmonicProcessor::FileExistanceError)
+            {
+                QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open population distribution file"), QMessageBox::Ok, this, Qt::Dialog);
+                msgBox.exec();
+            }
         }
         //---------------------------------------------------------------
         connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
@@ -479,7 +489,6 @@ void MainWindow::createPlotDialog()
     {
         QDialog dialog;
         QVBoxLayout centralLayout;
-        centralLayout.setMargin(FRAME_MARGIN);
         dialog.setLayout(&centralLayout);
         QGroupBox groupBox(tr("Select appropriate plot type:"));
         QHBoxLayout buttonsLayout;

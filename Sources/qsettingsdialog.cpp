@@ -268,3 +268,17 @@ void QSettingsDialog::on_radioButtonFemale_clicked(bool checked)
     ui->radioButtonMale->setChecked(!checked);
 }
 
+bool QSettingsDialog::get_customPatientFlag() const
+{
+    return ui->checkBoxPatient->isChecked();
+}
+
+int QSettingsDialog::get_patientSex() const
+{
+    if(ui->radioButtonFemale->isChecked())
+        return 1; // because harmonicprocessor defines enum SexID { Male, Female };
+    else
+        return 0;
+}
+
+

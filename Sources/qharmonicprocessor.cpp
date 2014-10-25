@@ -298,15 +298,28 @@ void QHarmonicProcessor::ComputeFrequency()
     if ((noise_power > 0.0) && (signal_power > 0.0))
     {
         SNRE = 10 * log10( signal_power / noise_power );
+
+        qreal power_multiplyed_by_index = 0.0;
+        qreal power_of_first_harmonic = 0.0;
+        for (qint16 i = (index_of_maxpower - HALF_INTERVAL); i <= (index_of_maxpower + HALF_INTERVAL); i++)
+        {
+            power_of_first_harmonic += ptAmplitudeSpectrum[i];
+            power_multiplyed_by_index += i * ptAmplitudeSpectrum[i];
+        }
+        qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / power_of_first_harmonic );
+        bias = sqrt(bias * bias); // take abs of bias
+        qreal resultWeight = (HALF_INTERVAL + 1 - bias)/(HALF_INTERVAL + 1);
+        SNRE *= resultWeight * resultWeight * resultWeight * resultWeight; // make more multiplication to add more nonlinearity
+
         if ( SNRE > SNR_TRESHOLD )
         {
-            qreal power_multiplyed_by_index = 0.0;
+            /*qreal power_multiplyed_by_index = 0.0;
             qreal power_of_first_harmonic = 0.0;
             for (qint16 i = (index_of_maxpower - HALF_INTERVAL); i <= (index_of_maxpower + HALF_INTERVAL); i++)
             {
                 power_of_first_harmonic += ptAmplitudeSpectrum[i];
                 power_multiplyed_by_index += i * ptAmplitudeSpectrum[i];
-            }
+            }*/
             HRfrequency = (power_multiplyed_by_index / power_of_first_harmonic) * 60000.0 / buffer_duration;
         }
     }
@@ -428,6 +441,8 @@ int QHarmonicProcessor::loadThresholds(const char *fileName, SexID sex, int age,
     bool FoundHighestPercentile = false;
     bool ConversionResult1 = false;
     bool ConversionResult2 = false;
+    qreal tempLeft = 0.0;
+    qreal tempRight = 0.0;
 
     while(!reader.atEnd())   { // read to the end of xml file
         reader.readNext();
@@ -450,15 +465,21 @@ int QHarmonicProcessor::loadThresholds(const char *fileName, SexID sex, int age,
                     FoundHighestPercentile = true;
             }
             if(FoundLowerPercentile && reader.isCharacters()) {
-                m_leftThreshold = reader.text().toDouble(&ConversionResult1);
-                qWarning("leftTreshold: %f", m_leftThreshold);
+                tempLeft = reader.text().toDouble(&ConversionResult1);
+                qWarning("leftTreshold: %f", tempLeft);
             }
+            if(FoundLowerPercentile && reader.isEndElement() && (reader.name() == lowerPercentile))
+                FoundLowerPercentile = false;
+
             if(FoundHighestPercentile && reader.isCharacters()) {
-                m_rightTreshold = reader.text().toDouble(&ConversionResult2);
-                qWarning("leftTreshold: %f", m_leftThreshold);
+                tempRight = reader.text().toDouble(&ConversionResult2);
+                qWarning("RightTreshold: %f", tempRight);
             }
-            if(ConversionResult1 && ConversionResult2)
+            if(ConversionResult1 && ConversionResult2) {
+                m_leftThreshold = tempLeft;
+                m_rightTreshold = tempRight;
                 return NoError;
+            }
         }
     }
     qWarning("Xml parsing:can not find appropriate record in file!");

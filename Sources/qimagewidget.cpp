@@ -129,7 +129,7 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
 
                 if(m_frequencyString.isEmpty())
                 {
-                    painter.drawText(startX, startY, "Adaptation");
+                    painter.drawText(startX, startY, "Unreliable");
                 }
                 else
                 {
@@ -184,7 +184,7 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                 font.setPointSizeF( pointsize );
                 if(m_frequencyString.isEmpty())
                 {
-                    path.addText(startX, startY, font ,"Adaptation");
+                    path.addText(startX, startY, font ,"Unreliable");
                 }
                 else
                 {
