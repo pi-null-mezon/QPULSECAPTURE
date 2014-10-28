@@ -22,7 +22,7 @@ SOURCES +=  main.cpp\
             qharmonicprocessor.cpp \
             qsettingsdialog.cpp \
             qeasyplot.cpp \
-    qbackgroundwidget.cpp
+            qbackgroundwidget.cpp
 
 HEADERS  += mainwindow.h \
             qimagewidget.h \
@@ -32,7 +32,7 @@ HEADERS  += mainwindow.h \
             qharmonicprocessor.h \
             qsettingsdialog.h \
             qeasyplot.h \
-    qbackgroundwidget.h
+            qbackgroundwidget.h
 
 FORMS += qsettingsdialog.ui
 

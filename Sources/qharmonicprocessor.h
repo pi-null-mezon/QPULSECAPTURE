@@ -12,6 +12,7 @@
 #define SNR_TRESHOLD 2.0 // in most cases this value is suitable when (bufferlength == 256)
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
+#define STROBE_FACTOR 8
 
 class QHarmonicProcessor : public QObject
 {

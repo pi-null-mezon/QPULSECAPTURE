@@ -16,6 +16,7 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_cvRect.width = 0;
     m_cvRect.height = 0;
     m_framePeriod = 0.0;
+    m_fullFaceFlag = false;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -93,28 +94,31 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
     unsigned long blue = 0; // an accumulator for blue color channel
     unsigned int dX = 0;
     unsigned int dY = 0;
+    unsigned long area = 0;
 
-   /* if(faces_vector.size() != 0) // if classifier find something, then do...
+    if(faces_vector.size() != 0) // if classifier find something, then do...
     {
-        unsigned char *p; // this pointer will be used to store adresses of the image rows
         X = faces_vector[0].x; // take actual coordinate
         Y = faces_vector[0].y; // take actual coordinate
         rectwidth = faces_vector[0].width; // take actual size
         rectheight = faces_vector[0].height; // take actual size
         dX = (int)rectwidth/4; // the horizontal portion of rect domain that will be enrolled
         dY = (int)rectheight/13; //...
+        unsigned char *p; // this pointer will be used to store adresses of the image rows
 
-        if(output.channels() == 3)
+        if(m_fullFaceFlag == false)
         {
-            for(unsigned int j = (Y + dY); j < (Y + 3*dY); j++)
+            if(output.channels() == 3)
             {
-                p = output.ptr(j); //takes pointer to beginning of data on row
-                for(unsigned int i = X + dX; i < X + rectwidth - dX; i++)
+                for(unsigned int j = (Y + dY); j < (Y + 3*dY); j++)
                 {
-                    blue += p[3*i];
-                    green += p[3*i+1];
-                    red += p[3*i+2];
-                    //Uncomment if want to see the enrolled domain on image
+                    p = output.ptr(j); //takes pointer to beginning of data on row
+                    for(unsigned int i = X + dX; i < X + rectwidth - dX; i++)
+                    {
+                        blue += p[3*i];
+                        green += p[3*i+1];
+                        red += p[3*i+2];
+                        //Uncomment if want to see the enrolled domain on image
                         //p[3*i] = 0;
                         p[3*i+1] = 255;
                         //p[3*i+2] = 0;
@@ -129,78 +133,73 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
                         green += p[3*i+1];
                         red += p[3*i+2];
                         //Uncomment if want to see the enrolled domain on image
-                            //p[3*i] = 0;
-                            p[3*i+1] = 255;
-                            //p[3*i+2] = 0;
-                    }
-                }
-            }
-        else
-        {
-            for(unsigned int j = (Y + dY); j < (Y + 3*dY); j++)
-            {
-                p = output.ptr(j);//pointer to beginning of data on rows
-                for(unsigned int i = (X + dX); i < (X + rectwidth - dX); i++)
-                {
-                    green += p[i];
-                    //Uncomment if want to see the enrolled domain on image
-                        //p[i] = 0;
-                }
-            }
-            for(unsigned int j = (Y + 6*dY); j < (Y + 9*dY); j++)
-            {
-                p = output.ptr<unsigned char>(j);//pointer to beginning of data on rows
-                for(unsigned int i = (X + dX); i < (X + rectwidth - dX); i++)
-                {
-                    green += p[i];
-                    //Uncomment if want to see the enrolled domain on image
-                        //p[i] = 0;
-                }
-            }
-        }
-    }
-    unsigned int area = (rectwidth - 2*dX)*(5*dY);*/
-
-    if(faces_vector.size() != 0) // if classifier find something, then do...
-    {
-        unsigned char *p; // this pointer will be used to store adresses of the image rows
-        X = faces_vector[0].x; // take actual coordinate
-        Y = faces_vector[0].y; // take actual coordinate
-        rectwidth = faces_vector[0].width; // take actual size
-        rectheight = faces_vector[0].height; // take actual size
-
-        if(output.channels() == 3)
-        {
-            for(unsigned int j = Y; j < Y + rectheight; j++)
-            {
-                p = output.ptr(j); //takes pointer to beginning of data on row
-                for(unsigned int i = X; i < X + rectwidth; i++)
-                {
-                    blue += p[3*i];
-                    green += p[3*i+1];
-                    red += p[3*i+2];
-                    //Uncomment if want to see the enrolled domain on image
                         //p[3*i] = 0;
                         p[3*i+1] = 255;
                         //p[3*i+2] = 0;
                     }
                 }
             }
-        else
-        {
-            for(unsigned int j = Y; j < Y + rectheight; j++)
+            else
             {
-                p = output.ptr(j);//pointer to beginning of data on rows
-                for(unsigned int i = X; i < X + rectwidth; i++)
+                for(unsigned int j = (Y + dY); j < (Y + 3*dY); j++)
                 {
-                    green += p[i];
-                    //Uncomment if want to see the enrolled domain on image
+                    p = output.ptr(j);//pointer to beginning of data on rows
+                    for(unsigned int i = (X + dX); i < (X + rectwidth - dX); i++)
+                    {
+                        green += p[i];
+                        //Uncomment if want to see the enrolled domain on image
                         //p[i] = 0;
+                    }
+                }
+                for(unsigned int j = (Y + 6*dY); j < (Y + 9*dY); j++)
+                {
+                    p = output.ptr<unsigned char>(j);//pointer to beginning of data on rows
+                    for(unsigned int i = (X + dX); i < (X + rectwidth - dX); i++)
+                    {
+                        green += p[i];
+                        //Uncomment if want to see the enrolled domain on image
+                        //p[i] = 0;
+                    }
                 }
             }
+            area = (rectwidth - 2*dX)*(3*dY);
+        }
+        else
+        {
+            if(output.channels() == 3)
+            {
+                for(unsigned int j = Y; j < Y + rectheight; j++)
+                {
+                    p = output.ptr(j); //takes pointer to beginning of data on row
+                    for(unsigned int i = X; i < X + rectwidth; i++)
+                    {
+                        blue += p[3*i];
+                        green += p[3*i+1];
+                        red += p[3*i+2];
+                        //Uncomment if want to see the enrolled domain on image
+                        //p[3*i] = 0;
+                        p[3*i+1] = 255;
+                        //p[3*i+2] = 0;
+                    }
+                }
+            }
+            else
+            {
+                for(unsigned int j = Y; j < Y + rectheight; j++)
+                {
+                    p = output.ptr(j);//pointer to beginning of data on rows
+                    for(unsigned int i = X; i < X + rectwidth; i++)
+                    {
+                        green += p[i];
+                        //Uncomment if want to see the enrolled domain on image
+                        //p[i] = 0;
+                    }
+                }
+            }
+            area = rectwidth*rectheight;
         }
     }
-    unsigned int area = rectwidth*rectheight;
+
 
     //-----end of if(faces_vector.size() != 0)-----
     m_framePeriod = ((double)cv::getTickCount() -  m_timeCounter)*1000.0 / cv::getTickFrequency();
@@ -231,14 +230,21 @@ void QOpencvProcessor::pulse_processing_custom_region(const cv::Mat &input)
     cv::Mat output(input); //Copy constructor
     unsigned int rectwidth = m_cvRect.width;
     unsigned int rectheight = m_cvRect.height;
+    unsigned int X = m_cvRect.x;
+    unsigned int Y = m_cvRect.y;
+
+    if( (output.rows <= (Y + rectheight)) || (output.cols <= (X + rectwidth)) )
+    {
+        rectheight = 0;
+        rectwidth = 0;
+    }
+
     unsigned long red = 0;
     unsigned long green = 0;
     unsigned long blue = 0;
     //-------------------------------------------------------------------------
     if((rectheight > 0) && (rectwidth > 0))
     {
-        unsigned int X = m_cvRect.x;
-        unsigned int Y = m_cvRect.y;
         unsigned char *p; // a pointer to store the adresses of image rows
         if(output.channels() == 3)
         {
@@ -284,5 +290,11 @@ void QOpencvProcessor::pulse_processing_custom_region(const cv::Mat &input)
     emit frame_was_processed(output, m_framePeriod);
 }
 
+//-----------------------------------------------------------------------------------------------
+
+void QOpencvProcessor::setFullFaceFlag(bool value)
+{
+    m_fullFaceFlag = value;
+}
 
 //------------------------------------------------------------------------------------------------

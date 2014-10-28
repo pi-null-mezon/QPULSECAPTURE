@@ -3,7 +3,7 @@
 
 
 #define APP_NAME "Arterial pulse vision"
-#define APP_VERSION "1.0.0.2"
+#define APP_VERSION "1.0.0.3"
 #define APP_AUTHOR "Taranov Alex"
 #define APP_COMPANY "BMSTU"
 #define APP_RELEASE_DATE "Оctober of 2014"

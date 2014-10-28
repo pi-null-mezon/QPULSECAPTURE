@@ -18,7 +18,7 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_zerocrossing(0),
     m_output(1.0),
     m_zerocrossingCounter(4),
-    m_strobeValue(32),
+    m_strobeValue(STROBE_FACTOR),
     m_accumulator(0.0),
     m_pos(0),
     m_leftThreshold(70),
@@ -195,13 +195,12 @@ void QHarmonicProcessor::WriteToDataOneColor(unsigned long red, unsigned long gr
     //----------------------------------------------------------------------------
 
     m_accumulator += ptCNSignal[curpos];
-    m_strobeValue--;
-    if( m_strobeValue == 0)
+    if( (--m_strobeValue) == 0)
     {
-        pt_SlowPPG[m_pos] = m_accumulator / 32;
+        pt_SlowPPG[m_pos] = m_accumulator / STROBE_FACTOR;
         emit SlowPPGWasUpdated(pt_SlowPPG, datalength);
         m_pos = (++m_pos) % datalength;
-        m_strobeValue = 32;
+        m_strobeValue = STROBE_FACTOR;
         m_accumulator = 0.0;
     }
 

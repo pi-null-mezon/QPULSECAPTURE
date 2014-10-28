@@ -32,8 +32,10 @@ public slots:
     void pulse_processing_custom_region(const cv::Mat &input); // an algorithm that evaluates PPG from skin region defined by user
     bool load_cascadecalssifier_file(const std::string& filename); // an interface to CascadeClassifier::load(...) function
     bool check_classifier_isempty(); // an interface to CascadeClsssifier::empty() method
+    void setFullFaceFlag(bool value); // interface to define if algorithm will process full rectangle region returned by detectmultiscale(...) or parts them
 
 private:
+    bool m_fullFaceFlag;
     int64 m_timeCounter;    // stores time of application/computer start
     double m_framePeriod;   // stores time of frame processing
     cv::Rect m_cvRect;      // this rect is used by process_rectregion_pulse slot
