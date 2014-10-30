@@ -61,40 +61,19 @@ void QSettingsDialog::on_ButtonCascade_clicked()
     }
 }
 
-void QSettingsDialog::on_pushButtonRecord_clicked()
-{
-    QString str = QFileDialog::getSaveFileName(this, tr("Save File"), "/Records/Record.txt", tr("Text file (*.txt)"));
-    if(!str.isNull())
-    {
-        ui->lineEditRecord->setText(str);
-    }
-}
-
 void QSettingsDialog::on_ButtonDefault_clicked()
 {
     ui->dialDatalength->setValue(8);
     ui->dialBufferlength->setValue(8);
     ui->checkBoxColor->setChecked(false);
-    ui->checkBoxRecord->setChecked(false);
     ui->checkBoxCascade->setChecked(false);
     ui->lineEditCascade->setText("haarcascades/haarcascade_frontalface_alt.xml");
-    ui->lineEditRecord->setText("Records/Record.txt");
     ui->checkBoxVideoFile->setChecked(false);
-    ui->lineEditVideoFile->setText("Video/Sample.avi");
     ui->checkBoxFFT->setChecked(true);
     ui->horizontalSliderTimer->setValue(2); //
     ui->checkBoxPatient->setChecked(true);
     ui->comboBoxPatient->setCurrentIndex(0);
     ui->lineEditPatient->setText("normal_heart_rate_at_rest.xml");
-}
-
-void QSettingsDialog::on_pushButtonVideoFile_clicked()
-{
-    QString str = QFileDialog::getOpenFileName(this, tr("Open file"), "/Video", tr("Video files(*.avi *.mp4 *.wmv)"));
-    if(!str.isNull())
-    {
-        ui->lineEditVideoFile->setText(str);
-    }
 }
 
 bool QSettingsDialog::get_flagColor() const
@@ -112,11 +91,6 @@ bool QSettingsDialog::get_flagCascade() const
     return ui->checkBoxCascade->isChecked();
 }
 
-bool QSettingsDialog::get_flagRecord() const
-{
-    return ui->checkBoxRecord->isChecked();
-}
-
 bool QSettingsDialog::get_flagVideoFile() const
 {
     return ui->checkBoxVideoFile->isChecked();
@@ -127,16 +101,6 @@ QString QSettingsDialog::get_stringCascade() const
     return ui->lineEditCascade->text();
 }
 
-QString QSettingsDialog::get_stringRecord() const
-{
-    return ui->lineEditRecord->text();
-}
-
-QString QSettingsDialog::get_stringVideoFile() const
-{
-    return ui->lineEditVideoFile->text();
-}
-
 quint32 QSettingsDialog::get_datalength() const
 {
     return get_power_of_two(ui->dialDatalength->value());
@@ -145,32 +109,6 @@ quint32 QSettingsDialog::get_datalength() const
 quint32 QSettingsDialog::get_bufferlength() const
 {
     return get_power_of_two(ui->dialBufferlength->value());
-}
-
-void QSettingsDialog::on_checkBoxVideoFile_stateChanged(int arg1)
-{
-    switch(arg1)
-    {
-        case Qt::Checked:
-            ui->groupBoxVideoFile->setEnabled(true);
-            break;
-        case Qt::Unchecked:
-            ui->groupBoxVideoFile->setEnabled(false);
-            break;
-    }
-}
-
-void QSettingsDialog::on_checkBoxRecord_stateChanged(int arg1)
-{
-    switch(arg1)
-    {
-        case Qt::Checked:
-            ui->groupBoxRecord->setEnabled(true);
-            break;
-        case Qt::Unchecked:
-            ui->groupBoxRecord->setEnabled(false);
-            break;
-    }
 }
 
 void QSettingsDialog::on_checkBoxCascade_stateChanged(int arg1)

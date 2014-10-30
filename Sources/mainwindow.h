@@ -46,7 +46,7 @@ protected:
     void closeEvent(QCloseEvent *);
 
 public slots:
-    bool openvideofile(const QString & videofileName); // for video file open
+    bool openvideofile(); // for video file open
     bool opendevice(); // for video device open
     void opendeviceresolutiondialog();
     void opendevicesettingsdialog();
@@ -58,6 +58,7 @@ public slots:
     void onresume();
     void configure_and_start_session();
     void make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
+    void startRecord();
 
 private:
     void createActions();
@@ -81,6 +82,7 @@ private:
     QAction *pt_fastVisualizationAct;
     QAction *pt_changeColorsAct;
     QAction *pt_openPlotDialog;
+    QAction *pt_recordAct;
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;

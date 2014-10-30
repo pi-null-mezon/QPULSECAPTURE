@@ -114,6 +114,11 @@ void MainWindow::createActions()
     pt_openPlotDialog = new QAction(tr("&New plot"), this);
     pt_openPlotDialog->setStatusTip(tr("Create a new window for the visualization of appropriate process"));
     connect(pt_openPlotDialog, SIGNAL(triggered()), this, SLOT(createPlotDialog()));
+
+    pt_recordAct = new QAction(tr("&Record"), this);
+    pt_recordAct->setStatusTip(tr("Start to record current measurement ssession in to output text file"));
+    connect(pt_recordAct, SIGNAL(triggered()), this, SLOT(startRecord()));
+    pt_recordAct->setCheckable(true);
 }
 
 //------------------------------------------------------------------------------------
@@ -128,6 +133,7 @@ void MainWindow::createMenus()
     //------------------------------------------------
     pt_optionsMenu = menuBar()->addMenu(tr("&Options"));
     pt_optionsMenu->addAction(pt_openPlotDialog);
+    pt_optionsMenu->addAction(pt_recordAct);
     pt_optionsMenu->addSeparator();
     pt_optionsMenu->addAction(pt_fastVisualizationAct);
     pt_optionsMenu->addAction(pt_changeColorsAct);
@@ -189,58 +195,47 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 //------------------------------------------------------------------------------------
 
-bool MainWindow::openvideofile(const QString & videofileName)
+bool MainWindow::openvideofile()
 {
-    if ( !videofileName.isNull() )
-    {
-        m_timer.stop();
-        if ( pt_videoCapture->openfile(videofileName) )
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open video file"), "/video", tr("Video (*.avi *.mp4 *.wmv)"));
+    while( !pt_videoCapture->openfile(fileName) ) {
+        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open video file!"), QMessageBox::Open | QMessageBox::Cancel, this, Qt::Dialog);
+        if( msgBox.exec() == QMessageBox::Open )
         {
-            if ( pt_infoLabel ) // just remove label
-            {
-                pt_mainLayout->removeWidget(pt_infoLabel);
-                delete pt_infoLabel;
-                pt_infoLabel = NULL;
-            }
-            return true;
-        }
-        else
-        {
-            QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open video file!"), QMessageBox::Ok, this, Qt::Dialog);
-            msgBox.exec();
+            fileName = QFileDialog::getOpenFileName(this, tr("Open video file"), "/video", tr("Video (*.avi *.mp4 *.wmv)"));
+        } else {
+            return false;
         }
     }
-    else
-    {
-        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("No file has been chosen!"), QMessageBox::Ok, this, Qt::Dialog);
-        msgBox.exec();
+    if ( pt_infoLabel ) {
+        pt_mainLayout->removeWidget(pt_infoLabel);
+        delete pt_infoLabel;
+        pt_infoLabel = NULL;
     }
-    return false;
+    return true;
 }
 
 //------------------------------------------------------------------------------------
 
 bool MainWindow::opendevice()
 {
-    m_timer.stop();
     pt_videoCapture->open_deviceSelectDialog();
-
-    if ( pt_videoCapture->opendevice(DEFAULT_FRAME_PERIOD) )
+    while( !pt_videoCapture->opendevice() )
     {
-        if ( pt_infoLabel ) // just remove label
+        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open device!"), QMessageBox::Open | QMessageBox::Cancel, this, Qt::Dialog);
+        if( msgBox.exec() == QMessageBox::Open )
         {
-            pt_mainLayout->removeWidget(pt_infoLabel);
-            delete pt_infoLabel;
-            pt_infoLabel = NULL;
+            pt_videoCapture->open_deviceSelectDialog();
+        } else {
+            return false;
         }
-        return true;
     }
-    else
-    {
-        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open video capture device!"), QMessageBox::Ok, this, Qt::Dialog);
-        msgBox.exec();
+    if ( pt_infoLabel ) {
+        pt_mainLayout->removeWidget(pt_infoLabel);
+        delete pt_infoLabel;
+        pt_infoLabel = NULL;
     }
-    return false;
+    return true;
 }
 
 //------------------------------------------------------------------------------------
@@ -385,20 +380,9 @@ void MainWindow::configure_and_start_session()
         connect(pt_harmonicThread, SIGNAL(finished()),pt_harmonicProcessor, SLOT(deleteLater()));
         connect(pt_harmonicThread, SIGNAL(finished()),pt_harmonicThread, SLOT(deleteLater()));
         //---------------------------------------------------------------
-        if(dialog.get_flagRecord())
-        {
-            if(m_saveFile.isOpen())
-            {
-                m_saveFile.close();
-            }
-            m_saveFile.setFileName(dialog.get_stringRecord());
-            if(m_saveFile.open(QIODevice::WriteOnly))
-            {
-                m_textStream.setDevice(&m_saveFile);
-
-                m_textStream << "dd.MM.yyyy hh:mm:ss.zzz \t CNSignal \t MeanRed \t MeanGreen \t MeanBlue \t PulseRate, bpm \t SNR, dB\n";
-                connect(pt_harmonicProcessor, SIGNAL(SignalActualValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
-            }
+        if(m_saveFile.isOpen()) {
+            m_saveFile.close();
+            pt_recordAct->setChecked(false);
         }
         //---------------------------------------------------------------
         if(dialog.get_flagColor())
@@ -463,22 +447,16 @@ void MainWindow::configure_and_start_session()
         //--------------------------------------------------------------
         pt_harmonicThread->start();
         pt_optionsMenu->setEnabled(true);
+
         if(dialog.get_flagVideoFile())
-        {
-            this->openvideofile(dialog.get_stringVideoFile());
-        }
+            this->openvideofile();
         else
-        {
             this->opendevice();
-        }
+
         m_timer.setInterval( dialog.get_timerValue() );
-        this->onresume();
         this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
     }
-    else
-    {
-        this->statusBar()->showMessage(tr("The new session was rejected, you can continue previous session by resume option"));
-    }
+    this->onresume();
 }
 
 //------------------------------------------------------------------------------------------
@@ -629,6 +607,8 @@ void MainWindow::closeEvent(QCloseEvent*)
     closeAllDialogs();
 }
 
+//-------------------------------------------------------------------------------------------
+
 void MainWindow::closeAllDialogs()
 {
     for(qint8 i = m_dialogSetCounter; i > 0; i--)
@@ -637,3 +617,32 @@ void MainWindow::closeAllDialogs()
     };
 }
 
+//-------------------------------------------------------------------------------------------
+
+void MainWindow::startRecord()
+{
+    if(m_saveFile.isOpen()) {
+        m_saveFile.close();
+        pt_recordAct->setChecked(false);
+    }
+
+    m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to file"),"/records", "Text file (*.txt)"));
+
+    while(!m_saveFile.open(QIODevice::WriteOnly))   {
+        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not save file with such name, try another name"), QMessageBox::Save | QMessageBox::Cancel, this, Qt::Dialog);
+        if(msgBox.exec() == QMessageBox::Save) {
+            m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"/Records/record.txt", tr("Text file (*.txt)")));
+        }
+        else {
+            pt_recordAct->setChecked(false);
+            break;
+        }
+    }
+
+    if(m_saveFile.isOpen()) {
+        pt_recordAct->setChecked(true);
+        m_textStream.setDevice(&m_saveFile);
+        m_textStream << "dd.MM.yyyy hh:mm:ss.zzz\tCNSignal\tMeanRed\tMeanGreen\tMeanBlue\tPulseRate,bpm\tSNR,dB\n";
+        connect(pt_harmonicProcessor, SIGNAL(SignalActualValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
+    }
+}

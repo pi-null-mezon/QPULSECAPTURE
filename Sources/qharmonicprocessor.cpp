@@ -294,44 +294,31 @@ void QHarmonicProcessor::ComputeFrequency()
             noise_power += ptAmplitudeSpectrum[i];
         }
     }
-    if ((noise_power > 0.0) && (signal_power > 0.0))
+
+    SNRE = 10 * log10( signal_power / noise_power );
+
+    qreal power_multiplyed_by_index = 0.0;
+    qreal power_of_first_harmonic = 0.0;
+    for (qint16 i = (index_of_maxpower - HALF_INTERVAL); i <= (index_of_maxpower + HALF_INTERVAL); i++)
     {
-        SNRE = 10 * log10( signal_power / noise_power );
-
-        qreal power_multiplyed_by_index = 0.0;
-        qreal power_of_first_harmonic = 0.0;
-        for (qint16 i = (index_of_maxpower - HALF_INTERVAL); i <= (index_of_maxpower + HALF_INTERVAL); i++)
-        {
-            power_of_first_harmonic += ptAmplitudeSpectrum[i];
-            power_multiplyed_by_index += i * ptAmplitudeSpectrum[i];
-        }
-        qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / power_of_first_harmonic );
-        bias = sqrt(bias * bias); // take abs of bias
-        qreal resultWeight = (HALF_INTERVAL + 1 - bias)/(HALF_INTERVAL + 1);
-        SNRE *= resultWeight * resultWeight * resultWeight * resultWeight; // make more multiplication to add more nonlinearity
-
-        if ( SNRE > SNR_TRESHOLD )
-        {
-            /*qreal power_multiplyed_by_index = 0.0;
-            qreal power_of_first_harmonic = 0.0;
-            for (qint16 i = (index_of_maxpower - HALF_INTERVAL); i <= (index_of_maxpower + HALF_INTERVAL); i++)
-            {
-                power_of_first_harmonic += ptAmplitudeSpectrum[i];
-                power_multiplyed_by_index += i * ptAmplitudeSpectrum[i];
-            }*/
-            HRfrequency = (power_multiplyed_by_index / power_of_first_harmonic) * 60000.0 / buffer_duration;
-        }
+        power_of_first_harmonic += ptAmplitudeSpectrum[i];
+        power_multiplyed_by_index += i * ptAmplitudeSpectrum[i];
     }
+    qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / power_of_first_harmonic );
+    bias = sqrt(bias * bias); // take abs of bias
+    qreal resultWeight = (HALF_INTERVAL + 1 - bias)/(HALF_INTERVAL + 1);
+    SNRE *= resultWeight * resultWeight * resultWeight * resultWeight; // make more multiplication to add more nonlinearity
 
     if(SNRE > SNR_TRESHOLD)
     {
+        HRfrequency = (power_multiplyed_by_index / power_of_first_harmonic) * 60000.0 / buffer_duration;
         if((HRfrequency <= m_rightTreshold) && (HRfrequency >= m_leftThreshold))
             emit HRfrequencyWasUpdated(HRfrequency, SNRE, true);
         else
             emit HRfrequencyWasUpdated(HRfrequency, SNRE, false);
     }
     else
-        emit TooNoisy(SNRE);
+       emit TooNoisy(SNRE);
 }
 
 //----------------------------------------------------------------------------------------------------

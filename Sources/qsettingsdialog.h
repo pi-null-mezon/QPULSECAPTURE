@@ -23,11 +23,8 @@ public:
     bool get_flagPCA() const;
     bool get_FFTflag() const;
     bool get_flagCascade() const;
-    bool get_flagRecord() const;
     bool get_flagVideoFile() const;
     QString get_stringCascade() const;
-    QString get_stringRecord() const;
-    QString get_stringVideoFile() const;
     quint32 get_datalength() const;
     quint32 get_bufferlength() const;
     int get_timerValue() const;
@@ -50,15 +47,7 @@ private slots:
 
     void on_ButtonCascade_clicked();
 
-    void on_pushButtonRecord_clicked();
-
     void on_ButtonDefault_clicked();
-
-    void on_pushButtonVideoFile_clicked();
-
-    void on_checkBoxVideoFile_stateChanged(int arg1);
-
-    void on_checkBoxRecord_stateChanged(int arg1);
 
     void on_checkBoxCascade_stateChanged(int arg1);
 

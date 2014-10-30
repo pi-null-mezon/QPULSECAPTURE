@@ -14,6 +14,9 @@ TARGET =    QPULSECAPTURE
 TEMPLATE =  app
 VERSION =   1.0.0.3
 
+DEFINES +=  APP_NAME=\\\"$${TARGET}\\\" \
+            APP_VERSION=\\\"$${VERSION}\\\"
+
 SOURCES +=  main.cpp\
             mainwindow.cpp \
             qimagewidget.cpp \
