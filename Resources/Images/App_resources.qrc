@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/textures">
-        <file alias="grass1.png">Texture_grass_300ppi.png</file>
-    </qresource>
-</RCC>

@@ -6,58 +6,53 @@
 //----------------------------------------------------------------------------------------------------------
 QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, quint16 length_of_buffer) :
     QObject(parent),
-    datalength(length_of_data),
-    bufferlength(length_of_buffer),
+    m_DataLength(length_of_data),
+    m_BufferLength(length_of_buffer),
     curpos(0),
-    SNRE(-5.0),
-    HRfrequency(0.0),
-    ch1_mean(0.0),
-    ch2_mean(0.0),
-    PCA_flag(false),
+    m_SNR(-5.0),
+    m_HeartRate(0.0),
+    m_MeanCh1(0.0),
+    m_MeanCh2(0.0),
+    f_PCA(false),
     m_channel(Green),
     m_zerocrossing(0),
-    m_output(1.0),
-    m_zerocrossingCounter(4),
-    m_strobeValue(STROBE_FACTOR),
-    m_accumulator(0.0),
-    m_pos(0),
+    m_PulseCounter(4),
     m_leftThreshold(70),
-    m_rightTreshold(80)
+    m_rightTreshold(80),
+    m_output(1.0)
 {
     // Memory allocation
-    ptData_ch1 = new qreal[datalength];
-    ptData_ch2 = new qreal[datalength];
-    ptCNSignal = new qreal[datalength];
-    ptTime = new qreal[datalength];
-    ptX = new qreal[DIGITAL_FILTER_LENGTH];
-    ptDataForFFT = new qreal[bufferlength];
-    ptSpectrum = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * (bufferlength/2 + 1));
-    ptAmplitudeSpectrum = new qreal[bufferlength/2 + 1];
-    m_plan = fftw_plan_dft_r2c_1d(bufferlength, ptDataForFFT, ptSpectrum, FFTW_ESTIMATE);
-    pt_Youtput = new qreal[datalength];
-    pt_Xoutput = new qreal[DIGITAL_FILTER_LENGTH];
-    pt_SlowPPG = new qreal[datalength];
+    v_RawCh1 = new qreal[m_DataLength];
+    v_RawCh1 = new qreal[m_DataLength];
+    v_Signal = new qreal[m_DataLength];
+    v_Time = new qreal[m_DataLength];
+    v_Input = new qreal[DIGITAL_FILTER_LENGTH];
+    v_ForFFT = new qreal[m_BufferLength];
+    v_Spectrum = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * (m_BufferLength/2 + 1));
+    v_Amplitude = new qreal[m_BufferLength/2 + 1];
+    m_plan = fftw_plan_dft_r2c_1d(m_BufferLength, v_ForFFT, v_Spectrum, FFTW_ESTIMATE);
+    v_BinaryOutput = new qreal[m_DataLength];
+    v_SmoothedSignal = new qreal[DIGITAL_FILTER_LENGTH];
 
     // Vectors initialization
-    for (quint16 i = 0; i < datalength; i++)
+    for (quint16 i = 0; i < m_DataLength; i++)
     {
-        ptData_ch1[i] = 0.0; // it should be equal to zero at start
-        ptData_ch2[i] = 0.0; // it should be equal to zero at start
-        ptTime[i] = 35.0; // just for ensure that at the begining there is not any "division by zero"
-        ptCNSignal[i] = 0.0;
-        pt_SlowPPG[i] = 0.0;
+        v_RawCh1[i] = 0.0; // it should be equal to zero at start
+        v_RawCh1[i] = 0.0; // it should be equal to zero at start
+        v_Time[i] = 35.0; // just for ensure that at the begining there is not any "division by zero"
+        v_Signal[i] = 0.0;
         if(i % 4)
         {
-            pt_Youtput[i] = m_output;
+            v_BinaryOutput[i] = 1.0;
         }
         else
         {
-            pt_Youtput[i] = - m_output;
+            v_BinaryOutput[i] = -1.0;
         }
     }
 
     // Memory allocation block for ALGLIB arrays
-    PCA_RAW_RGB.setlength(bufferlength, 3); // 3 because RED, GREEN and BLUE colors represent 3 independent variables
+    PCA_RAW_RGB.setlength(m_BufferLength, 3); // 3 because RED, GREEN and BLUE colors represent 3 independent variables
     PCA_Variance.setlength(3);
     PCA_Basis.setlength(3, 3);
     PCA_Info = 0;
@@ -68,62 +63,89 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
 QHarmonicProcessor::~QHarmonicProcessor()
 {
     fftw_destroy_plan(m_plan);
-    delete[] ptData_ch1;
-    delete[] ptData_ch2;
-    delete[] ptCNSignal;
-    delete[] ptTime;
-    delete[] ptX;
-    delete[] ptDataForFFT;
-    fftw_free(ptSpectrum);
-    delete[] ptAmplitudeSpectrum;
-    delete[] pt_Youtput;
-    delete[] pt_Xoutput;
-    delete[] pt_SlowPPG;
+    delete[] v_RawCh1;
+    delete[] v_RawCh1;
+    delete[] v_Signal;
+    delete[] v_Time;
+    delete[] v_Input;
+    delete[] v_ForFFT;
+    fftw_free(v_Spectrum);
+    delete[] v_Amplitude;
+    delete[] v_BinaryOutput;
+    delete[] v_SmoothedSignal;
 }
 
 //----------------------------------------------------------------------------------------------------------
 
-void QHarmonicProcessor::WriteToDataRGB(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time)
+void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time)
 {
-    quint16 position = loop_for_PCA(curpos);
+    quint16 position = loopBuffer(curpos);
     PCA_RAW_RGB(position, 0) = (qreal)red / area;
     PCA_RAW_RGB(position, 1) = (qreal)green / area;
     PCA_RAW_RGB(position, 2) = (qreal)blue / area;
 
-    qreal ch1_temp = (qreal)(red - green) / area;
-    qreal ch2_temp = (qreal)(red + green - 2 * blue) / area;
+    if(m_channel == QHarmonicProcessor::All) {
 
-    ch1_mean += (ch1_temp - ptData_ch1[curpos]) / datalength;
-    ch2_mean += (ch2_temp - ptData_ch2[curpos]) / datalength;
+        qreal ch1_temp = (qreal)(red - green) / area;
+        qreal ch2_temp = (qreal)(red + green - 2 * blue) / area;
 
-    ptData_ch1[curpos] = ch1_temp;
-    ptData_ch2[curpos] = ch2_temp;
+        m_MeanCh1 += (ch1_temp - v_RawCh1[curpos]) / m_DataLength;
+        m_MeanCh2 += (ch2_temp - v_RawCh1[curpos]) / m_DataLength;
+        v_RawCh1[curpos] = ch1_temp;
+        v_RawCh1[curpos] = ch2_temp;
 
-    ptTime[curpos] = time;
-    emit ptTimeWasUpdated(ptTime, datalength);
+        qreal ch1_sko = 0.0;
+        qreal ch2_sko = 0.0;
+        for (unsigned int i = 0; i < m_DataLength; i++)
+        {
+            ch1_sko += (v_RawCh1[i] - m_MeanCh1)*(v_RawCh1[i] - m_MeanCh1);
+            ch2_sko += (v_RawCh1[i] - m_MeanCh2)*(v_RawCh1[i] - m_MeanCh2);
+        }
+        ch1_sko = sqrt(ch1_sko / (m_DataLength - 1));
+        ch2_sko = sqrt(ch2_sko / (m_DataLength - 1));
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh1[curpos] - m_MeanCh2) / ch2_sko;
 
-    qreal ch1_sko = 0.0;
-    qreal ch2_sko = 0.0;
-    for (unsigned int i = 0; i < datalength; i++)
-    {
-        ch1_sko += (ptData_ch1[i] - ch1_mean)*(ptData_ch1[i] - ch1_mean);
-        ch2_sko += (ptData_ch2[i] - ch2_mean)*(ptData_ch2[i] - ch2_mean);
+    } else {
+
+        qreal temp = 0.0;
+        switch(m_channel) {
+            case Red:
+                temp = (qreal)red / area;
+                break;
+            case Green:
+                temp = (qreal)green / area;
+                break;
+            case Blue:
+                temp = (qreal)blue / area;
+                break;
+        }
+        m_MeanCh1 += (temp - v_RawCh1[curpos])/m_DataLength;
+        v_RawCh1[curpos] = temp;
+
+        qreal ch1_sko = 0.0;
+        for (unsigned int i = 0; i < m_DataLength; i++)
+        {
+            ch1_sko += (v_RawCh1[i] - m_MeanCh1)*(v_RawCh1[i] - m_MeanCh1);
+        }
+        ch1_sko = sqrt(ch1_sko / (m_DataLength - 1));
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ ch1_sko;
+
     }
-    ch1_sko = sqrt(ch1_sko / (datalength - 1));
-    ch2_sko = sqrt(ch2_sko / (datalength - 1));
 
-    ptX[loop_for_ptX(curpos)] = (ptData_ch1[curpos] - ch1_mean) / ch1_sko  - (ptData_ch2[curpos] - ch2_mean) / ch2_sko;
-    ptCNSignal[curpos] = ( ptX[loop_for_ptX(curpos)] + ptCNSignal[loop(curpos - 1)] ) / 2.0;
+    v_Time[curpos] = time;
+    emit TimeUpdated(v_Time, m_DataLength);
+    v_Signal[curpos] = ( v_Input[loopInput(curpos)] + v_Signal[loop(curpos - 1)] ) / 2.0;
+    emit SignalUpdated(v_Signal, m_DataLength);
 
     //----------------------------------------------------------------------------
     qreal outputValue = 0.0;
     for(quint16 i = 0; i < DIGITAL_FILTER_LENGTH ; i++)
     {
-        outputValue += ptX[i];
+        outputValue += v_Input[i];
     }
-    pt_Xoutput[loop_for_ptX(curpos)] = outputValue / DIGITAL_FILTER_LENGTH;
-    pt_Tempoutput[loop_on_two(curpos)] = pt_Xoutput[loop_for_ptX(curpos)] - pt_Xoutput[loop_for_ptX(curpos - (DIGITAL_FILTER_LENGTH - 1))];
-    if( (pt_Tempoutput[0]*pt_Tempoutput[1]) < 0.0 )
+    v_SmoothedSignal[loopInput(curpos)] = outputValue / DIGITAL_FILTER_LENGTH;
+    v_Derivative[loopOnTwo(curpos)] = v_SmoothedSignal[loopInput(curpos)] - v_SmoothedSignal[loopInput(curpos - (DIGITAL_FILTER_LENGTH - 1))];
+    if( (v_Derivative[0]*v_Derivative[1]) < 0.0 )
     {
         m_zerocrossing = (++m_zerocrossing) % 2;
         if(m_zerocrossing == 0)
@@ -131,83 +153,12 @@ void QHarmonicProcessor::WriteToDataRGB(unsigned long red, unsigned long green, 
             m_output *= -1.0;
         }
     }
-    pt_Youtput[curpos] = m_output; // note, however, that pt_Youtput accumulate phase delay about DIGITAL_FILTER_LENGTH
-    emit pt_YoutputWasUpdated(pt_Youtput, datalength);
+    v_BinaryOutput[curpos] = m_output; // note, however, that v_BinaryOutput accumulate phase delay about DIGITAL_FILTER_LENGTH
+    emit BinaryOutputUpdated(v_BinaryOutput, m_DataLength);
     //----------------------------------------------------------------------------
 
-    emit CNSignalWasUpdated(ptCNSignal, datalength);
-    emit SignalActualValues(ptCNSignal[curpos], PCA_RAW_RGB(position, 0), PCA_RAW_RGB(position, 1), PCA_RAW_RGB(position, 2), HRfrequency, SNRE);
-
-    curpos = (++curpos) % datalength; // for loop-like usage of ptData and the other arrays in this class
-}
-
-//----------------------------------------------------------------------------------------------------------
-
-void QHarmonicProcessor::WriteToDataOneColor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time)
-{
-    qreal temp = 0.0;
-    switch(m_channel)
-    {
-        case Red:
-            temp = (qreal)red / area;
-            break;
-        case Green:
-            temp = (qreal)green / area;
-            break;
-        case Blue:
-            temp = (qreal)blue / area;
-            break;
-    }
-    ch1_mean += (temp - ptData_ch1[curpos])/datalength;
-    ptData_ch1[curpos] = temp;
-
-    ptTime[curpos] = time;
-    emit ptTimeWasUpdated(ptTime, datalength);
-
-    qreal ch1_sko = 0.0;
-    for (unsigned int i = 0; i < datalength; i++)
-    {
-        ch1_sko += (ptData_ch1[i] - ch1_mean)*(ptData_ch1[i] - ch1_mean);
-    }
-    ch1_sko = sqrt(ch1_sko / (datalength - 1));
-
-    ptX[loop_for_ptX(curpos)] = (ptData_ch1[curpos] - ch1_mean)/ ch1_sko;
-    ptCNSignal[curpos] = (ptX[loop_for_ptX(curpos)] + ptCNSignal[loop(curpos-1)]) / 2.0;
-
-    //----------------------------------------------------------------------------
-    qreal outputValue = 0.0;
-    for(quint16 i = 0; i < DIGITAL_FILTER_LENGTH ; i++)
-    {
-        outputValue += ptX[i];
-    }
-    pt_Xoutput[loop_for_ptX(curpos)] = outputValue / DIGITAL_FILTER_LENGTH;
-    pt_Tempoutput[loop_on_two(curpos)] = pt_Xoutput[loop_for_ptX(curpos)] - pt_Xoutput[loop_for_ptX(curpos - (DIGITAL_FILTER_LENGTH - 1))];
-    if( (pt_Tempoutput[0]*pt_Tempoutput[1]) < 0.0 )
-    {
-        m_zerocrossing = (++m_zerocrossing) % 2;
-        if(m_zerocrossing == 0)
-        {
-            m_output *= -1.0;
-        }
-    }
-    pt_Youtput[curpos] = m_output; // note, however, that pt_Youtput accumulate phase delay about DIGITAL_FILTER_LENGTH
-    emit pt_YoutputWasUpdated(pt_Youtput, datalength);
-    //----------------------------------------------------------------------------
-
-    m_accumulator += ptCNSignal[curpos];
-    if( (--m_strobeValue) == 0)
-    {
-        pt_SlowPPG[m_pos] = m_accumulator / STROBE_FACTOR;
-        emit SlowPPGWasUpdated(pt_SlowPPG, datalength);
-        m_pos = (++m_pos) % datalength;
-        m_strobeValue = STROBE_FACTOR;
-        m_accumulator = 0.0;
-    }
-
-    emit CNSignalWasUpdated(ptCNSignal, datalength);
-    emit SignalActualValues(ptCNSignal[curpos], ptData_ch1[curpos], ptData_ch1[curpos], ptData_ch1[curpos], HRfrequency, SNRE);
-
-    curpos = (++curpos) % datalength; // for loop-like usage of ptData and the other arrays in this class
+    emit CurrentValues(v_Signal[curpos], PCA_RAW_RGB(position, 0), PCA_RAW_RGB(position, 1), PCA_RAW_RGB(position, 2), m_HeartRate, m_SNR);
+    curpos = (++curpos) % m_DataLength; // for loop-like usage of ptData and the other arrays in this class
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -216,64 +167,64 @@ void QHarmonicProcessor::ComputeFrequency()
 {
     qint16 temp_position = curpos - 1;
     qreal buffer_duration = 0.0; // for buffer duration accumulation without first time interval
-    if(PCA_flag)
+    if(f_PCA)
     {
-        alglib::pcabuildbasis(PCA_RAW_RGB, bufferlength, 3, PCA_Info, PCA_Variance, PCA_Basis);
+        alglib::pcabuildbasis(PCA_RAW_RGB, m_BufferLength, 3, PCA_Info, PCA_Variance, PCA_Basis);
         if (PCA_Info == 1)
         {
             qreal mean0 = 0.0;
             qreal mean1 = 0.0;
             qreal mean2 = 0.0;
-            for (unsigned int i = 0; i < bufferlength; i++)
+            for (unsigned int i = 0; i < m_BufferLength; i++)
             {
                 mean0 += PCA_RAW_RGB(i,0);
                 mean1 += PCA_RAW_RGB(i,1);
                 mean2 += PCA_RAW_RGB(i,2);
             }
-            mean0 /= bufferlength;
-            mean1 /= bufferlength;
-            mean2 /= bufferlength;
+            mean0 /= m_BufferLength;
+            mean1 /= m_BufferLength;
+            mean2 /= m_BufferLength;
 
             qreal temp_sko = sqrt(PCA_Variance(0));
-            qint16 start = loop_for_PCA(temp_position) - (bufferlength - 1); // has to be signed
-            for (quint16 i = 0; i < bufferlength; i++)
+            qint16 start = loopBuffer(temp_position) - (m_BufferLength - 1); // has to be signed
+            for (quint16 i = 0; i < m_BufferLength; i++)
             {
-                quint16 pos = loop_for_PCA(start + i);
-                ptDataForFFT[i] = ((PCA_RAW_RGB(pos,0) - mean0)*PCA_Basis(0,0) + (PCA_RAW_RGB(pos,1) - mean1)*PCA_Basis(1,0) + (PCA_RAW_RGB(pos,2) - mean2)*PCA_Basis(2,0)) / temp_sko;
-                buffer_duration += ptTime[loop(temp_position - (bufferlength - 1) + i)];
+                quint16 pos = loopBuffer(start + i);
+                v_ForFFT[i] = ((PCA_RAW_RGB(pos,0) - mean0)*PCA_Basis(0,0) + (PCA_RAW_RGB(pos,1) - mean1)*PCA_Basis(1,0) + (PCA_RAW_RGB(pos,2) - mean2)*PCA_Basis(2,0)) / temp_sko;
+                buffer_duration += v_Time[loop(temp_position - (m_BufferLength - 1) + i)];
             }
         }
-        emit PCAProjectionWasUpdated(ptDataForFFT, bufferlength);
+        emit PCAProjectionUpdated(v_ForFFT, m_BufferLength);
     }
     else
     {
-        for (unsigned int i = 0; i < bufferlength; i++)
+        for (unsigned int i = 0; i < m_BufferLength; i++)
         {
-            quint16 pos = loop(temp_position - (bufferlength - 1) + i);
-            ptDataForFFT[i] = ptCNSignal[pos];
-            buffer_duration += ptTime[pos];
+            quint16 pos = loop(temp_position - (m_BufferLength - 1) + i);
+            v_ForFFT[i] = v_Signal[pos];
+            buffer_duration += v_Time[pos];
         }
     }
 
     fftw_execute(m_plan); // Datas were prepared, now execute fftw_plan
 
-    for (quint16 i = 0; i < (bufferlength/2 + 1); i++)
+    for (quint16 i = 0; i < (m_BufferLength/2 + 1); i++)
     {
-        ptAmplitudeSpectrum[i] = ptSpectrum[i][0]*ptSpectrum[i][0] + ptSpectrum[i][1]*ptSpectrum[i][1];
+        v_Amplitude[i] = v_Spectrum[i][0]*v_Spectrum[i][0] + v_Spectrum[i][1]*v_Spectrum[i][1];
     }
-    emit SpectrumWasUpdated(ptAmplitudeSpectrum, bufferlength/2 + 1);
+    emit SpectrumUpdated(v_Amplitude, m_BufferLength/2 + 1);
 
     quint16 bottom_bound = (quint16)(BOTTOM_LIMIT * buffer_duration / 1000.0);   // You should ensure that ( LOW_HR_LIMIT < discretization frequency / 2 )
     quint16 top_bound = (quint16)(TOP_LIMIT * buffer_duration / 1000.0);
-    if(top_bound > (bufferlength / 2 + 1))
+    if(top_bound > (m_BufferLength / 2 + 1))
     {
-        top_bound = bufferlength / 2 + 1;
+        top_bound = m_BufferLength / 2 + 1;
     }
     quint16 index_of_maxpower = 0;
     qreal maxpower = 0.0;
     for (quint16 i = ( bottom_bound + HALF_INTERVAL ); i < ( top_bound - HALF_INTERVAL ); i++)
     {
-        qreal temp_power = ptAmplitudeSpectrum[i];
+        qreal temp_power = v_Amplitude[i];
         if ( maxpower < temp_power )
         {
             maxpower = temp_power;
@@ -287,95 +238,86 @@ void QHarmonicProcessor::ComputeFrequency()
     {
         if ( (i >= (index_of_maxpower - HALF_INTERVAL )) && (i <= (index_of_maxpower + HALF_INTERVAL)) )
         {
-            signal_power += ptAmplitudeSpectrum[i];
+            signal_power += v_Amplitude[i];
         }
         else
         {
-            noise_power += ptAmplitudeSpectrum[i];
+            noise_power += v_Amplitude[i];
         }
     }
-
-    SNRE = 10 * log10( signal_power / noise_power );
+    m_SNR = 10 * log10( signal_power / noise_power );
 
     qreal power_multiplyed_by_index = 0.0;
     qreal power_of_first_harmonic = 0.0;
     for (qint16 i = (index_of_maxpower - HALF_INTERVAL); i <= (index_of_maxpower + HALF_INTERVAL); i++)
     {
-        power_of_first_harmonic += ptAmplitudeSpectrum[i];
-        power_multiplyed_by_index += i * ptAmplitudeSpectrum[i];
+        power_of_first_harmonic += v_Amplitude[i];
+        power_multiplyed_by_index += i * v_Amplitude[i];
     }
     qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / power_of_first_harmonic );
     bias = sqrt(bias * bias); // take abs of bias
     qreal resultWeight = (HALF_INTERVAL + 1 - bias)/(HALF_INTERVAL + 1);
-    SNRE *= resultWeight * resultWeight * resultWeight * resultWeight; // make more multiplication to add more nonlinearity
+    m_SNR *= resultWeight * resultWeight * resultWeight * resultWeight; // make more multiplication to add more nonlinearity
 
-    if(SNRE > SNR_TRESHOLD)
+    if(m_SNR > SNR_TRESHOLD)
     {
-        HRfrequency = (power_multiplyed_by_index / power_of_first_harmonic) * 60000.0 / buffer_duration;
-        if((HRfrequency <= m_rightTreshold) && (HRfrequency >= m_leftThreshold))
-            emit HRfrequencyWasUpdated(HRfrequency, SNRE, true);
+        m_HeartRate = (power_multiplyed_by_index / power_of_first_harmonic) * 60000.0 / buffer_duration;
+        if((m_HeartRate <= m_rightTreshold) && (m_HeartRate >= m_leftThreshold))
+            emit HeartRateUpdated(m_HeartRate, m_SNR, true);
         else
-            emit HRfrequencyWasUpdated(HRfrequency, SNRE, false);
+            emit HeartRateUpdated(m_HeartRate, m_SNR, false);
     }
     else
-       emit TooNoisy(SNRE);
+       emit TooNoisy(m_SNR);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void QHarmonicProcessor::set_PCA_flag(bool value)
+void QHarmonicProcessor::setPCAMode(bool value)
 {
-    PCA_flag = value;
+    f_PCA = value;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void QHarmonicProcessor::switch_to_channel(color_channel value)
+void QHarmonicProcessor::switchColorMode(ColorChannel value)
 {
     m_channel = value;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-qreal QHarmonicProcessor::CountFrequency()
+void QHarmonicProcessor::CountFrequency()
 {
     qint16 position = curpos - 1; // delay on 1 count is critical valuable here
     quint16 watchDogCounter = 0;
-    quint16 sign_changes = m_zerocrossingCounter;
+    quint16 sign_changes = m_PulseCounter;
     qreal temp_time = 0.0;
 
-    while((pt_Youtput[loop(position)]*pt_Youtput[loop(position-1)] > 0.0) && (watchDogCounter < datalength))
+    while((v_BinaryOutput[loop(position)]*v_BinaryOutput[loop(position-1)] > 0.0) && (watchDogCounter < m_DataLength))
     {
         position--;
         watchDogCounter++;
     }
 
-    while((sign_changes > 0) && (watchDogCounter < datalength))
+    while((sign_changes > 0) && (watchDogCounter < m_DataLength))
     {
-        if(pt_Youtput[loop(position)]*pt_Youtput[loop(position-1)] < 0.0)
+        if(v_BinaryOutput[loop(position)]*v_BinaryOutput[loop(position-1)] < 0.0)
         {
             sign_changes--;
         }
         position--;
         watchDogCounter++;
-        temp_time += ptTime[loop(position)];
+        temp_time += v_Time[loop(position)];
     }
 
-    HRfrequency = 60.0 * (m_zerocrossingCounter - 1) / ((temp_time - ptTime[loop(position)])/1000.0);
-    emit HRfrequencyWasUpdated(HRfrequency,0.0,true);
-    return HRfrequency;
+    m_HeartRate = 60.0 * (m_PulseCounter - 1) / ((temp_time - v_Time[loop(position)])/1000.0);
+    emit HeartRateUpdated(m_HeartRate,0.0,true);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void QHarmonicProcessor::set_zerocrossingCounter(quint16 value)
-{
-    m_zerocrossingCounter = value;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-int QHarmonicProcessor::loadThresholds(const char *fileName, SexID sex, int age, TwoSideAlpha alpha)
+int QHarmonicProcessor::loadWarningRates(const char *fileName, SexID sex, int age, TwoSideAlpha alpha)
 {
     if( !QFile::exists( fileName ) ) {
         return FileExistanceError;

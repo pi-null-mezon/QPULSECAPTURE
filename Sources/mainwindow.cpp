@@ -14,8 +14,7 @@ const char * MainWindow::QPlotDialogName[]=
     "Frame time vs frame",
     "PCA 1-st projection",
     "Filter output vs frame",
-    "Signal phase diagram",
-    "Breath curve vs frameSet"
+    "Signal phase diagram"
 };
 //------------------------------------------------------------------------------------
 
@@ -119,6 +118,36 @@ void MainWindow::createActions()
     pt_recordAct->setStatusTip(tr("Start to record current measurement ssession in to output text file"));
     connect(pt_recordAct, SIGNAL(triggered()), this, SLOT(startRecord()));
     pt_recordAct->setCheckable(true);
+
+    pt_colorActGroup = new QActionGroup(this);
+    pt_colorMapper = new QSignalMapper(this);
+    pt_redAct = new QAction(tr("Red"), pt_colorActGroup);
+    pt_redAct->setStatusTip(tr("Enroll only red channel"));
+    pt_redAct->setCheckable(true);
+    pt_colorMapper->setMapping(pt_redAct,QHarmonicProcessor::Red);
+    connect(pt_redAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
+    pt_blueAct = new QAction(tr("Blue"), pt_colorActGroup);
+    pt_blueAct->setStatusTip(tr("Enroll only blue channel"));
+    pt_blueAct->setCheckable(true);
+    pt_colorMapper->setMapping(pt_blueAct,QHarmonicProcessor::Blue);
+    connect(pt_blueAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
+    pt_greenAct = new QAction(tr("Green"), pt_colorActGroup);
+    pt_greenAct->setStatusTip(tr("Enroll only green channel"));
+    pt_greenAct->setCheckable(true);
+    pt_colorMapper->setMapping(pt_greenAct,QHarmonicProcessor::Green);
+    connect(pt_greenAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
+    pt_allAct = new QAction(tr("RGB"), pt_colorActGroup);
+    pt_allAct->setStatusTip(tr("Enroll all channels"));
+    pt_allAct->setCheckable(true);
+    pt_colorMapper->setMapping(pt_allAct,QHarmonicProcessor::All);
+    connect(pt_allAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
+    connect(pt_colorMapper,SIGNAL(mapped(int)), this, SLOT(SwitchColorMode(int)));
+    pt_greenAct->setChecked(true);
+
+    pt_pcaAct = new QAction(tr("PCA align"), this);
+    pt_pcaAct->setStatusTip(tr("Control PCA alignment, affects on result only in harmonic analysis mode"));
+    pt_pcaAct->setCheckable(true);
+    connect(pt_pcaAct, SIGNAL(triggered(bool)), this, SLOT(SwitchPCA(bool)));
 }
 
 //------------------------------------------------------------------------------------
@@ -134,6 +163,11 @@ void MainWindow::createMenus()
     pt_optionsMenu = menuBar()->addMenu(tr("&Options"));
     pt_optionsMenu->addAction(pt_openPlotDialog);
     pt_optionsMenu->addAction(pt_recordAct);
+    pt_optionsMenu->addSeparator();
+    pt_modeMenu = pt_optionsMenu->addMenu(tr("&Mode"));
+    pt_modeMenu->addActions(pt_colorActGroup->actions());
+    pt_modeMenu->addSeparator();
+    pt_modeMenu->addAction(pt_pcaAct);
     pt_optionsMenu->addSeparator();
     pt_optionsMenu->addAction(pt_fastVisualizationAct);
     pt_optionsMenu->addAction(pt_changeColorsAct);
@@ -385,25 +419,14 @@ void MainWindow::configure_and_start_session()
             pt_recordAct->setChecked(false);
         }
         //---------------------------------------------------------------
-        if(dialog.get_flagColor())
-        {
-            connect(pt_opencvProcessor, SIGNAL(colors_were_evaluated(ulong,ulong,ulong,ulong,double)), pt_harmonicProcessor, SLOT(WriteToDataRGB(ulong,ulong,ulong,ulong,double)));
-        }
-        else
-        {
-            connect(pt_opencvProcessor,SIGNAL(colors_were_evaluated(ulong,ulong,ulong,ulong,double)),pt_harmonicProcessor,SLOT(WriteToDataOneColor(ulong,ulong,ulong,ulong,double)));
-        }
-        //---------------------------------------------------------------
         if(dialog.get_customPatientFlag())
         {
-            if(pt_harmonicProcessor->loadThresholds(dialog.get_stringDistribution().toLocal8Bit().constData(),(QHarmonicProcessor::SexID)dialog.get_patientSex(),dialog.get_patientAge(),(QHarmonicProcessor::TwoSideAlpha)dialog.get_patientPercentile()) == QHarmonicProcessor::FileExistanceError)
+            if(pt_harmonicProcessor->loadWarningRates(dialog.get_stringDistribution().toLocal8Bit().constData(),(QHarmonicProcessor::SexID)dialog.get_patientSex(),dialog.get_patientAge(),(QHarmonicProcessor::TwoSideAlpha)dialog.get_patientPercentile()) == QHarmonicProcessor::FileExistanceError)
             {
                 QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open population distribution file"), QMessageBox::Ok, this, Qt::Dialog);
                 msgBox.exec();
             }
         }
-        //---------------------------------------------------------------
-        connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
         //---------------------------------------------------------------
         disconnect(pt_videoCapture,0,0,0);
         if(dialog.get_flagCascade())
@@ -432,9 +455,10 @@ void MainWindow::configure_and_start_session()
             connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(pulse_processing_custom_region(cv::Mat)), Qt::BlockingQueuedConnection);
         }
         //--------------------------------------------------------------
-        pt_harmonicProcessor->set_PCA_flag(dialog.get_flagPCA());
-        //--------------------------------------------------------------
-        connect(pt_harmonicProcessor, SIGNAL(CNSignalWasUpdated(const qreal*,quint16)), pt_display, SLOT(updatePointer(const qreal*,quint16)));
+        connect(pt_opencvProcessor, SIGNAL(colors_were_evaluated(ulong,ulong,ulong,ulong,double)), pt_harmonicProcessor, SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
+        connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_display, SLOT(updatePointer(const qreal*,quint16)));
+        connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
+        //--------------------------------------------------------------      
         if(dialog.get_FFTflag())
         {
             connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(ComputeFrequency()));
@@ -443,7 +467,7 @@ void MainWindow::configure_and_start_session()
         {
             connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(CountFrequency()));
         }
-        connect(pt_harmonicProcessor, SIGNAL(HRfrequencyWasUpdated(qreal,qreal,bool)), pt_display, SLOT(updateValues(qreal,qreal,bool)));
+        connect(pt_harmonicProcessor, SIGNAL(HeartRateUpdated(qreal,qreal,bool)), pt_display, SLOT(updateValues(qreal,qreal,bool)));
         //--------------------------------------------------------------
         pt_harmonicThread->start();
         pt_optionsMenu->setEnabled(true);
@@ -507,52 +531,45 @@ void MainWindow::createPlotDialog()
                 switch(dialogTypeComboBox.currentIndex())
                 {
                     case 0: // Signal trace
-                        connect(pt_harmonicProcessor, SIGNAL(CNSignalWasUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names("Frame","Centered & normalized signal");
                         pt_plot->set_vertical_Borders(-5.0,5.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                         break;
                     case 1: // Spectrum trace
-                        connect(pt_harmonicProcessor, SIGNAL(SpectrumWasUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(SpectrumUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names("Freq.count","DFT amplitude spectrum");
                         pt_plot->set_vertical_Borders(0.0,25000.0);
                         pt_plot->set_coordinatesPrecision(0,1);
                         pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
                         break;
                     case 2: // Time trace
-                        connect(pt_harmonicProcessor, SIGNAL(ptTimeWasUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(TimeUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names("Frame","processing period per frame, ms");
                         pt_plot->set_vertical_Borders(0.0,100.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                         pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
                         break;
                     case 3: // PCA 1st projection trace
-                        connect(pt_harmonicProcessor, SIGNAL(PCAProjectionWasUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(PCAProjectionUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names("Frame","Normalised & centered projection on 1-st PCA direction");
                         pt_plot->set_vertical_Borders(-5.0,5.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                     break;
                     case 4: // Digital filter output
-                        connect(pt_harmonicProcessor, SIGNAL(pt_YoutputWasUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(BinaryOutputUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names("Frame","Digital derivative after smoothing");
                         pt_plot->set_vertical_Borders(-2.0,2.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                     break;
                     case 5: // signal phase shift
-                        connect(pt_harmonicProcessor, SIGNAL(CNSignalWasUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_DrawRegime(QEasyPlot::PhaseRegime);
                         pt_plot->set_axis_names("Signal count","Signal count");
                         pt_plot->set_vertical_Borders(-5.0,5.0);
                         pt_plot->set_horizontal_Borders(-5.0, 5.0);
                         pt_plot->set_X_Ticks(11);
                         pt_plot->set_coordinatesPrecision(2,2);
-                    break;
-                    case 6: // breath curve
-                        connect(pt_harmonicProcessor, SIGNAL(SlowPPGWasUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
-                        pt_plot->set_axis_names("Set of frames","SlowPPG");
-                        pt_plot->set_vertical_Borders(-5.0,5.0);
-                        pt_plot->set_X_Ticks(11);
-                        pt_plot->set_coordinatesPrecision(0,2);
                     break;
                 }
             pt_dialogSet[ m_dialogSetCounter ]->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -643,6 +660,26 @@ void MainWindow::startRecord()
         pt_recordAct->setChecked(true);
         m_textStream.setDevice(&m_saveFile);
         m_textStream << "dd.MM.yyyy hh:mm:ss.zzz\tCNSignal\tMeanRed\tMeanGreen\tMeanBlue\tPulseRate,bpm\tSNR,dB\n";
-        connect(pt_harmonicProcessor, SIGNAL(SignalActualValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
+        connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
+    }
+}
+
+//----------------------------------------------------------------------------------------------
+
+void MainWindow::SwitchColorMode(int value)
+{
+    if(pt_harmonicProcessor)
+    {
+        pt_harmonicProcessor->switchColorMode((QHarmonicProcessor::ColorChannel)value);
+    }
+}
+
+//----------------------------------------------------------------------------------------------
+
+void MainWindow::SwitchPCA(bool value)
+{
+    if(pt_harmonicProcessor)
+    {
+        pt_harmonicProcessor->setPCAMode(value);
     }
 }

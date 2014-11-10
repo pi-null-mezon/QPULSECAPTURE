@@ -17,6 +17,8 @@
 #include <QProcess>
 #include <QFile>
 #include <QTextStream>
+#include <QActionGroup>
+#include <QSignalMapper>
 
 #include "qimagewidget.h"
 #include "qopencvprocessor.h"
@@ -59,6 +61,8 @@ public slots:
     void configure_and_start_session();
     void make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void startRecord();
+    void SwitchColorMode(int value);
+    void SwitchPCA(bool value);
 
 private:
     void createActions();
@@ -82,11 +86,12 @@ private:
     QAction *pt_fastVisualizationAct;
     QAction *pt_changeColorsAct;
     QAction *pt_openPlotDialog;
-    QAction *pt_recordAct;
+    QAction *pt_recordAct;   
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;
     QMenu *pt_helpMenu;
+    QMenu *pt_modeMenu;
     QVideoCapture *pt_videoCapture;
     QOpencvProcessor *pt_opencvProcessor;
     QThread *pt_improcThread;
@@ -98,6 +103,15 @@ private:
     QFile m_saveFile;
     QTextStream m_textStream;
     static const char *QPlotDialogName[];
+
+    QActionGroup *pt_colorActGroup;
+    QSignalMapper *pt_colorMapper;
+    QAction *pt_redAct;
+    QAction *pt_blueAct;
+    QAction *pt_greenAct;
+    QAction *pt_allAct;
+    QAction *pt_pcaAct;
+
 private slots:
     void decrease_dialogSetCounter();
     void closeAllDialogs();

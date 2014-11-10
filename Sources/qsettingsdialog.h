@@ -19,8 +19,6 @@ public:
 
 
 public:
-    bool get_flagColor() const;
-    bool get_flagPCA() const;
     bool get_FFTflag() const;
     bool get_flagCascade() const;
     bool get_flagVideoFile() const;
@@ -36,7 +34,6 @@ public:
 
 private slots:
 
-
     void on_ButtonAccept_clicked();
 
     void on_ButtonCancel_clicked();
@@ -50,8 +47,6 @@ private slots:
     void on_ButtonDefault_clicked();
 
     void on_checkBoxCascade_stateChanged(int arg1);
-
-    void on_checkBoxColor_stateChanged(int arg1);
 
     void on_horizontalSliderTimer_valueChanged(int value);
 

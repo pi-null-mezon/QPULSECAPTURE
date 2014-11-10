@@ -161,6 +161,8 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
                         //p[i] = 0;
                     }
                 }
+                blue = green;
+                red = green;
             }
             area = (rectwidth - 2*dX)*(3*dY);
         }
@@ -195,6 +197,8 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
                         //p[i] = 0;
                     }
                 }
+                blue = green;
+                red = green;
             }
             area = rectwidth*rectheight;
         }

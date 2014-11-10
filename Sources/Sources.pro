@@ -40,7 +40,6 @@ HEADERS  += mainwindow.h \
 FORMS += qsettingsdialog.ui
 
 RC_ICONS = $$PWD/../Resources/Images/App_ico.ico
-#RESOURCES = $$PWD/../Resources/Images/App_resources.qrc
 #CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT
 
 include(OPENCV.pri)

@@ -65,7 +65,6 @@ void QSettingsDialog::on_ButtonDefault_clicked()
 {
     ui->dialDatalength->setValue(8);
     ui->dialBufferlength->setValue(8);
-    ui->checkBoxColor->setChecked(false);
     ui->checkBoxCascade->setChecked(false);
     ui->lineEditCascade->setText("haarcascades/haarcascade_frontalface_alt.xml");
     ui->checkBoxVideoFile->setChecked(false);
@@ -74,16 +73,6 @@ void QSettingsDialog::on_ButtonDefault_clicked()
     ui->checkBoxPatient->setChecked(true);
     ui->comboBoxPatient->setCurrentIndex(0);
     ui->lineEditPatient->setText("normal_heart_rate_at_rest.xml");
-}
-
-bool QSettingsDialog::get_flagColor() const
-{
-    return ui->checkBoxColor->isChecked();
-}
-
-bool QSettingsDialog::get_flagPCA() const
-{
-    return ui->checkBoxPCA->isChecked();
 }
 
 bool QSettingsDialog::get_flagCascade() const
@@ -121,21 +110,6 @@ void QSettingsDialog::on_checkBoxCascade_stateChanged(int arg1)
         case Qt::Unchecked:
             ui->groupBoxCascade->setEnabled(false);
             break;
-    }
-}
-
-void QSettingsDialog::on_checkBoxColor_stateChanged(int arg1)
-{
-    switch(arg1)
-    {
-        case Qt::Checked:
-            ui->checkBoxPCA->setEnabled(true);
-            break;
-        case Qt::Unchecked:
-            ui->checkBoxPCA->setChecked(false);
-            ui->checkBoxPCA->setEnabled(false);
-            break;
-
     }
 }
 
