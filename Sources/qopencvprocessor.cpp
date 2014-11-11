@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------------------------------
 Taranov Alex, 2014									     SOURCE FILE
 Class that wraps opencv functions into Qt SIGNAL/SLOT interface
-The simplest way to use it - rewrite appropriate section in QOpencvProcessor::custom_algorithm(...) slot
+The simplest way to use it - rewrite appropriate section in QOpencvProcessor::customProcess(...) slot
 ------------------------------------------------------------------------------------------------------*/
 
 #include "qopencvprocessor.h"
@@ -21,14 +21,14 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
 
 //-----------------------------------------------------------------------------------------------------
 
-void QOpencvProcessor::update_timeCounter()
+void QOpencvProcessor::updateTime()
 {
     m_timeCounter = cv::getTickCount();
 }
 
 //------------------------------------------------------------------------------------------------------
 
-void QOpencvProcessor::custom_algorithm(const cv::Mat &input)
+void QOpencvProcessor::customProcess(const cv::Mat &input)
 {
     cv::Mat output(input); // Copy the header and pointer to data of input object
     cv::Mat temp; // temporary object
@@ -52,7 +52,7 @@ void QOpencvProcessor::custom_algorithm(const cv::Mat &input)
     m_framePeriod = (cv::getTickCount() -  m_timeCounter) * 1000.0 / cv::getTickFrequency(); // result is calculated in milliseconds
     m_timeCounter = cv::getTickCount();
 
-    emit frame_was_processed(output, m_framePeriod);
+    emit frameProcessed(output, m_framePeriod);
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -64,20 +64,13 @@ void QOpencvProcessor::setRect(const cv::Rect &input_rect)
 
 //------------------------------------------------------------------------------------------------------
 
-bool QOpencvProcessor::load_cascadecalssifier_file(const std::string &filename)
+bool QOpencvProcessor::loadClassifier(const std::string &filename)
 {
     return m_classifier.load( filename );
 }
 
 //------------------------------------------------------------------------------------------------------
-
-bool QOpencvProcessor::check_classifier_isempty()
-{
-    return m_classifier.empty();
-}
-
-//------------------------------------------------------------------------------------------------------
-void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
+void QOpencvProcessor::faceProcess(const cv::Mat &input)
 {
     cv::Mat output(input);  // Copy the header and pointer to data of input object
     cv::Mat gray; // Create an instance of cv::Mat for temporary image storage
@@ -211,25 +204,25 @@ void QOpencvProcessor::pulse_processing_with_classifier(const cv::Mat &input)
     if(faces_vector.size() != 0)
     {
         cv::rectangle( output, faces_vector[0] , cv::Scalar(255,25,25));
-        emit colors_were_evaluated( red , green, blue, area, m_framePeriod);
+        emit dataCollected( red , green, blue, area, m_framePeriod);
     }
     else
     {
         if(m_classifier.empty())
         {
-            emit no_regions_selected("Load cascade for detection");
+            emit selectRegion("Load cascade for detection");
         }
         else
         {
-            emit no_regions_selected("Come closer, please");
+            emit selectRegion("Come closer, please");
         }
     }
-    emit frame_was_processed(output, m_framePeriod);
+    emit frameProcessed(output, m_framePeriod);
 }
 
 //------------------------------------------------------------------------------------------------
 
-void QOpencvProcessor::pulse_processing_custom_region(const cv::Mat &input)
+void QOpencvProcessor::rectProcess(const cv::Mat &input)
 {
     cv::Mat output(input); //Copy constructor
     unsigned int rectwidth = m_cvRect.width;
@@ -285,13 +278,13 @@ void QOpencvProcessor::pulse_processing_custom_region(const cv::Mat &input)
     if((rectheight > 0) && (rectwidth > 0))
     {
         cv::rectangle( output , m_cvRect, cv::Scalar(255,25,25));
-        emit colors_were_evaluated(red, green, blue, rectwidth*rectheight, m_framePeriod);
+        emit dataCollected(red, green, blue, rectwidth*rectheight, m_framePeriod);
     }
     else
     {
-        emit no_regions_selected("Select region on image");
+        emit selectRegion("Select region on image");
     }
-    emit frame_was_processed(output, m_framePeriod);
+    emit frameProcessed(output, m_framePeriod);
 }
 
 //-----------------------------------------------------------------------------------------------

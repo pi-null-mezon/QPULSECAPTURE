@@ -208,9 +208,9 @@ void MainWindow::createThreads()
     qRegisterMetaType<cv::Rect>("cv::Rect");
 
     //----------------------Connections------------------------------
-    connect(pt_opencvProcessor, SIGNAL(frame_was_processed(cv::Mat,double)), pt_display, SLOT(updateImage(cv::Mat,double)));
+    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double)), pt_display, SLOT(updateImage(cv::Mat,double)));
     connect(pt_display, SIGNAL(rect_was_entered(cv::Rect)), pt_opencvProcessor, SLOT(setRect(cv::Rect)));
-    connect(pt_opencvProcessor, SIGNAL(no_regions_selected(const char*)), pt_display, SLOT(set_warning_status(const char*)));
+    connect(pt_opencvProcessor, SIGNAL(selectRegion(const char*)), pt_display, SLOT(set_warning_status(const char*)));
     //----------------------Thread start-----------------------------
     pt_improcThread->start();
 }
@@ -354,7 +354,7 @@ void MainWindow::onresume()
 {
     pt_videoCapture->resume();
     m_timer.start();
-    pt_opencvProcessor->update_timeCounter();
+    pt_opencvProcessor->updateTime();
 }
 
 //-----------------------------------------------------------------------------------
@@ -432,7 +432,7 @@ void MainWindow::configure_and_start_session()
         if(dialog.get_flagCascade())
         {
             QString filename = dialog.get_stringCascade();
-            while(!pt_opencvProcessor->load_cascadecalssifier_file(filename.toStdString()))
+            while(!pt_opencvProcessor->loadClassifier(filename.toStdString()))
             {
                 QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not load classifier file"), QMessageBox::Ok | QMessageBox::Open, this, Qt::Dialog);
                 if(msgBox.exec() == QMessageBox::Open)
@@ -448,14 +448,14 @@ void MainWindow::configure_and_start_session()
                     break;
                 }
             }
-            connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(pulse_processing_with_classifier(cv::Mat)), Qt::BlockingQueuedConnection);
+            connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(faceProcess(cv::Mat)), Qt::BlockingQueuedConnection);
         }
         else
         {
-            connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(pulse_processing_custom_region(cv::Mat)), Qt::BlockingQueuedConnection);
+            connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(rectProcess(cv::Mat)), Qt::BlockingQueuedConnection);
         }
         //--------------------------------------------------------------
-        connect(pt_opencvProcessor, SIGNAL(colors_were_evaluated(ulong,ulong,ulong,ulong,double)), pt_harmonicProcessor, SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
+        connect(pt_opencvProcessor, SIGNAL(dataCollected(ulong,ulong,ulong,ulong,double)), pt_harmonicProcessor, SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
         connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_display, SLOT(updatePointer(const qreal*,quint16)));
         connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
         //--------------------------------------------------------------      
