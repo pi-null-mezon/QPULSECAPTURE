@@ -23,7 +23,7 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
 {
     // Memory allocation
     v_RawCh1 = new qreal[m_DataLength];
-    v_RawCh1 = new qreal[m_DataLength];
+    v_RawCh2 = new qreal[m_DataLength];
     v_Signal = new qreal[m_DataLength];
     v_Time = new qreal[m_DataLength];
     v_Input = new qreal[DIGITAL_FILTER_LENGTH];
@@ -38,7 +38,7 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     for (quint16 i = 0; i < m_DataLength; i++)
     {
         v_RawCh1[i] = 0.0; // it should be equal to zero at start
-        v_RawCh1[i] = 0.0; // it should be equal to zero at start
+        v_RawCh2[i] = 0.0; // it should be equal to zero at start
         v_Time[i] = 35.0; // just for ensure that at the begining there is not any "division by zero"
         v_Signal[i] = 0.0;
         if(i % 4)
@@ -64,7 +64,7 @@ QHarmonicProcessor::~QHarmonicProcessor()
 {
     fftw_destroy_plan(m_plan);
     delete[] v_RawCh1;
-    delete[] v_RawCh1;
+    delete[] v_RawCh2;
     delete[] v_Signal;
     delete[] v_Time;
     delete[] v_Input;
@@ -90,20 +90,20 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         qreal ch2_temp = (qreal)(red + green - 2 * blue) / area;
 
         m_MeanCh1 += (ch1_temp - v_RawCh1[curpos]) / m_DataLength;
-        m_MeanCh2 += (ch2_temp - v_RawCh1[curpos]) / m_DataLength;
+        m_MeanCh2 += (ch2_temp - v_RawCh2[curpos]) / m_DataLength;
         v_RawCh1[curpos] = ch1_temp;
-        v_RawCh1[curpos] = ch2_temp;
+        v_RawCh2[curpos] = ch2_temp;
 
         qreal ch1_sko = 0.0;
         qreal ch2_sko = 0.0;
         for (unsigned int i = 0; i < m_DataLength; i++)
         {
             ch1_sko += (v_RawCh1[i] - m_MeanCh1)*(v_RawCh1[i] - m_MeanCh1);
-            ch2_sko += (v_RawCh1[i] - m_MeanCh2)*(v_RawCh1[i] - m_MeanCh2);
+            ch2_sko += (v_RawCh2[i] - m_MeanCh2)*(v_RawCh2[i] - m_MeanCh2);
         }
         ch1_sko = sqrt(ch1_sko / (m_DataLength - 1));
         ch2_sko = sqrt(ch2_sko / (m_DataLength - 1));
-        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh1[curpos] - m_MeanCh2) / ch2_sko;
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh2[curpos] - m_MeanCh2) / ch2_sko;
 
     } else {
 
