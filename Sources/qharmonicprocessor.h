@@ -2,7 +2,8 @@
 #define QHARMONICPROCESSOR_H
 
 #include <QObject>
-
+#include <QThread>
+#include <QMutex>
 #include "fftw3.h"
 #include "ap.h" // ALGLIB types
 #include "dataanalysis.h" // ALGLIB functions
@@ -33,6 +34,7 @@ signals:
     void BinaryOutputUpdated(const qreal *pointer_to_vector, quint16 length_of_vector);
     void CurrentValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void TooNoisy(qreal snr_value);
+    void snrUpdated(quint32 id, qreal snr_value); // interface signal for mapping
 
 public slots:
     void EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
@@ -41,6 +43,7 @@ public slots:
     void setPCAMode(bool value); // controls PCA alignment
     void switchColorMode(ColorChannel value); // controls colors enrollment
     int loadWarningRates(const char *fileName, SexID sex, int age, TwoSideAlpha alpha);
+    void setID(quint32 value);
 
 private:
     qreal *v_Signal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
@@ -79,6 +82,8 @@ private:
     quint16 loopInput(qint16) const; //a function that return a loop-index
     quint16 loopBuffer(qint16) const; //a function that return a loop-index
     quint8 loopOnTwo(qint16 difference) const;
+
+    quint32 m_ID;
 };
 
 // inline, for speed, must therefore reside in header file
@@ -102,6 +107,44 @@ inline quint8 QHarmonicProcessor::loopOnTwo(qint16 difference) const
     return ((2 + (difference % 2)) % 2);
 }
 //---------------------------------------------------------------------------
+
+
+
+class QHarmonicProcessorMap: public QObject
+{
+    Q_OBJECT
+
+public:
+    QHarmonicProcessorMap(QObject* parent = NULL, quint32 width = 32, quint32 height = 32);
+    ~QHarmonicProcessorMap();
+
+signals:
+    void operateSignal();
+    void mapReady(qreal *pointer, quint16 width, quint16 height, qreal max, qreal min);
+    void dataArrived(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
+
+public slots:
+    void makeComputations();
+    void writeToNextCell(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
+
+private:
+    quint32 m_cellNum;
+    quint32 m_width;
+    quint32 m_height;
+    qreal *v_map;
+    QHarmonicProcessor *v_processors;
+    QThread *v_threads;
+    QMutex m_mutex;
+    quint32 m_updations;
+    qreal m_min;
+    qreal m_max;
+
+private slots:
+    void updateElement(quint32 id, qreal value);
+};
+
+//---------------------------------------------------------------------------
+
 
 
 #endif // QHARMONICPROCESSOR_H

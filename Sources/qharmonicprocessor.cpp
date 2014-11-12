@@ -19,7 +19,8 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_PulseCounter(4),
     m_leftThreshold(70),
     m_rightTreshold(80),
-    m_output(1.0)
+    m_output(1.0),
+    m_ID(0)
 {
     // Memory allocation
     v_RawCh1 = new qreal[m_DataLength];
@@ -258,6 +259,7 @@ void QHarmonicProcessor::ComputeFrequency()
     bias = sqrt(bias * bias); // take abs of bias
     qreal resultWeight = (HALF_INTERVAL + 1 - bias)/(HALF_INTERVAL + 1);
     m_SNR *= resultWeight * resultWeight * resultWeight * resultWeight; // make more multiplication to add more nonlinearity
+    emit snrUpdated(m_ID, m_SNR); // signal for mapper
 
     if(m_SNR > SNR_TRESHOLD)
     {
@@ -413,4 +415,95 @@ int QHarmonicProcessor::loadWarningRates(const char *fileName, SexID sex, int ag
     qWarning("Xml parsing:can not find appropriate record in file!");
     return ReadError;
 }
+
+//------------------------------------------------------------------------------------------------
+
+void QHarmonicProcessor::setID(quint32 value)
+{
+    m_ID = value;
+}
+
+//------------------------------------------------------------------------------------------------
+
+QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, quint32 height):
+    QObject(parent),
+    m_width(width),
+    m_height(height),
+    m_cellNum(0),
+    m_updations(0),
+    m_min(0.0),
+    m_max(0.0)
+{
+    v_map = new qreal[width*height]; // 0...width*height-1
+    v_processors = new QHarmonicProcessor[width*height];
+    for(quint32 i = 0; i < width*height; i++)
+    {
+        v_processors[i].setID(i);
+    }
+    v_threads = new QThread[height]; // one thred per row
+
+    for(quint16 i = 0; i < height; i++)
+        for(quint16 j = 0; j < width; j++)
+        {
+            v_processors[i*width + j].moveToThread(&v_threads[i]);
+            connect(this, &QHarmonicProcessorMap::operateSignal, &v_processors[i*width + j], &QHarmonicProcessor::ComputeFrequency);
+            connect(&v_processors[i*width + j], &QHarmonicProcessor::snrUpdated, this, &QHarmonicProcessorMap::updateElement);
+        }
+
+    for(quint16 i = 0; i < height ; i++)
+    {
+        v_threads[i].start();
+    }
+}
+
+QHarmonicProcessorMap::~QHarmonicProcessorMap()
+{
+    for(quint16 i = 0; i < m_height ; i++)
+    {
+        v_threads[i].quit();
+    }
+    for(quint16 i = 0; i < m_height ; i++)
+    {
+        v_threads[i].wait();
+    }
+    delete[] v_map;
+    delete[] v_processors;
+    delete[] v_threads;
+}
+
+void QHarmonicProcessorMap::writeToNextCell(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period)
+{
+    connect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_cellNum], &QHarmonicProcessor::EnrollData);
+    emit dataArrived(red,green,blue,area,period);
+    this->disconnect(&v_processors[m_cellNum]);
+    m_cellNum = (++m_cellNum)%(m_height*m_width);
+}
+
+void QHarmonicProcessorMap::updateElement(quint32 id, qreal value)
+{
+    m_mutex.lock();
+    v_map[id] = value;
+    if(value > m_max) {
+        m_max = value;
+    } else if(value < m_min) {
+        m_min = value;
+    }
+    m_updations++;
+    if(m_updations == m_cellNum)
+    {
+        for(quint32 i = 0; i < m_width*m_height; i++)
+            v_map[i] = (v_map[i] - m_min)/(m_max - m_min);
+        emit mapReady(v_map, m_width, m_height, m_max, m_min);
+        m_updations = 0;
+        m_max = 0.0;
+        m_min = 0.0;
+    }
+    m_mutex.unlock();
+}
+
+void QHarmonicProcessorMap::makeComputations()
+{
+    emit operateSignal();
+}
+
 

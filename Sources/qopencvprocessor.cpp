@@ -295,3 +295,9 @@ void QOpencvProcessor::setFullFaceFlag(bool value)
 }
 
 //------------------------------------------------------------------------------------------------
+
+
+void QOpencvProcessor::mapProcess(const cv::Mat &input)
+{
+
+}
