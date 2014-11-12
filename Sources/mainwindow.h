@@ -28,6 +28,7 @@
 #include "qsettingsdialog.h"
 #include "qeasyplot.h"
 #include "qbackgroundwidget.h"
+#include "mappingdialog.h"
 
 //------------------------------------------------------------------------------------------------------
 
@@ -63,6 +64,7 @@ public slots:
     void startRecord();
     void SwitchColorMode(int value);
     void SwitchPCA(bool value);
+    void openMapDialog();
 
 private:
     void createActions();
@@ -86,7 +88,8 @@ private:
     QAction *pt_fastVisualizationAct;
     QAction *pt_changeColorsAct;
     QAction *pt_openPlotDialog;
-    QAction *pt_recordAct;   
+    QAction *pt_recordAct;
+    QAction *pt_mapAct;
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;

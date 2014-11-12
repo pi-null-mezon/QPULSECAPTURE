@@ -148,6 +148,11 @@ void MainWindow::createActions()
     pt_pcaAct->setStatusTip(tr("Control PCA alignment, affects on result only in harmonic analysis mode"));
     pt_pcaAct->setCheckable(true);
     connect(pt_pcaAct, SIGNAL(triggered(bool)), this, SLOT(SwitchPCA(bool)));
+
+    pt_mapAct = new QAction(tr("Mapping"), this);
+    pt_mapAct->setStatusTip(tr("Start to mapping pulse signal on image"));
+    pt_mapAct->setCheckable(true);
+    connect(pt_mapAct, SIGNAL(triggered()), this, SLOT(openMapDialog()));
 }
 
 //------------------------------------------------------------------------------------
@@ -168,6 +173,8 @@ void MainWindow::createMenus()
     pt_modeMenu->addActions(pt_colorActGroup->actions());
     pt_modeMenu->addSeparator();
     pt_modeMenu->addAction(pt_pcaAct);
+    pt_modeMenu->addSeparator();
+    pt_modeMenu->addAction(pt_mapAct);
     pt_optionsMenu->addSeparator();
     pt_optionsMenu->addAction(pt_fastVisualizationAct);
     pt_optionsMenu->addAction(pt_changeColorsAct);
@@ -683,3 +690,31 @@ void MainWindow::SwitchPCA(bool value)
         pt_harmonicProcessor->setPCAMode(value);
     }
 }
+
+//----------------------------------------------------------------------------------------------
+
+void MainWindow::openMapDialog()
+{
+    int width = pt_opencvProcessor->getRectHeight();
+    int height = pt_opencvProcessor->getRectHeight();
+
+    if((width == 0) || (height == 0))
+    {
+        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Select region on image first"), QMessageBox::Ok, this, Qt::Dialog);
+        msgBox.exec();
+        pt_mapAct->setChecked(false);
+        return;
+    }
+
+    mappingdialog dialog;
+    if(dialog.exec() == QDialog::Accepted)
+    {
+        pt_mapAct->setChecked(true);
+    }
+    else
+    {
+        pt_mapAct->setChecked(false);
+    }
+
+}
+

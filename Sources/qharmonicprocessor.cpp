@@ -429,10 +429,12 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     QObject(parent),
     m_width(width),
     m_height(height),
-    m_cellNum(0),
     m_updations(0),
     m_min(0.0),
-    m_max(0.0)
+    m_max(0.0),
+    m_currentCell(0),
+    m_currentColumn(0),
+    m_currentRow(0)
 {
     v_map = new qreal[width*height]; // 0...width*height-1
     v_processors = new QHarmonicProcessor[width*height];
@@ -473,10 +475,19 @@ QHarmonicProcessorMap::~QHarmonicProcessorMap()
 
 void QHarmonicProcessorMap::writeToNextCell(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period)
 {
-    connect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_cellNum], &QHarmonicProcessor::EnrollData);
+    connect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_currentCell], &QHarmonicProcessor::EnrollData);
     emit dataArrived(red,green,blue,area,period);
-    this->disconnect(&v_processors[m_cellNum]);
-    m_cellNum = (++m_cellNum)%(m_height*m_width);
+    this->disconnect(&v_processors[m_currentCell]);
+    m_currentCell += m_width;
+    m_currentRow++;
+    if(m_currentRow == m_height) {
+        m_currentRow = 0;
+        m_currentColumn++;
+        if(m_currentColumn == m_width) {
+            m_currentColumn = 0;
+        }
+        m_currentCell = m_currentColumn;
+    }
 }
 
 void QHarmonicProcessorMap::updateElement(quint32 id, qreal value)
@@ -489,10 +500,11 @@ void QHarmonicProcessorMap::updateElement(quint32 id, qreal value)
         m_min = value;
     }
     m_updations++;
-    if(m_updations == m_cellNum)
+    if(m_updations == m_height*m_width)
     {
-        for(quint32 i = 0; i < m_width*m_height; i++)
+        for(quint32 i = 0; i < m_width*m_height; i++) {
             v_map[i] = (v_map[i] - m_min)/(m_max - m_min);
+        }
         emit mapReady(v_map, m_width, m_height, m_max, m_min);
         m_updations = 0;
         m_max = 0.0;

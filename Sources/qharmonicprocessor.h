@@ -138,6 +138,9 @@ private:
     quint32 m_updations;
     qreal m_min;
     qreal m_max;
+    quint32 m_currentCell;
+    quint32 m_currentColumn;
+    quint32 m_currentRow;
 
 private slots:
     void updateElement(quint32 id, qreal value);

@@ -25,7 +25,8 @@ SOURCES +=  main.cpp\
             qharmonicprocessor.cpp \
             qsettingsdialog.cpp \
             qeasyplot.cpp \
-            qbackgroundwidget.cpp
+            qbackgroundwidget.cpp \
+    mappingdialog.cpp
 
 HEADERS  += mainwindow.h \
             qimagewidget.h \
@@ -35,9 +36,11 @@ HEADERS  += mainwindow.h \
             qharmonicprocessor.h \
             qsettingsdialog.h \
             qeasyplot.h \
-            qbackgroundwidget.h
+            qbackgroundwidget.h \
+    mappingdialog.h
 
-FORMS += qsettingsdialog.ui
+FORMS += qsettingsdialog.ui \
+    mappingdialog.ui
 
 RC_ICONS = $$PWD/../Resources/Images/App_ico.ico
 #CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT

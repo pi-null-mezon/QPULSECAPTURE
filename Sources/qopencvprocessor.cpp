@@ -20,6 +20,16 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
 }
 
 //-----------------------------------------------------------------------------------------------------
+int QOpencvProcessor::getRectWidth()
+{
+    return m_cvRect.width;
+}
+//-----------------------------------------------------------------------------------------------------
+int QOpencvProcessor::getRectHeight()
+{
+    return m_cvRect.height;
+}
+//-----------------------------------------------------------------------------------------------------
 
 void QOpencvProcessor::updateTime()
 {

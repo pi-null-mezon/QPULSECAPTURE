@@ -33,6 +33,8 @@ public slots:
     bool loadClassifier(const std::string& filename); // an interface to CascadeClassifier::load(...) function
     void setFullFaceFlag(bool value);           // interface to define if algorithm will process full rectangle region returned by detectmultiscale(...) or parts them
     void mapProcess(const cv::Mat &input);
+    int getRectWidth();
+    int getRectHeight();
 
 private:
     bool m_fullFaceFlag;
