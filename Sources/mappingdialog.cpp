@@ -59,6 +59,7 @@ quint16 mappingdialog::getMapWidth()
 quint16 mappingdialog::getMapHeight()
 {
     return m_height/m_cellSize;
+
 }
 
 quint16 mappingdialog::getCellSize()

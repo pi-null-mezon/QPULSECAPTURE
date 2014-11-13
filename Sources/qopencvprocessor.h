@@ -23,7 +23,8 @@ signals:
     void frameProcessed(const cv::Mat& value, double frame_period); //should be emited in the end of each frame processing
     void dataCollected(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
     void selectRegion(const char * string);     // emit it if no objects has been detected or no regions are selected
-    void elementProcessed(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
+    void mapCellProcessed(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
+
 public slots:
     void customProcess(const cv::Mat &input);   // just a template of how a program logic should work
     void updateTime();                          // use it in the beginning of any time-measurement operations
@@ -33,10 +34,12 @@ public slots:
     bool loadClassifier(const std::string& filename); // an interface to CascadeClassifier::load(...) function
     void setFullFaceFlag(bool value);           // interface to define if algorithm will process full rectangle region returned by detectmultiscale(...) or parts them
     void mapProcess(const cv::Mat &input);
-    int getRectWidth();
-    int getRectHeight();
-    void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
-    void setCellSize(quint16 value);
+
+    cv::Rect getRect(); // returns current m_cvRect
+    void setMapRegion(const cv::Rect &input_rect); // sets up map region, see m_mapRect
+    void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min); //
+    void setMapCellSize(quint16 sizeX, quint16 sizeY);
+
 private:
     bool m_fullFaceFlag;
     int64 m_timeCounter;    // stores time of application/computer start
@@ -45,9 +48,9 @@ private:
     cv::CascadeClassifier m_classifier; //object that manages opencv's image recognition functions
 
     qreal *pt_map;
-    quint16 m_cellSize;
-    quint16 m_rows;
-    quint16 m_cols;
+    quint16 m_mapCellSizeX;
+    quint16 m_mapCellSizeY;
+    cv::Rect m_mapRect;
 };
 
 //------------------------------------------------------------------------------------------------------

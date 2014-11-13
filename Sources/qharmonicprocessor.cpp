@@ -80,7 +80,6 @@ QHarmonicProcessor::~QHarmonicProcessor()
 
 void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time)
 {
-    //qWarning("EnrollData in %d processor", m_ID);
     quint16 position = loopBuffer(curpos);
     PCA_RAW_RGB(position, 0) = (qreal)red / area;
     PCA_RAW_RGB(position, 1) = (qreal)green / area;
@@ -161,18 +160,12 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
     emit CurrentValues(v_Signal[curpos], PCA_RAW_RGB(position, 0), PCA_RAW_RGB(position, 1), PCA_RAW_RGB(position, 2), m_HeartRate, m_SNR);
     curpos = (++curpos) % m_DataLength; // for loop-like usage of ptData and the other arrays in this class
-
-    /*if(curpos % 64)
-    {
-        ComputeFrequency();
-    }*/
 }
 
 //----------------------------------------------------------------------------------------------------------
 
 void QHarmonicProcessor::ComputeFrequency()
 {
-    qWarning("ComputeFrequency in %d processor", m_ID);
     qint16 temp_position = curpos - 1;
     qreal buffer_duration = 0.0; // for buffer duration accumulation without first time interval
     if(f_PCA)
@@ -298,7 +291,6 @@ void QHarmonicProcessor::switchColorMode(ColorChannel value)
 
 void QHarmonicProcessor::CountFrequency()
 {
-    qWarning("CountFrequency() was called in processor %d", m_ID);
     qint16 position = curpos - 1; // delay on 1 count is critical valuable here
     quint16 watchDogCounter = 0;
     quint16 sign_changes = m_PulseCounter;
@@ -429,7 +421,6 @@ int QHarmonicProcessor::loadWarningRates(const char *fileName, SexID sex, int ag
 void QHarmonicProcessor::setID(quint32 value)
 {
     m_ID = value;
-    qWarning("Info about Processor%d: datalength %d, bufferlength %d", m_ID, m_DataLength, m_BufferLength);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -438,32 +429,32 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     QObject(parent),
     m_width(width),
     m_height(height),
+    m_length(width*height),
     m_updations(0),
     m_min(0.0),
     m_max(0.0),
-    m_currentCell(0),
-    m_currentColumn(0),
-    m_currentRow(0)
+    m_cell(0)
 {
     v_map = new qreal[width*height]; // 0...width*height-1
-    v_processors = new QHarmonicProcessor[width*height];
+    v_processors = new QHarmonicProcessor[width*height]; // 0...width*height-1
+    v_threads = new QThread[width]; // 0..width-1, one thred per column of the map
+
     for(quint32 i = 0; i < width*height; i++)
     {
-        v_processors[i].setID(i);
+        v_processors[i].setID(i); // needs for control in whitch cell of the map write particular snr value
     }
-    v_threads = new QThread[height]; // one thred per row
 
     for(quint16 i = 0; i < height; i++)
     {
         for(quint16 j = 0; j < width; j++)
         {
-            v_processors[i*width + j].moveToThread(&v_threads[i]);
-            connect(this, &QHarmonicProcessorMap::operateSignal, &v_processors[i*width+j], &QHarmonicProcessor::ComputeFrequency);
-            connect(&v_processors[i*width+j], &QHarmonicProcessor::snrUpdated, this, &QHarmonicProcessorMap::updateElement);
+            v_processors[i*width+j].moveToThread(&v_threads[j]);
+            connect(this, &QHarmonicProcessorMap::updateMap, &v_processors[i*width+j], &QHarmonicProcessor::ComputeFrequency);
+            connect(&v_processors[i*width+j], &QHarmonicProcessor::snrUpdated, this, &QHarmonicProcessorMap::updateCell);
         }
     }
 
-    for(quint16 i = 0; i < height ; i++)
+    for(quint16 i = 0; i < width ; i++)
     {
         v_threads[i].start();
         qWarning("Thread %d was started!", i);
@@ -472,11 +463,11 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
 
 QHarmonicProcessorMap::~QHarmonicProcessorMap()
 {
-    for(quint16 i = 0; i < m_height ; i++)
+    for(quint16 i = 0; i < m_width ; i++)
     {
         v_threads[i].quit();
     }
-    for(quint16 i = 0; i < m_height ; i++)
+    for(quint16 i = 0; i < m_width ; i++)
     {
         v_threads[i].wait();
     }
@@ -485,27 +476,18 @@ QHarmonicProcessorMap::~QHarmonicProcessorMap()
     delete[] v_threads;
 }
 
-void QHarmonicProcessorMap::writeToNextCell(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period)
+void QHarmonicProcessorMap::updateHarmonicProcessor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period)
 {
-    connect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_currentCell], &QHarmonicProcessor::EnrollData);
+    connect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_cell], &QHarmonicProcessor::EnrollData);
     emit dataArrived(red,green,blue,area,period);
-    disconnect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_currentCell], &QHarmonicProcessor::EnrollData);
-    m_currentCell += m_width;
-    m_currentRow++;
-    if(m_currentRow == m_height) {
-        m_currentRow = 0;
-        m_currentColumn++;
-        if(m_currentColumn == m_width) {
-            m_currentColumn = 0;
-        }
-        m_currentCell = m_currentColumn;
-    }
+    disconnect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_cell], &QHarmonicProcessor::EnrollData);
+    m_cell = (++m_cell) % m_length;
 }
 
-void QHarmonicProcessorMap::updateElement(quint32 id, qreal value)
+void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
 {
-    qWarning("Element %d updated", id);
     m_mutex.lock();
+
     v_map[id] = value;
     if(value > m_max) {
         m_max = value;
@@ -513,26 +495,18 @@ void QHarmonicProcessorMap::updateElement(quint32 id, qreal value)
         m_min = value;
     }
     m_updations++;
-    if(m_updations == m_height*m_width)
+    if(m_updations == m_length)
     {
-        for(quint32 i = 0; i < m_width*m_height; i++) {
+        for(quint32 i = 0; i < m_length; i++) {
             v_map[i] = (v_map[i] - m_min)/(m_max - m_min);
         }
-        emit mapReady(v_map, m_width, m_height, m_max, m_min);
+        emit mapUpdated(v_map, m_width, m_height, m_max, m_min);
         m_updations = 0;
         m_max = 0.0;
         m_min = 0.0;
     }
+
     m_mutex.unlock();
 }
 
-void QHarmonicProcessorMap::makeMap()
-{
-    emit operateSignal();
-}
-
-void QHarmonicProcessorMap::testSlot()
-{
-    qWarning("testSlot() was executed!");
-}
 

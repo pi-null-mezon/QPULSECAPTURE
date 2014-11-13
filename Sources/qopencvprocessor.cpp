@@ -19,20 +19,22 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_fullFaceFlag = false;
 
     pt_map = NULL;
-    m_cols = 0;
-    m_rows = 0;
 }
 
 //-----------------------------------------------------------------------------------------------------
-int QOpencvProcessor::getRectWidth()
+
+cv::Rect QOpencvProcessor::getRect()
 {
-    return m_cvRect.width;
+    return m_cvRect;
 }
+
 //-----------------------------------------------------------------------------------------------------
-int QOpencvProcessor::getRectHeight()
+
+void QOpencvProcessor::setMapRegion(const cv::Rect &input_rect)
 {
-    return m_cvRect.height;
+    m_mapRect = input_rect;
 }
+
 //-----------------------------------------------------------------------------------------------------
 
 void QOpencvProcessor::updateTime()
@@ -314,67 +316,78 @@ void QOpencvProcessor::setFullFaceFlag(bool value)
 void QOpencvProcessor::mapProcess(const cv::Mat &input)
 {
     cv::Mat output(input);
-    int X = m_cvRect.x;
-    int Y = m_cvRect.y;
-    int W = m_cvRect.width;
-    int H = m_cvRect.height;
+    int X = m_mapRect.x;
+    int Y = m_mapRect.y;
+    int W = m_mapRect.width;
+    int H = m_mapRect.height;
 
-    int stepsY = H/m_cellSize;
-    int stepsX = W/m_cellSize;
-    unsigned char *pixel;
-    int area = m_cellSize*m_cellSize;
+    int stepsY = H / m_mapCellSizeY;
+    int stepsX = W / m_mapCellSizeX;
+    unsigned char *pixelSet[m_mapCellSizeY];
+    int area = m_mapCellSizeY*m_mapCellSizeX;
 
     unsigned long sumRed = 0;
     unsigned long sumBlue = 0;
     unsigned long sumGreen = 0;
 
+    int performance_pill;
+
     if(input.channels() == 3)
     {
-        for(int j = 0; j < stepsX; j++)
+        for(int i = 0; i < stepsY; i++)
         {
-            for(int i = 0; i < stepsY; i++)
+            for(int p = 0; p < m_mapCellSizeY; p++)
             {
-                for(int k = 0; k < m_cellSize; k++)
+                pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
+            }
+            for(int j = 0; j < stepsX; j++)
+            {
+                for(int k = 0; k < m_mapCellSizeX; k++)
                 {
-                    pixel = output.ptr(Y + i * m_cellSize + k);
-                    for(int p = 0; p < m_cellSize; p++)
+                    performance_pill = 3*(X + j*m_mapCellSizeX + k);
+                    for(int p = 0; p < m_mapCellSizeY; p++)
                     {
-                        sumBlue += pixel[3*(X + j * m_cellSize + p)];
-                        sumGreen += pixel[3*(X + j * m_cellSize + p) + 1];
-                        sumRed += pixel[3*(X + j * m_cellSize + p) + 2];
+                        sumBlue += pixelSet[p][performance_pill];
+                        sumGreen += pixelSet[p][performance_pill + 1];
+                        sumRed += pixelSet[p][performance_pill + 2];
                     }
                 }
-                emit elementProcessed(sumRed, sumGreen, sumBlue, area, 0.035);
+                emit mapCellProcessed(sumRed, sumGreen, sumBlue, area, m_framePeriod);
                 sumBlue = 0;
-                sumRed = 0;
                 sumGreen = 0;
+                sumRed = 0;
             }
         }
     }
     else
     {
-        for(int j = 0; j < stepsX; j++)
+        for(int i = 0; i < stepsY; i++)
         {
-            for(int i = 0; i < stepsY; i++)
+            for(int p = 0; p < m_mapCellSizeY; p++)
             {
-                for(int k = 0; k < m_cellSize; k++)
+                pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
+            }
+            for(int j = 0; j < stepsX; j++)
+            {
+                for(int k = 0; k < m_mapCellSizeX; k++)
                 {
-                    pixel = output.ptr(Y + i * m_cellSize + k);
-                    for(int p = 0; p < m_cellSize; p++)
+                    performance_pill = X + j*m_mapCellSizeX + k;
+                    for(int p = 0; p < m_mapCellSizeY; p++)
                     {
-                        sumBlue += pixel[3*(X + j * m_cellSize + p)];
+                        sumBlue += pixelSet[p][performance_pill];
                     }
                 }
-                emit elementProcessed(sumBlue, sumBlue, sumBlue, area, 0.035);
+                emit mapCellProcessed(sumBlue, sumBlue, sumBlue, area, m_framePeriod);
                 sumBlue = 0;
             }
         }
     }
 }
 
-void QOpencvProcessor::setCellSize(quint16 value)
+void QOpencvProcessor::setMapCellSize(quint16 sizeX, quint16 sizeY)
 {
-   m_cellSize = value;
+    m_mapCellSizeX = sizeX;
+    m_mapCellSizeY = sizeY;
 }
 
 void QOpencvProcessor::updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min)
