@@ -18,7 +18,7 @@ class QHarmonicProcessor : public QObject
 {
     Q_OBJECT
 public:
-    explicit QHarmonicProcessor(QObject *parent = 0, quint16 length_of_data = 256, quint16 length_of_buffer = 256 );
+    explicit QHarmonicProcessor(QObject *parent = NULL, quint16 length_of_data = 256, quint16 length_of_buffer = 256 );
     ~QHarmonicProcessor();
     enum ColorChannel { Red, Green, Blue , All};
     enum XMLparserError { NoError, FileOpenError, FileExistanceError, ReadError, ParseFailure };
@@ -120,11 +120,11 @@ public:
 
 signals:
     void operateSignal();
-    void mapReady(qreal *pointer, quint16 width, quint16 height, qreal max, qreal min);
+    void mapReady(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
     void dataArrived(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
 
 public slots:
-    void makeComputations();
+    void makeMap();
     void writeToNextCell(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
 
 private:
@@ -143,6 +143,7 @@ private:
     quint32 m_currentRow;
 
 private slots:
+    void testSlot();
     void updateElement(quint32 id, qreal value);
 };
 

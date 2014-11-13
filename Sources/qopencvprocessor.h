@@ -35,13 +35,19 @@ public slots:
     void mapProcess(const cv::Mat &input);
     int getRectWidth();
     int getRectHeight();
-
+    void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
+    void setCellSize(quint16 value);
 private:
     bool m_fullFaceFlag;
     int64 m_timeCounter;    // stores time of application/computer start
     double m_framePeriod;   // stores time of frame processing
     cv::Rect m_cvRect;      // this rect is used by process_rectregion_pulse slot
     cv::CascadeClassifier m_classifier; //object that manages opencv's image recognition functions
+
+    qreal *pt_map;
+    quint16 m_cellSize;
+    quint16 m_rows;
+    quint16 m_cols;
 };
 
 //------------------------------------------------------------------------------------------------------

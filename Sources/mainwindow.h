@@ -115,6 +115,8 @@ private:
     QAction *pt_allAct;
     QAction *pt_pcaAct;
 
+    QHarmonicProcessorMap *pt_map;
+
 private slots:
     void decrease_dialogSetCounter();
     void closeAllDialogs();

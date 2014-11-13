@@ -206,6 +206,7 @@ void MainWindow::createThreads()
 
     pt_harmonicProcessor = NULL;
     pt_harmonicThread = NULL;
+    pt_map = NULL;
 
     //--------------------QVideoCapture------------------------------
     pt_videoCapture = new QVideoCapture(this);
@@ -468,7 +469,7 @@ void MainWindow::configure_and_start_session()
         //--------------------------------------------------------------      
         if(dialog.get_FFTflag())
         {
-            connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(ComputeFrequency()));
+            //connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(ComputeFrequency()));
         }
         else
         {
@@ -695,10 +696,7 @@ void MainWindow::SwitchPCA(bool value)
 
 void MainWindow::openMapDialog()
 {
-    int width = pt_opencvProcessor->getRectHeight();
-    int height = pt_opencvProcessor->getRectHeight();
-
-    if((width == 0) || (height == 0))
+    if((pt_opencvProcessor->getRectHeight() == 0) || (pt_opencvProcessor->getRectWidth() == 0))
     {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Select region on image first"), QMessageBox::Ok, this, Qt::Dialog);
         msgBox.exec();
@@ -707,14 +705,25 @@ void MainWindow::openMapDialog()
     }
 
     mappingdialog dialog;
+    dialog.setImageHeight(pt_opencvProcessor->getRectHeight());
+    dialog.setImageWidth(pt_opencvProcessor->getRectWidth());
     if(dialog.exec() == QDialog::Accepted)
     {
+        if(pt_map) {
+            pt_map->deleteLater();
+        }
+        pt_opencvProcessor->setCellSize(dialog.getCellSize());
+        pt_map = new QHarmonicProcessorMap(this, dialog.getMapWidth(), dialog.getMapHeight());
+        connect(pt_opencvProcessor, SIGNAL(elementProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(writeToNextCell(ulong,ulong,ulong,ulong,double)));
+        connect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(operateSignal()));
+        connect(pt_map, SIGNAL(mapReady(const qreal*,quint32,quint32,qreal,qreal)), pt_opencvProcessor, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
+        connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
+
         pt_mapAct->setChecked(true);
     }
     else
     {
         pt_mapAct->setChecked(false);
     }
-
 }
 

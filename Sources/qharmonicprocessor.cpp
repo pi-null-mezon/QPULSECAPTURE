@@ -80,6 +80,7 @@ QHarmonicProcessor::~QHarmonicProcessor()
 
 void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time)
 {
+    //qWarning("EnrollData in %d processor", m_ID);
     quint16 position = loopBuffer(curpos);
     PCA_RAW_RGB(position, 0) = (qreal)red / area;
     PCA_RAW_RGB(position, 1) = (qreal)green / area;
@@ -160,12 +161,18 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
     emit CurrentValues(v_Signal[curpos], PCA_RAW_RGB(position, 0), PCA_RAW_RGB(position, 1), PCA_RAW_RGB(position, 2), m_HeartRate, m_SNR);
     curpos = (++curpos) % m_DataLength; // for loop-like usage of ptData and the other arrays in this class
+
+    /*if(curpos % 64)
+    {
+        ComputeFrequency();
+    }*/
 }
 
 //----------------------------------------------------------------------------------------------------------
 
 void QHarmonicProcessor::ComputeFrequency()
 {
+    qWarning("ComputeFrequency in %d processor", m_ID);
     qint16 temp_position = curpos - 1;
     qreal buffer_duration = 0.0; // for buffer duration accumulation without first time interval
     if(f_PCA)
@@ -291,6 +298,7 @@ void QHarmonicProcessor::switchColorMode(ColorChannel value)
 
 void QHarmonicProcessor::CountFrequency()
 {
+    qWarning("CountFrequency() was called in processor %d", m_ID);
     qint16 position = curpos - 1; // delay on 1 count is critical valuable here
     quint16 watchDogCounter = 0;
     quint16 sign_changes = m_PulseCounter;
@@ -421,6 +429,7 @@ int QHarmonicProcessor::loadWarningRates(const char *fileName, SexID sex, int ag
 void QHarmonicProcessor::setID(quint32 value)
 {
     m_ID = value;
+    qWarning("Info about Processor%d: datalength %d, bufferlength %d", m_ID, m_DataLength, m_BufferLength);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -445,16 +454,19 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     v_threads = new QThread[height]; // one thred per row
 
     for(quint16 i = 0; i < height; i++)
+    {
         for(quint16 j = 0; j < width; j++)
         {
             v_processors[i*width + j].moveToThread(&v_threads[i]);
-            connect(this, &QHarmonicProcessorMap::operateSignal, &v_processors[i*width + j], &QHarmonicProcessor::ComputeFrequency);
-            connect(&v_processors[i*width + j], &QHarmonicProcessor::snrUpdated, this, &QHarmonicProcessorMap::updateElement);
+            connect(this, &QHarmonicProcessorMap::operateSignal, &v_processors[i*width+j], &QHarmonicProcessor::ComputeFrequency);
+            connect(&v_processors[i*width+j], &QHarmonicProcessor::snrUpdated, this, &QHarmonicProcessorMap::updateElement);
         }
+    }
 
     for(quint16 i = 0; i < height ; i++)
     {
         v_threads[i].start();
+        qWarning("Thread %d was started!", i);
     }
 }
 
@@ -477,7 +489,7 @@ void QHarmonicProcessorMap::writeToNextCell(unsigned long red, unsigned long gre
 {
     connect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_currentCell], &QHarmonicProcessor::EnrollData);
     emit dataArrived(red,green,blue,area,period);
-    this->disconnect(&v_processors[m_currentCell]);
+    disconnect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_currentCell], &QHarmonicProcessor::EnrollData);
     m_currentCell += m_width;
     m_currentRow++;
     if(m_currentRow == m_height) {
@@ -492,6 +504,7 @@ void QHarmonicProcessorMap::writeToNextCell(unsigned long red, unsigned long gre
 
 void QHarmonicProcessorMap::updateElement(quint32 id, qreal value)
 {
+    qWarning("Element %d updated", id);
     m_mutex.lock();
     v_map[id] = value;
     if(value > m_max) {
@@ -513,9 +526,13 @@ void QHarmonicProcessorMap::updateElement(quint32 id, qreal value)
     m_mutex.unlock();
 }
 
-void QHarmonicProcessorMap::makeComputations()
+void QHarmonicProcessorMap::makeMap()
 {
     emit operateSignal();
 }
 
+void QHarmonicProcessorMap::testSlot()
+{
+    qWarning("testSlot() was executed!");
+}
 

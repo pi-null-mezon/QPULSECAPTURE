@@ -17,6 +17,10 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_cvRect.height = 0;
     m_framePeriod = 0.0;
     m_fullFaceFlag = false;
+
+    pt_map = NULL;
+    m_cols = 0;
+    m_rows = 0;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -309,5 +313,71 @@ void QOpencvProcessor::setFullFaceFlag(bool value)
 
 void QOpencvProcessor::mapProcess(const cv::Mat &input)
 {
+    cv::Mat output(input);
+    int X = m_cvRect.x;
+    int Y = m_cvRect.y;
+    int W = m_cvRect.width;
+    int H = m_cvRect.height;
 
+    int stepsY = H/m_cellSize;
+    int stepsX = W/m_cellSize;
+    unsigned char *pixel;
+    int area = m_cellSize*m_cellSize;
+
+    unsigned long sumRed = 0;
+    unsigned long sumBlue = 0;
+    unsigned long sumGreen = 0;
+
+    if(input.channels() == 3)
+    {
+        for(int j = 0; j < stepsX; j++)
+        {
+            for(int i = 0; i < stepsY; i++)
+            {
+                for(int k = 0; k < m_cellSize; k++)
+                {
+                    pixel = output.ptr(Y + i * m_cellSize + k);
+                    for(int p = 0; p < m_cellSize; p++)
+                    {
+                        sumBlue += pixel[3*(X + j * m_cellSize + p)];
+                        sumGreen += pixel[3*(X + j * m_cellSize + p) + 1];
+                        sumRed += pixel[3*(X + j * m_cellSize + p) + 2];
+                    }
+                }
+                emit elementProcessed(sumRed, sumGreen, sumBlue, area, 0.035);
+                sumBlue = 0;
+                sumRed = 0;
+                sumGreen = 0;
+            }
+        }
+    }
+    else
+    {
+        for(int j = 0; j < stepsX; j++)
+        {
+            for(int i = 0; i < stepsY; i++)
+            {
+                for(int k = 0; k < m_cellSize; k++)
+                {
+                    pixel = output.ptr(Y + i * m_cellSize + k);
+                    for(int p = 0; p < m_cellSize; p++)
+                    {
+                        sumBlue += pixel[3*(X + j * m_cellSize + p)];
+                    }
+                }
+                emit elementProcessed(sumBlue, sumBlue, sumBlue, area, 0.035);
+                sumBlue = 0;
+            }
+        }
+    }
+}
+
+void QOpencvProcessor::setCellSize(quint16 value)
+{
+   m_cellSize = value;
+}
+
+void QOpencvProcessor::updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min)
+{
+    qWarning("Map was updated!");
 }

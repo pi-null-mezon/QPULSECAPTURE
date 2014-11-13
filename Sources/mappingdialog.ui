@@ -6,94 +6,139 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>256</width>
     <height>252</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Mapping settings</string>
   </property>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>7</y>
-     <width>280</width>
+     <width>236</width>
      <height>201</height>
     </rect>
    </property>
    <property name="title">
     <string>GroupBox</string>
    </property>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="editWidthImage">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>75</x>
       <y>120</y>
       <width>60</width>
       <height>25</height>
      </rect>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
+   <widget class="QLineEdit" name="editWidthMap">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>155</x>
       <y>120</y>
       <width>60</width>
       <height>25</height>
      </rect>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_3">
+   <widget class="QLineEdit" name="editHeightImage">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>75</x>
       <y>160</y>
       <width>60</width>
       <height>25</height>
      </rect>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_4">
+   <widget class="QLineEdit" name="editHeightMap">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>155</x>
       <y>160</y>
       <width>60</width>
       <height>25</height>
      </rect>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_5">
+   <widget class="QLineEdit" name="editCell">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>155</x>
       <y>50</y>
       <width>60</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>GOST type B</family>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>true</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="frame">
+     <bool>true</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>70</y>
-      <width>240</width>
-      <height>30</height>
+      <y>80</y>
+      <width>196</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QSlider" name="horizontalSlider">
+   <widget class="QSlider" name="sliderCell">
     <property name="geometry">
      <rect>
       <x>20</x>
       <y>50</y>
-      <width>161</width>
+      <width>116</width>
       <height>25</height>
      </rect>
     </property>
@@ -107,7 +152,7 @@
      <number>1</number>
     </property>
     <property name="sliderPosition">
-     <number>10</number>
+     <number>1</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -116,6 +161,107 @@
      <enum>QSlider::TicksBelow</enum>
     </property>
    </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>26</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Set detalization level:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>26</y>
+      <width>86</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>pxels per celll</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>25</x>
+      <y>120</y>
+      <width>56</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Width:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>25</x>
+      <y>160</y>
+      <width>56</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Height:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>75</x>
+      <y>95</y>
+      <width>61</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Image</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>155</x>
+      <y>95</y>
+      <width>61</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Map</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <zorder>editWidthImage</zorder>
+   <zorder>editWidthMap</zorder>
+   <zorder>editHeightImage</zorder>
+   <zorder>editHeightMap</zorder>
+   <zorder>editCell</zorder>
+   <zorder>line</zorder>
+   <zorder>sliderCell</zorder>
+   <zorder>label</zorder>
+   <zorder>label_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>label_4</zorder>
+   <zorder>buttonReject</zorder>
+   <zorder>label_5</zorder>
+   <zorder>label_6</zorder>
   </widget>
   <widget class="QPushButton" name="buttonAccept">
    <property name="geometry">
@@ -133,7 +279,7 @@
   <widget class="QPushButton" name="buttonReject">
    <property name="geometry">
     <rect>
-     <x>215</x>
+     <x>170</x>
      <y>220</y>
      <width>75</width>
      <height>23</height>
