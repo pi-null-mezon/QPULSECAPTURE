@@ -19,6 +19,42 @@ QImageWidget::QImageWidget(QWidget *parent): QWidget(parent)
     m_advancedvisualizationFlag = false;
     m_drawDataFlag = false;
     v_map = NULL;
+    v_colors = NULL;
+    computeColorTable();
+}
+
+//-----------------------------------------------------------------------------------
+void QImageWidget::computeColorTable()
+{
+    delete[] v_colors;
+    v_colors = NULL;
+
+    v_colors = new QColor[256];
+
+    quint8 r = 0;
+    quint8 b = 255;
+    quint8 g =0;
+    for (quint16 i = 0 ; i < 256; i++)
+    {
+        if(i < 128)
+        {
+            b -= 2;
+            g +=2;
+        }
+        if(i >= 128)
+        {
+            b = 0;
+            g -=2;
+            r +=2;
+        }
+        v_colors[i] = QColor( r, g, b, 99);
+    }
+}
+
+//-----------------------------------------------------------------------------------
+QImageWidget::~QImageWidget()
+{
+    delete[] v_colors;
 }
 
 //-----------------------------------------------------------------------------------
@@ -49,9 +85,8 @@ void QImageWidget::paintEvent(QPaintEvent* )
     QPainter painter( this );
     QRect temp_rect = make_proportional_rect(this->rect(), opencv_image.cols, opencv_image.rows);
     painter.drawImage( temp_rect, qt_image); // Draw inside widget, the image is scaled to fit the rectangle
-    drawStrings(painter, temp_rect);          // Will draw m_informationString on the widget
     drawMap(painter, temp_rect);
-
+    drawStrings(painter, temp_rect);          // Will draw m_informationString on the widget
 
     /*if(m_drawDataFlag)
     {
@@ -327,7 +362,6 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
 
 //----------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------------
  void QImageWidget::updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min)
 {
     v_map = pointer;
@@ -338,24 +372,42 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
 }
 
 //----------------------------------------------------------------------------------
-void QImageWidget::drawMap(QPainter &painter, const QRect &input_rect)
+
+ void QImageWidget::drawMap(QPainter &painter, const QRect &input_rect)
 {
     if(v_map)
     {
-        QRect rect = findMapRegion(input_rect);
-        qreal stepX = (qreal)rect.width() / m_mapCols;
-        qreal stepY = (qreal)rect.height() / m_mapRows;
+        QRectF mapRect = findMapRegion(input_rect);
+        painter.setBrush(Qt::NoBrush);
+        painter.setFont(QFont("Calibri", mapRect.width()/m_mapCols/3 ));
 
-        for(quint16 i = 0; i < m_mapCols*m_mapRows; i++)
+        int alignmentFlag = Qt::AlignHCenter | Qt::AlignVCenter;
+        qreal coeff = (m_mapMax-m_mapMin);
+
+        QRectF temp = QRectF(mapRect.x(), mapRect.y(), mapRect.width()/m_mapCols, mapRect.height()/m_mapRows);
+        painter.fillRect(temp, v_colors[(int)(v_map[0]*255)]);
+        painter.drawRect(temp);
+        painter.drawText(temp, alignmentFlag, QString::number(v_map[0]*coeff + m_mapMin,'f',1));
+        for(quint16 i = 1; i < m_mapCols*m_mapRows; i++)
         {
-            painter.fill
+            if((i % m_mapCols) == 0)
+            {
+                temp.moveLeft(mapRect.x());
+                temp.moveTop(temp.y()+temp.height());
+            }
+            else
+            {
+                temp.moveLeft(temp.x()+temp.width());
+            }
+            painter.fillRect(temp, v_colors[(int)(v_map[i]*255)]);
+            painter.drawRect(temp);
+            painter.drawText(temp, alignmentFlag, QString::number(v_map[i]*coeff + m_mapMin,'f',1));
         }
-
-
-        //painter.setBrush(QColor(255,0,0,125));
-        painter.fillRect(rect, QColor(255,0,0,0));
     }
+}
 
-
-
+//----------------------------------------------------------------------------------
+void QImageWidget::selectWholeImage()
+{
+    emit rect_was_entered( cv::Rect(0,0,opencv_image.cols, opencv_image.rows) );
 }

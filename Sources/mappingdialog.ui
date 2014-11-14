@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>256</width>
-    <height>252</height>
+    <height>235</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,20 +19,23 @@
      <x>10</x>
      <y>7</y>
      <width>236</width>
-     <height>201</height>
+     <height>190</height>
     </rect>
    </property>
    <property name="title">
-    <string>GroupBox</string>
+    <string>Mapping settings</string>
    </property>
    <widget class="QLineEdit" name="editWidthImage">
     <property name="geometry">
      <rect>
-      <x>75</x>
-      <y>120</y>
+      <x>65</x>
+      <y>115</y>
       <width>60</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>void</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -45,10 +48,13 @@
     <property name="geometry">
      <rect>
       <x>155</x>
-      <y>120</y>
+      <y>115</y>
       <width>60</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>void</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -60,11 +66,14 @@
    <widget class="QLineEdit" name="editHeightImage">
     <property name="geometry">
      <rect>
-      <x>75</x>
-      <y>160</y>
+      <x>65</x>
+      <y>150</y>
       <width>60</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>void</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -77,10 +86,13 @@
     <property name="geometry">
      <rect>
       <x>155</x>
-      <y>160</y>
+      <y>150</y>
       <width>60</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>void</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -100,15 +112,15 @@
     </property>
     <property name="font">
      <font>
-      <family>GOST type B</family>
-      <pointsize>12</pointsize>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>8</pointsize>
       <weight>50</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>false</bold>
      </font>
     </property>
     <property name="text">
-     <string/>
+     <string>probe 01</string>
     </property>
     <property name="frame">
      <bool>true</bool>
@@ -143,16 +155,16 @@
      </rect>
     </property>
     <property name="minimum">
-     <number>1</number>
+     <number>8</number>
     </property>
     <property name="maximum">
-     <number>16</number>
+     <number>32</number>
     </property>
     <property name="pageStep">
      <number>1</number>
     </property>
     <property name="sliderPosition">
-     <number>1</number>
+     <number>8</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -194,8 +206,8 @@
     <property name="geometry">
      <rect>
       <x>25</x>
-      <y>120</y>
-      <width>56</width>
+      <y>115</y>
+      <width>41</width>
       <height>25</height>
      </rect>
     </property>
@@ -207,8 +219,8 @@
     <property name="geometry">
      <rect>
       <x>25</x>
-      <y>160</y>
-      <width>56</width>
+      <y>150</y>
+      <width>41</width>
       <height>25</height>
      </rect>
     </property>
@@ -219,8 +231,8 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>75</x>
-      <y>95</y>
+      <x>65</x>
+      <y>90</y>
       <width>61</width>
       <height>25</height>
      </rect>
@@ -236,7 +248,7 @@
     <property name="geometry">
      <rect>
       <x>155</x>
-      <y>95</y>
+      <y>90</y>
       <width>61</width>
       <height>25</height>
      </rect>
@@ -248,26 +260,38 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <zorder>editWidthImage</zorder>
-   <zorder>editWidthMap</zorder>
-   <zorder>editHeightImage</zorder>
-   <zorder>editHeightMap</zorder>
-   <zorder>editCell</zorder>
-   <zorder>line</zorder>
-   <zorder>sliderCell</zorder>
-   <zorder>label</zorder>
-   <zorder>label_2</zorder>
-   <zorder>label_3</zorder>
-   <zorder>label_4</zorder>
-   <zorder>buttonReject</zorder>
-   <zorder>label_5</zorder>
-   <zorder>label_6</zorder>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>127</x>
+      <y>120</y>
+      <width>26</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="Line" name="line_3">
+    <property name="geometry">
+     <rect>
+      <x>127</x>
+      <y>155</y>
+      <width>26</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
   </widget>
   <widget class="QPushButton" name="buttonAccept">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>220</y>
+     <y>205</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -280,7 +304,7 @@
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>220</y>
+     <y>205</y>
      <width>75</width>
      <height>23</height>
     </rect>

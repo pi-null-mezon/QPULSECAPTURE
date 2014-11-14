@@ -90,6 +90,7 @@ private:
     QAction *pt_openPlotDialog;
     QAction *pt_recordAct;
     QAction *pt_mapAct;
+    QAction *pt_selectAllAct;
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;

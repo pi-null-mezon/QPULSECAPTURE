@@ -24,6 +24,7 @@ class QImageWidget : public QWidget
 
 public:
     explicit QImageWidget(QWidget *parent = 0);
+    ~QImageWidget();
 
 signals:
     void rect_was_entered(const cv::Rect &value);
@@ -39,6 +40,7 @@ public slots:
     void clearFrequencyString(qreal value);
     void updadeMapRegion(const cv::Rect& input_rect);
     void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
+    void selectWholeImage();
 
 protected:
     void paintEvent(QPaintEvent*);
@@ -71,11 +73,13 @@ private:
     qreal m_mapMax;
     qreal m_mapMin;
     const qreal *v_map;
+    QColor *v_colors;
 
 private slots:
+    void computeColorTable(); // call in constructor to calculate appropriate colors and write them in v_colors[]
     inline QRect make_proportional_rect(QRect rect, int width, int height) const; // returns QRect inside input rect with the same center point, but with proportional sizes corresponding to width and height
     inline cv::Rect crop_aimrect() const;    // should be used for m_aimrect cropping
-    inline QRect findMapRegion(const QRect &viewRect) const;
+    inline QRectF findMapRegion(const QRect &viewRect) const;
     void drawStrings(QPainter &painter, const QRect &input_rect); // use this eunction inside paintEvent(...) handler to draw string on the image
     void drawData(QPainter &painter, const QRect &input_rect);   // draws pt_Data[] if ptData != NULL and drops pt_Data to NULL on every function call
     void drawMap(QPainter &painter, const QRect &input_rect);
@@ -119,13 +123,13 @@ inline cv::Rect QImageWidget::crop_aimrect() const
 
 //------------------------------------------------------------------------------------------------------
 
-inline QRect QImageWidget::findMapRegion(const QRect& viewRect) const
+inline QRectF QImageWidget::findMapRegion(const QRect& viewRect) const
 {
     qreal x = viewRect.x() + ((qreal)m_mapRect.x / opencv_image.cols) * viewRect.width();
     qreal y = viewRect.y() + ((qreal)m_mapRect.y / opencv_image.rows) * viewRect.height();
     qreal w = ((qreal)m_mapRect.width / opencv_image.cols) * viewRect.width();
     qreal h = ((qreal)m_mapRect.height / opencv_image.rows) * viewRect.height();
-    return QRect(x,y,w,h);
+    return QRectF(x,y,w,h);
 }
 
 //------------------------------------------------------------------------------------------------------

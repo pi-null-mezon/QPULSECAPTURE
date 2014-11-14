@@ -76,7 +76,7 @@ void QOpencvProcessor::customProcess(const cv::Mat &input)
 
 void QOpencvProcessor::setRect(const cv::Rect &input_rect)
 {
-     m_cvRect = input_rect;
+    m_cvRect = input_rect;
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -247,7 +247,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     unsigned int X = m_cvRect.x;
     unsigned int Y = m_cvRect.y;
 
-    if( (output.rows <= (Y + rectheight)) || (output.cols <= (X + rectwidth)) )
+    if( (output.rows < (Y + rectheight)) || (output.cols < (X + rectwidth)) )
     {
         rectheight = 0;
         rectwidth = 0;

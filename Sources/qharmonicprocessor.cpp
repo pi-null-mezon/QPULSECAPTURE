@@ -425,14 +425,18 @@ void QHarmonicProcessor::setID(quint32 value)
 
 //------------------------------------------------------------------------------------------------
 
+
+
+
+//==========================================================================================================
 QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, quint32 height):
     QObject(parent),
     m_width(width),
     m_height(height),
     m_length(width*height),
     m_updations(0),
-    m_min(0.0),
-    m_max(0.0),
+    m_min(-20.0),
+    m_max(10.0),
     m_cell(0)
 {
     v_map = new qreal[width*height]; // 0...width*height-1
@@ -508,5 +512,5 @@ void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
 
     m_mutex.unlock();
 }
-
+//==========================================================================================================
 

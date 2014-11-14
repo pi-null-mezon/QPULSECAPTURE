@@ -1,7 +1,7 @@
 #include "mappingdialog.h"
 #include "ui_mappingdialog.h"
 
-#define DEFAULT_CELL_SIZE 10
+#define DEFAULT_CELL_SIZE 16
 
 mappingdialog::mappingdialog(QWidget *parent) :
     QDialog(parent),

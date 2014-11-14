@@ -150,9 +150,13 @@ void MainWindow::createActions()
     connect(pt_pcaAct, SIGNAL(triggered(bool)), this, SLOT(SwitchPCA(bool)));
 
     pt_mapAct = new QAction(tr("Mapping"), this);
-    pt_mapAct->setStatusTip(tr("Start to mapping pulse signal on image"));
+    pt_mapAct->setStatusTip(tr("Map clarity of a pulse signal on image"));
     pt_mapAct->setCheckable(true);
     connect(pt_mapAct, SIGNAL(triggered()), this, SLOT(openMapDialog()));
+
+    pt_selectAllAct = new QAction(tr("&Select all"), this);
+    pt_selectAllAct->setStatusTip(tr("Select whole image"));
+    connect(pt_selectAllAct, SIGNAL(triggered()), pt_display, SLOT(selectWholeImage()));
 }
 
 //------------------------------------------------------------------------------------
@@ -233,6 +237,8 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
     menu.addSeparator();
     menu.addAction(pt_pauseAct);
     menu.addAction(pt_resumeAct);
+    menu.addSeparator();
+    menu.addAction(pt_selectAllAct);
     menu.exec(event->globalPos());
 }
 
