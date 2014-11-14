@@ -24,6 +24,7 @@ signals:
     void dataCollected(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
     void selectRegion(const char * string);     // emit it if no objects has been detected or no regions are selected
     void mapCellProcessed(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
+    void mapRegionUpdated(const cv::Rect& rect);
 
 public slots:
     void customProcess(const cv::Mat &input);   // just a template of how a program logic should work
@@ -37,7 +38,6 @@ public slots:
 
     cv::Rect getRect(); // returns current m_cvRect
     void setMapRegion(const cv::Rect &input_rect); // sets up map region, see m_mapRect
-    void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min); //
     void setMapCellSize(quint16 sizeX, quint16 sizeY);
 
 private:
@@ -47,10 +47,10 @@ private:
     cv::Rect m_cvRect;      // this rect is used by process_rectregion_pulse slot
     cv::CascadeClassifier m_classifier; //object that manages opencv's image recognition functions
 
-    qreal *pt_map;
     quint16 m_mapCellSizeX;
     quint16 m_mapCellSizeY;
     cv::Rect m_mapRect;
+    unsigned char **v_pixelSet; // memory should be allocated in setMapCellSize() call
 };
 
 //------------------------------------------------------------------------------------------------------

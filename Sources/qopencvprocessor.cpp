@@ -18,7 +18,7 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_framePeriod = 0.0;
     m_fullFaceFlag = false;
 
-    pt_map = NULL;
+    v_pixelSet = NULL;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -33,6 +33,7 @@ cv::Rect QOpencvProcessor::getRect()
 void QOpencvProcessor::setMapRegion(const cv::Rect &input_rect)
 {
     m_mapRect = input_rect;
+    emit mapRegionUpdated(input_rect);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -323,7 +324,6 @@ void QOpencvProcessor::mapProcess(const cv::Mat &input)
 
     int stepsY = H / m_mapCellSizeY;
     int stepsX = W / m_mapCellSizeX;
-    unsigned char *pixelSet[m_mapCellSizeY];
     int area = m_mapCellSizeY*m_mapCellSizeX;
 
     unsigned long sumRed = 0;
@@ -338,7 +338,7 @@ void QOpencvProcessor::mapProcess(const cv::Mat &input)
         {
             for(int p = 0; p < m_mapCellSizeY; p++)
             {
-                pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
+                v_pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
             }
             for(int j = 0; j < stepsX; j++)
             {
@@ -347,9 +347,9 @@ void QOpencvProcessor::mapProcess(const cv::Mat &input)
                     performance_pill = 3*(X + j*m_mapCellSizeX + k);
                     for(int p = 0; p < m_mapCellSizeY; p++)
                     {
-                        sumBlue += pixelSet[p][performance_pill];
-                        sumGreen += pixelSet[p][performance_pill + 1];
-                        sumRed += pixelSet[p][performance_pill + 2];
+                        sumBlue += v_pixelSet[p][performance_pill];
+                        sumGreen += v_pixelSet[p][performance_pill + 1];
+                        sumRed += v_pixelSet[p][performance_pill + 2];
                     }
                 }
                 emit mapCellProcessed(sumRed, sumGreen, sumBlue, area, m_framePeriod);
@@ -365,7 +365,7 @@ void QOpencvProcessor::mapProcess(const cv::Mat &input)
         {
             for(int p = 0; p < m_mapCellSizeY; p++)
             {
-                pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
+                v_pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
             }
             for(int j = 0; j < stepsX; j++)
             {
@@ -374,7 +374,7 @@ void QOpencvProcessor::mapProcess(const cv::Mat &input)
                     performance_pill = X + j*m_mapCellSizeX + k;
                     for(int p = 0; p < m_mapCellSizeY; p++)
                     {
-                        sumBlue += pixelSet[p][performance_pill];
+                        sumBlue += v_pixelSet[p][performance_pill];
                     }
                 }
                 emit mapCellProcessed(sumBlue, sumBlue, sumBlue, area, m_framePeriod);
@@ -388,9 +388,11 @@ void QOpencvProcessor::setMapCellSize(quint16 sizeX, quint16 sizeY)
 {
     m_mapCellSizeX = sizeX;
     m_mapCellSizeY = sizeY;
+    if(v_pixelSet)
+    {
+        delete[] v_pixelSet;
+        v_pixelSet = NULL;
+    }
+    v_pixelSet = new unsigned char*[m_mapCellSizeY];
 }
 
-void QOpencvProcessor::updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min)
-{
-    qWarning("Map was updated!");
-}

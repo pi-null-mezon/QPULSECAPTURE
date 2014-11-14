@@ -37,6 +37,9 @@ public slots:
     void toggle_advancedvisualization(bool value); // interface to switch m_advancedvisualizationFlag
     void set_drawDataFlag(bool value); // read m_drawDataFlag comment
     void clearFrequencyString(qreal value);
+    void updadeMapRegion(const cv::Rect& input_rect);
+    void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
+
 protected:
     void paintEvent(QPaintEvent*);
     void mousePressEvent(QMouseEvent* event);
@@ -62,11 +65,20 @@ private:
     bool m_advancedvisualizationFlag; // turn it off by means of toggle_advancedvisualization(true) to make visualization quality higher, higher visualization quality costs about +20 ms/frame on Intel Pentium IV 3.0 on Debug mode
     bool m_drawDataFlag; // a flag, that manages if user want to draw or not dome data as trace on this widget, is controlled by set_drawDataFlag(bool ...)
 
+    cv::Rect m_mapRect;
+    quint16 m_mapCols;
+    quint16 m_mapRows;
+    qreal m_mapMax;
+    qreal m_mapMin;
+    const qreal *v_map;
+
 private slots:
     inline QRect make_proportional_rect(QRect rect, int width, int height) const; // returns QRect inside input rect with the same center point, but with proportional sizes corresponding to width and height
     inline cv::Rect crop_aimrect() const;    // should be used for m_aimrect cropping
+    inline QRect findMapRegion(const QRect &viewRect) const;
     void drawStrings(QPainter &painter, const QRect &input_rect); // use this eunction inside paintEvent(...) handler to draw string on the image
     void drawData(QPainter &painter, const QRect &input_rect);   // draws pt_Data[] if ptData != NULL and drops pt_Data to NULL on every function call
+    void drawMap(QPainter &painter, const QRect &input_rect);
 };
 
 //------------------------------------------------------------------------------------------------------
@@ -103,6 +115,17 @@ inline cv::Rect QImageWidget::crop_aimrect() const
     quint16 output_h = ( (qreal)region.height()/workfield.height() ) * opencv_image.rows;
     cv::Rect output_rect(output_x, output_y, output_w, output_h);
     return output_rect;
+}
+
+//------------------------------------------------------------------------------------------------------
+
+inline QRect QImageWidget::findMapRegion(const QRect& viewRect) const
+{
+    qreal x = viewRect.x() + ((qreal)m_mapRect.x / opencv_image.cols) * viewRect.width();
+    qreal y = viewRect.y() + ((qreal)m_mapRect.y / opencv_image.rows) * viewRect.height();
+    qreal w = ((qreal)m_mapRect.width / opencv_image.cols) * viewRect.width();
+    qreal h = ((qreal)m_mapRect.height / opencv_image.rows) * viewRect.height();
+    return QRect(x,y,w,h);
 }
 
 //------------------------------------------------------------------------------------------------------

@@ -219,6 +219,7 @@ void MainWindow::createThreads()
     connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double)), pt_display, SLOT(updateImage(cv::Mat,double)));
     connect(pt_display, SIGNAL(rect_was_entered(cv::Rect)), pt_opencvProcessor, SLOT(setRect(cv::Rect)));
     connect(pt_opencvProcessor, SIGNAL(selectRegion(const char*)), pt_display, SLOT(set_warning_status(const char*)));
+    connect(pt_opencvProcessor, SIGNAL(mapRegionUpdated(cv::Rect)), pt_display, SLOT(updadeMapRegion(cv::Rect)));
     //----------------------Thread start-----------------------------
     pt_improcThread->start();
 }
@@ -464,7 +465,7 @@ void MainWindow::configure_and_start_session()
         }
         //--------------------------------------------------------------
         connect(pt_opencvProcessor, SIGNAL(dataCollected(ulong,ulong,ulong,ulong,double)), pt_harmonicProcessor, SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
-        connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_display, SLOT(updatePointer(const qreal*,quint16)));
+        //connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_display, SLOT(updatePointer(const qreal*,quint16)));
         connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
         //--------------------------------------------------------------      
         if(dialog.get_FFTflag())
@@ -708,18 +709,20 @@ void MainWindow::openMapDialog()
     {
         if(!pt_mapAct->isChecked())
         {
-            QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Start new mapping?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this, Qt::Dialog);
-            if(msgBox.exec() == QMessageBox::No)
+            QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Do You want another mapping?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this, Qt::Dialog);
+            int resultCode = msgBox.exec();
+            if(resultCode == QMessageBox::No)
             {
                 if(pt_map)
                 {
+                    pt_display->updateMap(NULL,0,0,0.0,0.0);
                     delete pt_map;
                     pt_map = NULL;
                 }
                 pt_mapAct->setChecked(false);
                 return;
             }
-            if(msgBox.exec() == QMessageBox::Cancel)
+            if(resultCode == QMessageBox::Cancel)
             {
                 pt_mapAct->setChecked(true);
                 return;
@@ -728,8 +731,9 @@ void MainWindow::openMapDialog()
 
         if(pt_map)
         {
+            pt_display->updateMap(NULL,0,0,0.0,0.0);
             delete pt_map;
-            pt_map = NULL;
+            pt_map = NULL;        
         }
 
         mappingdialog dialog;
@@ -744,7 +748,7 @@ void MainWindow::openMapDialog()
             pt_map = new QHarmonicProcessorMap(this, dialog.getMapWidth(), dialog.getMapHeight());
             connect(pt_opencvProcessor, SIGNAL(mapCellProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(updateHarmonicProcessor(ulong,ulong,ulong,ulong,double)));
             connect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
-            connect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_opencvProcessor, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
+            connect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
             connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
 
             pt_mapAct->setChecked(true);

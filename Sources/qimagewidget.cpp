@@ -18,6 +18,7 @@ QImageWidget::QImageWidget(QWidget *parent): QWidget(parent)
     m_fillColor = QColor(Qt::white);
     m_advancedvisualizationFlag = false;
     m_drawDataFlag = false;
+    v_map = NULL;
 }
 
 //-----------------------------------------------------------------------------------
@@ -47,13 +48,15 @@ void QImageWidget::paintEvent(QPaintEvent* )
 {
     QPainter painter( this );
     QRect temp_rect = make_proportional_rect(this->rect(), opencv_image.cols, opencv_image.rows);
-
     painter.drawImage( temp_rect, qt_image); // Draw inside widget, the image is scaled to fit the rectangle
     drawStrings(painter, temp_rect);          // Will draw m_informationString on the widget
-    if(m_drawDataFlag)
+    drawMap(painter, temp_rect);
+
+
+    /*if(m_drawDataFlag)
     {
         drawData(painter, temp_rect);
-    }
+    }*/
 }
 
 //------------------------------------------------------------------------------------
@@ -313,4 +316,46 @@ void QImageWidget::clearFrequencyString(qreal value)
 {
     m_frequencyString.clear();
     m_snrString = "SNR: " + QString::number(value,'f',2) + " dB";
+}
+
+//----------------------------------------------------------------------------------
+
+void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
+{
+    m_mapRect = input_rect;
+}
+
+//----------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------
+ void QImageWidget::updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min)
+{
+    v_map = pointer;
+    m_mapCols = width;
+    m_mapRows = height;
+    m_mapMin = min;
+    m_mapMax = max;
+}
+
+//----------------------------------------------------------------------------------
+void QImageWidget::drawMap(QPainter &painter, const QRect &input_rect)
+{
+    if(v_map)
+    {
+        QRect rect = findMapRegion(input_rect);
+        qreal stepX = (qreal)rect.width() / m_mapCols;
+        qreal stepY = (qreal)rect.height() / m_mapRows;
+
+        for(quint16 i = 0; i < m_mapCols*m_mapRows; i++)
+        {
+            painter.fill
+        }
+
+
+        //painter.setBrush(QColor(255,0,0,125));
+        painter.fillRect(rect, QColor(255,0,0,0));
+    }
+
+
+
 }
