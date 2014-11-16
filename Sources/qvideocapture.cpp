@@ -13,9 +13,6 @@ QVideoCapture::QVideoCapture(QObject *parent) :
     QObject(parent),
     device_id(0)
 {
-    pt_timer = new QTimer();
-    pt_timer->setTimerType(Qt::PreciseTimer);
-    connect(pt_timer, SIGNAL( timeout() ), this, SLOT( read_frame() )); // makes a connection between timer signal and class slot
 }
 
 bool QVideoCapture::openfile(const QString &filename)
@@ -25,7 +22,6 @@ bool QVideoCapture::openfile(const QString &filename)
     {
         deviceFlag = false;
         pt_timer->setInterval( 1000/m_cvCapture.get(CV_CAP_PROP_FPS) ); // CV_CAP_PROP_FPS - m_frame rate
-        //resume();
         return true;
     }
     return false;
@@ -38,7 +34,6 @@ bool QVideoCapture::opendevice(int period) // period should be entered in ms
     {
         deviceFlag = true;
         pt_timer->setInterval( period );
-        //resume();
         return true;
     }
     return false;
@@ -457,4 +452,11 @@ int QVideoCapture::open_deviceSelectDialog()
         device_id = CBid.currentIndex();
     }
     return device_id;
+}
+
+void QVideoCapture::initiallizeTimer()
+{
+    pt_timer = new QTimer();
+    pt_timer->setTimerType(Qt::PreciseTimer);
+    connect(pt_timer, SIGNAL( timeout() ), this, SLOT( read_frame() )); // makes a connection between timer signal and class slot
 }

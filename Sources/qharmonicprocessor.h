@@ -2,8 +2,6 @@
 #define QHARMONICPROCESSOR_H
 
 #include <QObject>
-#include <QThread>
-#include <QMutex>
 #include "fftw3.h"
 #include "ap.h" // ALGLIB types
 #include "dataanalysis.h" // ALGLIB functions
@@ -14,13 +12,15 @@
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
 
+
+
 class QHarmonicProcessor : public QObject
 {
     Q_OBJECT
 public:
     explicit QHarmonicProcessor(QObject *parent = NULL, quint16 length_of_data = 256, quint16 length_of_buffer = 256 );
     ~QHarmonicProcessor();
-    enum ColorChannel { Red, Green, Blue , All};
+    enum ColorChannel { Red, Green, Blue, All };
     enum XMLparserError { NoError, FileOpenError, FileExistanceError, ReadError, ParseFailure };
     enum SexID { Male, Female };
     enum TwoSideAlpha { FiftyPercents, TwentyPercents, TenPercents, FivePercents, TwoPercents };
@@ -41,8 +41,8 @@ public slots:
     void ComputeFrequency(); // use FFT algorithm for HeartRate evaluation
     void CountFrequency(); // use simple count algorithm on v_BinaryOutput for HeartRate evaluation
     void setPCAMode(bool value); // controls PCA alignment
-    void switchColorMode(ColorChannel value); // controls colors enrollment
-    int loadWarningRates(const char *fileName, SexID sex, int age, TwoSideAlpha alpha);
+    void switchColorMode(int value); // controls colors enrollment
+    int  loadWarningRates(const char *fileName, SexID sex, int age, TwoSideAlpha alpha);
     void setID(quint32 value);
 
 private:
@@ -106,44 +106,6 @@ inline quint8 QHarmonicProcessor::loopOnTwo(qint16 difference) const
 {
     return ((2 + (difference % 2)) % 2);
 }
-//---------------------------------------------------------------------------
-
-
-//==========================================================================================================
-class QHarmonicProcessorMap: public QObject
-{
-    Q_OBJECT
-
-public:
-    QHarmonicProcessorMap(QObject* parent = NULL, quint32 width = 32, quint32 height = 32);
-    ~QHarmonicProcessorMap();
-
-signals:
-    void updateMap();
-    void mapUpdated(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
-    void dataArrived(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
-
-public slots:
-    void updateHarmonicProcessor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
-
-private:
-    quint32 m_cellNum;
-    quint32 m_width;
-    quint32 m_height;
-    quint32 m_length;
-    qreal *v_map;
-    QHarmonicProcessor *v_processors;
-    QThread *v_threads;
-    QMutex m_mutex;
-    quint32 m_updations;
-    qreal m_min;
-    qreal m_max;
-    quint32 m_cell;
-
-private slots:
-    void updateCell(quint32 id, qreal value);
-};
-//==========================================================================================================
 
 //---------------------------------------------------------------------------
 #endif // QHARMONICPROCESSOR_H

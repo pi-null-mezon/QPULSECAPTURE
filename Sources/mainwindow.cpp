@@ -2,9 +2,8 @@
 #include "mainwindow.h"
 //------------------------------------------------------------------------------------
 
-#define FRAME_WIDTH 480
-#define FRAME_HEIGHT 320
 #define FRAME_MARGIN 5
+#define MS_INTERVAL 1000
 
 //------------------------------------------------------------------------------------
 const char * MainWindow::QPlotDialogName[]=
@@ -22,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent)
 {
     setWindowTitle(APP_NAME);
-    setMinimumSize(FRAME_WIDTH, FRAME_HEIGHT);
+    setMinimumSize(320, 240);
 
     pt_centralWidget = new QBackgroundWidget(NULL, palette().color(backgroundRole()));
     pt_centralWidgetLayout = new QVBoxLayout();
@@ -124,30 +123,28 @@ void MainWindow::createActions()
     pt_redAct = new QAction(tr("Red"), pt_colorActGroup);
     pt_redAct->setStatusTip(tr("Enroll only red channel"));
     pt_redAct->setCheckable(true);
-    pt_colorMapper->setMapping(pt_redAct,QHarmonicProcessor::Red);
+    pt_colorMapper->setMapping(pt_redAct,0);
     connect(pt_redAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
     pt_blueAct = new QAction(tr("Blue"), pt_colorActGroup);
     pt_blueAct->setStatusTip(tr("Enroll only blue channel"));
     pt_blueAct->setCheckable(true);
-    pt_colorMapper->setMapping(pt_blueAct,QHarmonicProcessor::Blue);
+    pt_colorMapper->setMapping(pt_blueAct,2);
     connect(pt_blueAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
     pt_greenAct = new QAction(tr("Green"), pt_colorActGroup);
     pt_greenAct->setStatusTip(tr("Enroll only green channel"));
     pt_greenAct->setCheckable(true);
-    pt_colorMapper->setMapping(pt_greenAct,QHarmonicProcessor::Green);
+    pt_colorMapper->setMapping(pt_greenAct,1);
     connect(pt_greenAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
     pt_allAct = new QAction(tr("RGB"), pt_colorActGroup);
     pt_allAct->setStatusTip(tr("Enroll all channels"));
     pt_allAct->setCheckable(true);
-    pt_colorMapper->setMapping(pt_allAct,QHarmonicProcessor::All);
+    pt_colorMapper->setMapping(pt_allAct,3);
     connect(pt_allAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
-    connect(pt_colorMapper,SIGNAL(mapped(int)), this, SLOT(SwitchColorMode(int)));
     pt_greenAct->setChecked(true);
 
     pt_pcaAct = new QAction(tr("PCA align"), this);
     pt_pcaAct->setStatusTip(tr("Control PCA alignment, affects on result only in harmonic analysis mode"));
     pt_pcaAct->setCheckable(true);
-    connect(pt_pcaAct, SIGNAL(triggered(bool)), this, SLOT(SwitchPCA(bool)));
 
     pt_mapAct = new QAction(tr("Mapping"), this);
     pt_mapAct->setStatusTip(tr("Map clarity of a pulse signal on image"));
@@ -213,7 +210,11 @@ void MainWindow::createThreads()
     pt_map = NULL;
 
     //--------------------QVideoCapture------------------------------
-    pt_videoCapture = new QVideoCapture(this);
+    pt_videoThread = new QThread(this);
+    pt_videoCapture = new QVideoCapture();
+    pt_videoCapture->moveToThread(pt_videoThread);
+    connect(pt_videoThread, &QThread::started, pt_videoCapture, &QVideoCapture::initiallizeTimer);
+    connect(pt_videoThread, &QThread::finished, pt_videoCapture, &QVideoCapture::deleteLater);
 
     //----------Register openCV types in Qt meta-type system---------
     qRegisterMetaType<cv::Mat>("cv::Mat");
@@ -224,8 +225,13 @@ void MainWindow::createThreads()
     connect(pt_display, SIGNAL(rect_was_entered(cv::Rect)), pt_opencvProcessor, SLOT(setRect(cv::Rect)));
     connect(pt_opencvProcessor, SIGNAL(selectRegion(const char*)), pt_display, SLOT(set_warning_status(const char*)));
     connect(pt_opencvProcessor, SIGNAL(mapRegionUpdated(cv::Rect)), pt_display, SLOT(updadeMapRegion(cv::Rect)));
+    connect(this, &MainWindow::pauseVideo, pt_videoCapture, &QVideoCapture::pause);
+    connect(this, &MainWindow::resumeVideo, pt_videoCapture, &QVideoCapture::resume);
+    connect(this, &MainWindow::closeVideo, pt_videoCapture, &QVideoCapture::close);
+    connect(this, &MainWindow::updateTimer, pt_opencvProcessor, &QOpencvProcessor::updateTime);
     //----------------------Thread start-----------------------------
     pt_improcThread->start();
+    pt_videoThread->start();
 }
 
 //------------------------------------------------------------------------------------
@@ -246,6 +252,7 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 bool MainWindow::openvideofile()
 {
+    onpause();
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open video file"), "/video", tr("Video (*.avi *.mp4 *.wmv)"));
     while( !pt_videoCapture->openfile(fileName) ) {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open video file!"), QMessageBox::Open | QMessageBox::Cancel, this, Qt::Dialog);
@@ -261,6 +268,7 @@ bool MainWindow::openvideofile()
         delete pt_infoLabel;
         pt_infoLabel = NULL;
     }
+    onresume();
     return true;
 }
 
@@ -268,6 +276,7 @@ bool MainWindow::openvideofile()
 
 bool MainWindow::opendevice()
 {
+    onpause();
     pt_videoCapture->open_deviceSelectDialog();
     while( !pt_videoCapture->opendevice() )
     {
@@ -284,6 +293,7 @@ bool MainWindow::opendevice()
         delete pt_infoLabel;
         pt_infoLabel = NULL;
     }
+    onresume();
     return true;
 }
 
@@ -338,6 +348,10 @@ void MainWindow::show_help()
 
 MainWindow::~MainWindow()
 {
+    emit closeVideo();
+    pt_videoThread->quit();
+    pt_videoThread->wait();
+
     if(m_saveFile.isOpen())
     {
         m_saveFile.close();
@@ -359,7 +373,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::onpause()
 {
-    pt_videoCapture->pause();
+    emit pauseVideo();
     m_timer.stop();
 }
 
@@ -367,9 +381,9 @@ void MainWindow::onpause()
 
 void MainWindow::onresume()
 {
-    pt_videoCapture->resume();
+    emit resumeVideo();
+    emit updateTimer();
     m_timer.start();
-    pt_opencvProcessor->updateTime();
 }
 
 //-----------------------------------------------------------------------------------
@@ -484,6 +498,8 @@ void MainWindow::configure_and_start_session()
         }
         connect(pt_harmonicProcessor, SIGNAL(HeartRateUpdated(qreal,qreal,bool)), pt_display, SLOT(updateValues(qreal,qreal,bool)));
         //--------------------------------------------------------------
+        connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));
+        connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPCAMode(bool)));
         pt_harmonicThread->start();
         pt_optionsMenu->setEnabled(true);
 
@@ -537,7 +553,7 @@ void MainWindow::createPlotDialog()
             pt_dialogSet[ m_dialogSetCounter ]->setWindowTitle(dialogTypeComboBox.currentText() + " plot");
             pt_dialogSet[ m_dialogSetCounter ]->setAttribute(Qt::WA_DeleteOnClose, true);
             connect(pt_dialogSet[ m_dialogSetCounter ], SIGNAL(destroyed()), this, SLOT(decrease_dialogSetCounter()));
-            pt_dialogSet[ m_dialogSetCounter ]->setMinimumSize(FRAME_WIDTH, FRAME_HEIGHT);
+            pt_dialogSet[ m_dialogSetCounter ]->setMinimumSize(320, 240);
 
             QVBoxLayout *pt_layout = new QVBoxLayout( pt_dialogSet[ m_dialogSetCounter ] );
             pt_layout->setMargin(FRAME_MARGIN);
@@ -681,30 +697,11 @@ void MainWindow::startRecord()
 
 //----------------------------------------------------------------------------------------------
 
-void MainWindow::SwitchColorMode(int value)
-{
-    if(pt_harmonicProcessor)
-    {
-        pt_harmonicProcessor->switchColorMode((QHarmonicProcessor::ColorChannel)value);
-    }
-}
-
-//----------------------------------------------------------------------------------------------
-
-void MainWindow::SwitchPCA(bool value)
-{
-    if(pt_harmonicProcessor)
-    {
-        pt_harmonicProcessor->setPCAMode(value);
-    }
-}
-
-//----------------------------------------------------------------------------------------------
-
 void MainWindow::openMapDialog()
 {
+
     cv::Rect tempRect = pt_opencvProcessor->getRect();
-    if((tempRect.width == 0) || (tempRect.height == 0))
+    if((tempRect.width <= 0) || (tempRect.height <= 0))
     {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Select region on image first"), QMessageBox::Ok, this, Qt::Dialog);
         msgBox.exec();
@@ -715,15 +712,18 @@ void MainWindow::openMapDialog()
     {
         if(!pt_mapAct->isChecked())
         {
-            QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Do You want another mapping?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this, Qt::Dialog);
+            QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Another map?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this, Qt::Dialog);
             int resultCode = msgBox.exec();
             if(resultCode == QMessageBox::No)
             {
                 if(pt_map)
-                {
+                {                    
+                    disconnect(pt_videoCapture, &QVideoCapture::frame_was_captured, pt_opencvProcessor, &QOpencvProcessor::mapProcess);
+                    disconnect(&m_timer, &QTimer::timeout, pt_map, &QHarmonicProcessorMap::updateMap);
                     pt_display->updateMap(NULL,0,0,0.0,0.0);
                     delete pt_map;
                     pt_map = NULL;
+
                 }
                 pt_mapAct->setChecked(false);
                 return;
@@ -737,9 +737,11 @@ void MainWindow::openMapDialog()
 
         if(pt_map)
         {
+            disconnect(pt_videoCapture, &QVideoCapture::frame_was_captured, pt_opencvProcessor, &QOpencvProcessor::mapProcess);
+            disconnect(&m_timer, &QTimer::timeout, pt_map, &QHarmonicProcessorMap::updateMap);
             pt_display->updateMap(NULL,0,0,0.0,0.0);
             delete pt_map;
-            pt_map = NULL;        
+            pt_map = NULL;
         }
 
         mappingdialog dialog;
@@ -747,15 +749,17 @@ void MainWindow::openMapDialog()
         dialog.setImageWidth(tempRect.width);
 
         if(dialog.exec() == QDialog::Accepted)
-        {
-            pt_opencvProcessor->setMapRegion(tempRect);
+        {            
             pt_opencvProcessor->setMapCellSize(dialog.getCellSize(), dialog.getCellSize());
+            pt_opencvProcessor->setMapRegion(cv::Rect(tempRect.x,tempRect.y,dialog.getCellSize()*dialog.getMapWidth(),dialog.getCellSize()*dialog.getMapHeight()));
 
             pt_map = new QHarmonicProcessorMap(this, dialog.getMapWidth(), dialog.getMapHeight());
             connect(pt_opencvProcessor, SIGNAL(mapCellProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(updateHarmonicProcessor(ulong,ulong,ulong,ulong,double)));
             connect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
             connect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
             connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
+            connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_map, SIGNAL(updatePCAMode(bool)));
+            connect(pt_colorMapper, SIGNAL(mapped(int)), pt_map, SIGNAL(changeColorChannel(int)));
 
             pt_mapAct->setChecked(true);
         }

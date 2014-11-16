@@ -76,6 +76,8 @@ signals:
     //------------------------------------------
 
 public slots:
+    void initiallizeTimer();                            // allocates memory for internal QTimer and connects them to read_farame slot
+    //-----------------------------------------
     bool openfile(const QString &filename);             // this function should to call cv::VideoCapture::open(filename)
     bool opendevice(int period = DEFAULT_FRAME_PERIOD); // this function should to call cv::VideoCapture::open(device)
     bool isOpened();                                    // return true if cv::VideoCapture is opened

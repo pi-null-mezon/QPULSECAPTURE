@@ -1,7 +1,7 @@
+#include "qharmonicprocessor.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamAttributes>
 #include <QFile>
-#include "qharmonicprocessor.h"
 
 //----------------------------------------------------------------------------------------------------------
 QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, quint16 length_of_buffer) :
@@ -85,7 +85,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     PCA_RAW_RGB(position, 1) = (qreal)green / area;
     PCA_RAW_RGB(position, 2) = (qreal)blue / area;
 
-    if(m_channel == QHarmonicProcessor::All) {
+    if(m_channel == All) {
 
         qreal ch1_temp = (qreal)(red - green) / area;
         qreal ch2_temp = (qreal)(red + green - 2 * blue) / area;
@@ -246,7 +246,7 @@ void QHarmonicProcessor::ComputeFrequency()
             noise_power += v_Amplitude[i];
         }
     }
-    m_SNR = 10 * log10( signal_power / noise_power );
+    m_SNR = 10 * log10( signal_power / noise_power ); // this string may cause problem in msvc11, future issue to handle exeption
 
     qreal power_multiplyed_by_index = 0.0;
     qreal power_of_first_harmonic = 0.0;
@@ -282,9 +282,9 @@ void QHarmonicProcessor::setPCAMode(bool value)
 
 //----------------------------------------------------------------------------------------------------
 
-void QHarmonicProcessor::switchColorMode(ColorChannel value)
+void QHarmonicProcessor::switchColorMode(int value)
 {
-    m_channel = value;
+    m_channel = (ColorChannel)value;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -425,92 +425,4 @@ void QHarmonicProcessor::setID(quint32 value)
 
 //------------------------------------------------------------------------------------------------
 
-
-
-
-//==========================================================================================================
-QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, quint32 height):
-    QObject(parent),
-    m_width(width),
-    m_height(height),
-    m_length(width*height),
-    m_updations(0),
-    m_min(-20.0),
-    m_max(10.0),
-    m_cell(0)
-{
-    v_map = new qreal[width*height]; // 0...width*height-1
-    v_processors = new QHarmonicProcessor[width*height]; // 0...width*height-1
-    v_threads = new QThread[width]; // 0..width-1, one thred per column of the map
-
-    for(quint32 i = 0; i < width*height; i++)
-    {
-        v_processors[i].setID(i); // needs for control in whitch cell of the map write particular snr value
-    }
-
-    for(quint16 i = 0; i < height; i++)
-    {
-        for(quint16 j = 0; j < width; j++)
-        {
-            v_processors[i*width+j].moveToThread(&v_threads[j]);
-            connect(this, &QHarmonicProcessorMap::updateMap, &v_processors[i*width+j], &QHarmonicProcessor::ComputeFrequency);
-            connect(&v_processors[i*width+j], &QHarmonicProcessor::snrUpdated, this, &QHarmonicProcessorMap::updateCell);
-        }
-    }
-
-    for(quint16 i = 0; i < width ; i++)
-    {
-        v_threads[i].start();
-        qWarning("Thread %d was started!", i);
-    }
-}
-
-QHarmonicProcessorMap::~QHarmonicProcessorMap()
-{
-    for(quint16 i = 0; i < m_width ; i++)
-    {
-        v_threads[i].quit();
-    }
-    for(quint16 i = 0; i < m_width ; i++)
-    {
-        v_threads[i].wait();
-    }
-    delete[] v_map;
-    delete[] v_processors;
-    delete[] v_threads;
-}
-
-void QHarmonicProcessorMap::updateHarmonicProcessor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period)
-{
-    connect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_cell], &QHarmonicProcessor::EnrollData);
-    emit dataArrived(red,green,blue,area,period);
-    disconnect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_cell], &QHarmonicProcessor::EnrollData);
-    m_cell = (++m_cell) % m_length;
-}
-
-void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
-{
-    m_mutex.lock();
-
-    v_map[id] = value;
-    if(value > m_max) {
-        m_max = value;
-    } else if(value < m_min) {
-        m_min = value;
-    }
-    m_updations++;
-    if(m_updations == m_length)
-    {
-        for(quint32 i = 0; i < m_length; i++) {
-            v_map[i] = (v_map[i] - m_min)/(m_max - m_min);
-        }
-        emit mapUpdated(v_map, m_width, m_height, m_max, m_min);
-        m_updations = 0;
-        m_max = 0.0;
-        m_min = 0.0;
-    }
-
-    m_mutex.unlock();
-}
-//==========================================================================================================
 

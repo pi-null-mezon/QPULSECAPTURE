@@ -322,63 +322,66 @@ void QOpencvProcessor::mapProcess(const cv::Mat &input)
     int W = m_mapRect.width;
     int H = m_mapRect.height;
 
-    int stepsY = H / m_mapCellSizeY;
-    int stepsX = W / m_mapCellSizeX;
-    int area = m_mapCellSizeY*m_mapCellSizeX;
-
-    unsigned long sumRed = 0;
-    unsigned long sumBlue = 0;
-    unsigned long sumGreen = 0;
-
-    int performance_pill;
-
-    if(input.channels() == 3)
+    if((output.cols <= (X+W)) && (output.rows <= (Y+H)))
     {
-        for(int i = 0; i < stepsY; i++)
+        int stepsY = H / m_mapCellSizeY;
+        int stepsX = W / m_mapCellSizeX;
+        int area = m_mapCellSizeY*m_mapCellSizeX;
+
+        unsigned long sumRed = 0;
+        unsigned long sumBlue = 0;
+        unsigned long sumGreen = 0;
+
+        int performance_pill;
+
+        if(input.channels() == 3)
         {
-            for(int p = 0; p < m_mapCellSizeY; p++)
+            for(int i = 0; i < stepsY; i++)
             {
-                v_pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
-            }
-            for(int j = 0; j < stepsX; j++)
-            {
-                for(int k = 0; k < m_mapCellSizeX; k++)
+                for(int p = 0; p < m_mapCellSizeY; p++)
                 {
-                    performance_pill = 3*(X + j*m_mapCellSizeX + k);
-                    for(int p = 0; p < m_mapCellSizeY; p++)
-                    {
-                        sumBlue += v_pixelSet[p][performance_pill];
-                        sumGreen += v_pixelSet[p][performance_pill + 1];
-                        sumRed += v_pixelSet[p][performance_pill + 2];
-                    }
+                    v_pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
                 }
-                emit mapCellProcessed(sumRed, sumGreen, sumBlue, area, m_framePeriod);
-                sumBlue = 0;
-                sumGreen = 0;
-                sumRed = 0;
+                for(int j = 0; j < stepsX; j++)
+                {
+                    for(int k = 0; k < m_mapCellSizeX; k++)
+                    {
+                        performance_pill = 3*(X + j*m_mapCellSizeX + k);
+                        for(int p = 0; p < m_mapCellSizeY; p++)
+                        {
+                            sumBlue += v_pixelSet[p][performance_pill];
+                            sumGreen += v_pixelSet[p][performance_pill + 1];
+                            sumRed += v_pixelSet[p][performance_pill + 2];
+                        }
+                    }
+                    emit mapCellProcessed(sumRed, sumGreen, sumBlue, area, m_framePeriod);
+                    sumBlue = 0;
+                    sumGreen = 0;
+                    sumRed = 0;
+                }
             }
         }
-    }
-    else
-    {
-        for(int i = 0; i < stepsY; i++)
+        else
         {
-            for(int p = 0; p < m_mapCellSizeY; p++)
+            for(int i = 0; i < stepsY; i++)
             {
-                v_pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
-            }
-            for(int j = 0; j < stepsX; j++)
-            {
-                for(int k = 0; k < m_mapCellSizeX; k++)
+                for(int p = 0; p < m_mapCellSizeY; p++)
                 {
-                    performance_pill = X + j*m_mapCellSizeX + k;
-                    for(int p = 0; p < m_mapCellSizeY; p++)
-                    {
-                        sumBlue += v_pixelSet[p][performance_pill];
-                    }
+                    v_pixelSet[p] = output.ptr(Y + i*m_mapCellSizeY + p);
                 }
-                emit mapCellProcessed(sumBlue, sumBlue, sumBlue, area, m_framePeriod);
-                sumBlue = 0;
+                for(int j = 0; j < stepsX; j++)
+                {
+                    for(int k = 0; k < m_mapCellSizeX; k++)
+                    {
+                        performance_pill = X + j*m_mapCellSizeX + k;
+                        for(int p = 0; p < m_mapCellSizeY; p++)
+                        {
+                            sumBlue += v_pixelSet[p][performance_pill];
+                        }
+                    }
+                    emit mapCellProcessed(sumBlue, sumBlue, sumBlue, area, m_framePeriod);
+                    sumBlue = 0;
+                }
             }
         }
     }

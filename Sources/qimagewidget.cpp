@@ -31,23 +31,28 @@ void QImageWidget::computeColorTable()
 
     v_colors = new QColor[256];
 
-    quint8 r = 0;
-    quint8 b = 255;
-    quint8 g =0;
+    quint16 r = 0;
+    quint16 b = 255;
+    quint16 g = 0;
     for (quint16 i = 0 ; i < 256; i++)
     {
-        if(i < 128)
+        if((i < 64) && (g <= 251))
         {
-            b -= 2;
-            g +=2;
+            g += 4;
         }
-        if(i >= 128)
+        else if((i < 128) && (b >= 4))
         {
-            b = 0;
-            g -=2;
-            r +=2;
+            b -= 4;
         }
-        v_colors[i] = QColor( r, g, b, 99);
+        else if( (i < 192) && (r <= 251))
+        {
+            r += 4;
+        }
+        else if((i < 256) && (g >= 4))
+        {
+            g -= 4;
+        }
+        v_colors[i] = QColor( r, g, b, 96);
     }
 }
 
@@ -378,31 +383,53 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
     if(v_map)
     {
         QRectF mapRect = findMapRegion(input_rect);
-        painter.setBrush(Qt::NoBrush);
-        painter.setFont(QFont("Calibri", mapRect.width()/m_mapCols/3 ));
-
-        int alignmentFlag = Qt::AlignHCenter | Qt::AlignVCenter;
-        qreal coeff = (m_mapMax-m_mapMin);
-
-        QRectF temp = QRectF(mapRect.x(), mapRect.y(), mapRect.width()/m_mapCols, mapRect.height()/m_mapRows);
-        painter.fillRect(temp, v_colors[(int)(v_map[0]*255)]);
-        painter.drawRect(temp);
-        painter.drawText(temp, alignmentFlag, QString::number(v_map[0]*coeff + m_mapMin,'f',1));
-        for(quint16 i = 1; i < m_mapCols*m_mapRows; i++)
+        int fontSize = mapRect.width() / (m_mapCols * 3) ;
+        if(fontSize > 7)
         {
-            if((i % m_mapCols) == 0)
-            {
-                temp.moveLeft(mapRect.x());
-                temp.moveTop(temp.y()+temp.height());
-            }
-            else
-            {
-                temp.moveLeft(temp.x()+temp.width());
-            }
-            painter.fillRect(temp, v_colors[(int)(v_map[i]*255)]);
+            painter.setFont(QFont("Calibri", fontSize));
+            int alignmentFlag = Qt::AlignHCenter | Qt::AlignVCenter;
+            qreal coeff = (m_mapMax-m_mapMin);
+            QRectF temp = QRectF(mapRect.x(), mapRect.y(), mapRect.width()/m_mapCols, mapRect.height()/m_mapRows);
+            painter.setBrush(v_colors[(int)(v_map[0]*255)]);
             painter.drawRect(temp);
-            painter.drawText(temp, alignmentFlag, QString::number(v_map[i]*coeff + m_mapMin,'f',1));
+            painter.drawText(temp, alignmentFlag, QString::number(v_map[0]*coeff + m_mapMin,'f',1));
+            for(quint16 i = 1; i < m_mapCols*m_mapRows; i++)
+            {
+                if((i % m_mapCols) == 0)
+                {
+                    temp.moveLeft(mapRect.x());
+                    temp.moveTop(temp.y()+temp.height());
+                }
+                else
+                {
+                    temp.moveLeft(temp.x()+temp.width());
+                }
+                painter.setBrush(v_colors[(int)(v_map[i]*255)]);
+                painter.drawRect(temp);
+                painter.drawText(temp, alignmentFlag, QString::number(v_map[i]*coeff + m_mapMin,'f',1));
+            }
         }
+        else
+        {
+            QRectF temp = QRectF(mapRect.x(), mapRect.y(), mapRect.width()/m_mapCols, mapRect.height()/m_mapRows);
+            painter.setBrush(v_colors[(int)(v_map[0]*255)]);
+            painter.drawRect(temp);
+            for(quint16 i = 1; i < m_mapCols*m_mapRows; i++)
+            {
+                if((i % m_mapCols) == 0)
+                {
+                    temp.moveLeft(mapRect.x());
+                    temp.moveTop(temp.y()+temp.height());
+                }
+                else
+                {
+                    temp.moveLeft(temp.x()+temp.width());
+                }
+                painter.setBrush(v_colors[(int)(v_map[i]*255)]);
+                painter.drawRect(temp);
+            }
+        }
+
     }
 }
 

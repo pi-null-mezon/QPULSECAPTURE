@@ -25,16 +25,13 @@
 #include "qvideocapture.h"
 #include "about.h"
 #include "qharmonicprocessor.h"
+#include "qharmonicmap.h"
 #include "qsettingsdialog.h"
 #include "qeasyplot.h"
 #include "qbackgroundwidget.h"
 #include "mappingdialog.h"
 
-//------------------------------------------------------------------------------------------------------
-
-#define MS_INTERVAL 1000
 #define LIMIT_OF_DIALOGS_NUMBER 5
-
 //------------------------------------------------------------------------------------------------------
 class MainWindow : public QMainWindow
 {
@@ -43,6 +40,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+signals:
+    void pauseVideo();
+    void resumeVideo();
+    void closeVideo();
+    void updateTimer();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -62,8 +65,6 @@ public slots:
     void configure_and_start_session();
     void make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void startRecord();
-    void SwitchColorMode(int value);
-    void SwitchPCA(bool value);
     void openMapDialog();
 
 private:
@@ -100,6 +101,7 @@ private:
     QOpencvProcessor *pt_opencvProcessor;
     QThread *pt_improcThread;
     QThread *pt_harmonicThread;
+    QThread *pt_videoThread;
     QHarmonicProcessor *pt_harmonicProcessor;
     QTimer m_timer;
     QDialog *pt_dialogSet[LIMIT_OF_DIALOGS_NUMBER];

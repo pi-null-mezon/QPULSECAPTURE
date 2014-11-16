@@ -95,13 +95,13 @@ inline QRect QImageWidget::make_proportional_rect(QRect rect, int width, int hei
         int old_height = rect.height();
         if( ((qreal)width/height) > ((qreal)old_width/old_height) )
         {
-            rect.setHeight( (int)( old_width * height/width ) );
-            rect.moveTop( (int)((old_height - rect.height())/2) );
+            rect.setHeight( old_width * height/width );
+            rect.moveTop( (old_height - rect.height())/2 );
         }
         else
         {
-            rect.setWidth( (int)( old_height * width/height ) );
-            rect.moveLeft( (int)((old_width - rect.width())/2) );
+            rect.setWidth( old_height * width/height );
+            rect.moveLeft( (old_width - rect.width())/2 );
         }
     }
     return rect;
