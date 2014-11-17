@@ -24,8 +24,8 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     {
         v_processors[i].setID(i); // needs for control in whitch cell of the map write particular snr value
         v_processors[i].moveToThread(&v_threads[ i % m_threadCount ]);
-        connect(this, &QHarmonicProcessorMap::updateMap, &v_processors[i], &QHarmonicProcessor::ComputeFrequency);
-        connect(&v_processors[i], &QHarmonicProcessor::snrUpdated, this, &QHarmonicProcessorMap::updateCell);        
+        connect(this, SIGNAL(updateMap()), &v_processors[i], SLOT(ComputeFrequency()));
+        connect(&v_processors[i], SIGNAL(snrUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
         connect(this, SIGNAL(changeColorChannel(int)), &v_processors[i], SLOT(switchColorMode(int)));
         connect(this, SIGNAL(updatePCAMode(bool)), &v_processors[i], SLOT(setPCAMode(bool)));
     }
@@ -52,9 +52,9 @@ QHarmonicProcessorMap::~QHarmonicProcessorMap()
 
 void QHarmonicProcessorMap::updateHarmonicProcessor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period)
 {
-    connect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_cell], &QHarmonicProcessor::EnrollData);
+    connect(this, SIGNAL(dataArrived(ulong,ulong,ulong,ulong,double)), &v_processors[m_cell], SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
     emit dataArrived(red,green,blue,area,period);    
-    disconnect(this, &QHarmonicProcessorMap::dataArrived, &v_processors[m_cell], &QHarmonicProcessor::EnrollData);
+    disconnect(this, SIGNAL(dataArrived(ulong,ulong,ulong,ulong,double)), &v_processors[m_cell], SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
     m_cell = (++m_cell) % m_length;
 }
 

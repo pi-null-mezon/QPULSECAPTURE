@@ -52,7 +52,7 @@ void QImageWidget::computeColorTable()
         {
             g -= 4;
         }
-        v_colors[i] = QColor( r, g, b, 96);
+        v_colors[i] = QColor( r, g, b, 80);
     }
 }
 

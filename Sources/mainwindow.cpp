@@ -202,7 +202,7 @@ void MainWindow::createThreads()
     pt_improcThread = new QThread(this); // Make an own QThread for opencv interface
     pt_opencvProcessor = new QOpencvProcessor();
     pt_opencvProcessor->moveToThread( pt_improcThread );
-    connect(pt_improcThread, &QThread::finished, pt_opencvProcessor, &QObject::deleteLater);
+    connect(pt_improcThread, SIGNAL(finished()), pt_opencvProcessor, SLOT(deleteLater()));
     //---------------------------------------------------------------
 
     pt_harmonicProcessor = NULL;
@@ -719,7 +719,7 @@ void MainWindow::openMapDialog()
                 if(pt_map)
                 {                    
                     disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
-                    disconnect(&m_timer, &QTimer::timeout, pt_map, &QHarmonicProcessorMap::updateMap);
+                    disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
                     pt_display->updateMap(NULL,0,0,0.0,0.0);
                     delete pt_map;
                     pt_map = NULL;
@@ -738,7 +738,7 @@ void MainWindow::openMapDialog()
         if(pt_map)
         {
             disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
-            disconnect(&m_timer, &QTimer::timeout, pt_map, &QHarmonicProcessorMap::updateMap);
+            disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
             pt_display->updateMap(NULL,0,0,0.0,0.0);
             delete pt_map;
             pt_map = NULL;
