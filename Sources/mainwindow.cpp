@@ -718,7 +718,7 @@ void MainWindow::openMapDialog()
             {
                 if(pt_map)
                 {                    
-                    disconnect(pt_videoCapture, &QVideoCapture::frame_was_captured, pt_opencvProcessor, &QOpencvProcessor::mapProcess);
+                    disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
                     disconnect(&m_timer, &QTimer::timeout, pt_map, &QHarmonicProcessorMap::updateMap);
                     pt_display->updateMap(NULL,0,0,0.0,0.0);
                     delete pt_map;
@@ -737,7 +737,7 @@ void MainWindow::openMapDialog()
 
         if(pt_map)
         {
-            disconnect(pt_videoCapture, &QVideoCapture::frame_was_captured, pt_opencvProcessor, &QOpencvProcessor::mapProcess);
+            disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
             disconnect(&m_timer, &QTimer::timeout, pt_map, &QHarmonicProcessorMap::updateMap);
             pt_display->updateMap(NULL,0,0,0.0,0.0);
             delete pt_map;

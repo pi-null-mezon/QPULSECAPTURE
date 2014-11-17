@@ -16,7 +16,8 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     v_map = new qreal[m_length]; // 0...width*height-1
     v_processors = new QHarmonicProcessor[m_length]; // 0...width*height-1
 
-    m_threadCount = 1;
+    qWarning("idealThreadCount() for system return %d", QThread::idealThreadCount());
+    m_threadCount = QThread::idealThreadCount();
     v_threads = new QThread[m_threadCount];
 
     for(quint32 i = 0; i < m_length; i++)

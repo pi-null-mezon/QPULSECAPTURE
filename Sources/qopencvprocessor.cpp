@@ -322,7 +322,7 @@ void QOpencvProcessor::mapProcess(const cv::Mat &input)
     int W = m_mapRect.width;
     int H = m_mapRect.height;
 
-    if((output.cols <= (X+W)) && (output.rows <= (Y+H)))
+    if((output.cols >= (X+W)) && (output.rows >= (Y+H)))
     {
         int stepsY = H / m_mapCellSizeY;
         int stepsX = W / m_mapCellSizeX;
