@@ -457,7 +457,8 @@ void MainWindow::configure_and_start_session()
             }
         }
         //---------------------------------------------------------------
-        disconnect(pt_videoCapture,0,0,0);
+        disconnect(pt_videoCapture,SIGNAL(frame_was_captured(cv::Mat)),pt_opencvProcessor,SLOT(faceProcess(cv::Mat)));
+        disconnect(pt_videoCapture,SIGNAL(frame_was_captured(cv::Mat)),pt_opencvProcessor,SLOT(rectProcess(cv::Mat)));
         if(dialog.get_flagCascade())
         {
             QString filename = dialog.get_stringCascade();
