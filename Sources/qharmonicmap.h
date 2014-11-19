@@ -31,6 +31,7 @@ private:
     quint32 m_height;
     quint32 m_length;
     qreal *v_map;
+    qreal *v_outputmap;
     QHarmonicProcessor *v_processors;
     QThread *v_threads;
     QMutex m_mutex;

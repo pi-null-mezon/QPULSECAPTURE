@@ -14,6 +14,7 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     m_cell(0)
 {
     v_map = new qreal[m_length]; // 0...width*height-1
+    v_outputmap = new qreal[m_length];
     v_processors = new QHarmonicProcessor[m_length]; // 0...width*height-1
 
     qWarning("idealThreadCount() for system return %d", QThread::idealThreadCount());
@@ -46,6 +47,7 @@ QHarmonicProcessorMap::~QHarmonicProcessorMap()
         v_threads[i].wait();
     }
     delete[] v_map;
+    delete[] v_outputmap;
     delete[] v_processors;
     delete[] v_threads;
 }
@@ -72,9 +74,9 @@ void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
     if(m_updations == m_length)
     {
         for(quint32 i = 0; i < m_length; i++) {
-            v_map[i] = (v_map[i] - m_min)/(m_max - m_min);
+            v_outputmap[i] = (v_map[i] - m_min)/(m_max - m_min);
         }
-        emit mapUpdated(v_map, m_width, m_height, m_max, m_min);
+        emit mapUpdated(v_outputmap, m_width, m_height, m_max, m_min);
         m_updations = 0;
         m_max = DEFAULT_SNR_MAX;
         m_min = DEFAULT_SNR_MIN;
