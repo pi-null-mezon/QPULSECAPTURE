@@ -155,10 +155,10 @@
      </rect>
     </property>
     <property name="minimum">
-     <number>8</number>
+     <number>20</number>
     </property>
     <property name="maximum">
-     <number>128</number>
+     <number>40</number>
     </property>
     <property name="singleStep">
      <number>1</number>
@@ -167,7 +167,7 @@
      <number>4</number>
     </property>
     <property name="sliderPosition">
-     <number>8</number>
+     <number>20</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>

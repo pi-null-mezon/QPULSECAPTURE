@@ -115,7 +115,7 @@ void QSettingsDialog::on_checkBoxCascade_stateChanged(int arg1)
 
 void QSettingsDialog::on_horizontalSliderTimer_valueChanged(int value)
 {
-    ui->lineEditTimer->setText(QString::number(value * TIMER_INTERVAL) + " ms");
+    ui->lineEditTimer->setText(QString::number(value * TIMER_INTERVAL));
 }
 
 int QSettingsDialog::get_timerValue() const

@@ -102,6 +102,7 @@ private:
     QThread *pt_improcThread;
     QThread *pt_harmonicThread;
     QThread *pt_videoThread;
+    QThread *pt_mapThread;
     QHarmonicProcessor *pt_harmonicProcessor;
     QTimer m_timer;
     QDialog *pt_dialogSet[LIMIT_OF_DIALOGS_NUMBER];
