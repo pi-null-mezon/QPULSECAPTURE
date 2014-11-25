@@ -383,8 +383,9 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
     if(v_map)
     {
         QRectF mapRect = findMapRegion(input_rect);
+        painter.setPen(QColor(0,0,0,64));
         int fontSize = mapRect.width() / (m_mapCols * 3) ;
-        if(fontSize > 7)
+        if(fontSize > 8)
         {
             painter.setFont(QFont("Calibri", fontSize));
             int alignmentFlag = Qt::AlignHCenter | Qt::AlignVCenter;
