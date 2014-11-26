@@ -54,7 +54,7 @@ void QSettingsDialog::on_dialBufferlength_valueChanged(int value)
 
 void QSettingsDialog::on_ButtonCascade_clicked()
 {
-    QString str = QFileDialog::getOpenFileName(this, tr("Open File"), "/haarcascades", tr("Cascade (*.xml)"));
+    QString str = QFileDialog::getOpenFileName(this, tr("Open File"), "haarcascades/haarcascade_frontalface_alt.xml", tr("Cascade (*.xml)"));
     if(str.length() != 0)
     {
         ui->lineEditCascade->setText(str);

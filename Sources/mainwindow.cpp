@@ -240,12 +240,12 @@ void MainWindow::createThreads()
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
-    menu.addAction(pt_openSessionAct);
+    menu.addAction(pt_selectAllAct);
+    //menu.addAction(pt_openSessionAct);
     menu.addSeparator();
     menu.addAction(pt_pauseAct);
     menu.addAction(pt_resumeAct);
-    menu.addSeparator();
-    menu.addAction(pt_selectAllAct);
+    menu.addSeparator();   
     menu.exec(event->globalPos());
 }
 
@@ -338,7 +338,7 @@ void MainWindow::show_about()
 
 void MainWindow::show_help()
 {
-    if (!QDesktopServices::openUrl(QUrl("file:///" + QDir::currentPath() + "/QVideoProcessing.txt", QUrl::TolerantMode))) // runs the ShellExecute function on Windows
+    if (!QDesktopServices::openUrl(QUrl("https://github.com/pi-null-mezon/qpulsecapture.git", QUrl::TolerantMode))) // runs the ShellExecute function on Windows
     {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open help file"), QMessageBox::Ok, this, Qt::Dialog);
         msgBox.exec();
@@ -652,7 +652,7 @@ void MainWindow::make_record_to_file(qreal signalValue, qreal meanRed, qreal mea
     {
         m_textStream << QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz")
                      << "\t" << signalValue << "\t" << meanRed << "\t" << meanGreen
-                     << "\t" << meanBlue << "\t" << freqValue << "\t" << snrValue << "\n";
+                     << "\t" << meanBlue << "\t" << qRound(freqValue) << "\t" << snrValue << "\n";
     }
 }
 
@@ -680,6 +680,11 @@ void MainWindow::startRecord()
     if(m_saveFile.isOpen()) {
         m_saveFile.close();
         pt_recordAct->setChecked(false);
+        QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Another record?"), QMessageBox::Yes | QMessageBox::No, this, Qt::Dialog);
+        if(msgBox.exec() == QMessageBox::No)
+        {
+            return;
+        }
     }
 
     m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to file"),"/records", "Text file (*.txt)"));
