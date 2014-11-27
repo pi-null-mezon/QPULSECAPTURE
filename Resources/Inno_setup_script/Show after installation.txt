@@ -1,0 +1,9 @@
+For the proper work You may need to manually install
+msvc2010 redistributable package (x86), search it on
+
+	www.microsoft.com
+
+or try direct link below:
+
+	http://www.microsoft.com/en-us/download/details.aspx?id=5555
+
