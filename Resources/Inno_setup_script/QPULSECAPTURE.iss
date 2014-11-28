@@ -3,7 +3,6 @@
 
 #define MyAppName "QPULSECAPTURE"
 #define MyAppVersion "1.0.0.4"
-#define MyAppPublisher "My Company, Inc."
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
@@ -14,12 +13,10 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{FB032240-A04D-42AC-AFB3-29B0823E72CA}
+AppId={{F30EAB04-87F3-4BB3-A463-A9D4E99C2935}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
-AppPublisher={#MyAppPublisher}
-AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
