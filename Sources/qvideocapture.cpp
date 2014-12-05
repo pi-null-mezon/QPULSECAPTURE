@@ -20,6 +20,7 @@ bool QVideoCapture::openfile(const QString &filename)
     pt_timer->stop();
     if( m_cvCapture.open( filename.toLocal8Bit().constData() ) )
     {
+        m_frameCounter = 0;
         deviceFlag = false;
         pt_timer->setInterval( 1000/m_cvCapture.get(CV_CAP_PROP_FPS) ); // CV_CAP_PROP_FPS - m_frame rate
         return true;
@@ -97,6 +98,10 @@ bool QVideoCapture::read_frame()
     if( ( m_cvCapture.read(m_frame) ) && ( !m_frame.empty() ) )
     {
         emit frame_was_captured(m_frame);
+        if(!deviceFlag)
+        {
+            emit capturedFrameNumber((int)m_cvCapture.get(CV_CAP_PROP_POS_FRAMES));
+        }
         return true;
     }
     else
@@ -459,4 +464,17 @@ void QVideoCapture::initiallizeTimer()
     pt_timer = new QTimer();
     pt_timer->setTimerType(Qt::PreciseTimer);
     connect(pt_timer, SIGNAL( timeout() ), this, SLOT( read_frame() )); // makes a connection between timer signal and class slot
+}
+
+double QVideoCapture::getFrameCounts()
+{
+    return m_cvCapture.get(CV_CAP_PROP_FRAME_COUNT);
+}
+
+void QVideoCapture::setFrameNumber(int number)
+{
+    if( !m_cvCapture.set(CV_CAP_PROP_POS_FRAMES, number) )
+    {
+        qWarning("Can not set such frame number");
+    }
 }

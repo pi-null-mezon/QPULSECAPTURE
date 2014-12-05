@@ -30,6 +30,7 @@
 #include "qeasyplot.h"
 #include "qbackgroundwidget.h"
 #include "mappingdialog.h"
+#include "qvideoslider.h"
 
 #define LIMIT_OF_DIALOGS_NUMBER 5
 //------------------------------------------------------------------------------------------------------
@@ -76,6 +77,7 @@ private:
     QVBoxLayout *pt_mainLayout;
     QBackgroundWidget *pt_centralWidget;
     QVBoxLayout *pt_centralWidgetLayout;
+    QVideoSlider *pt_videoSlider;
     QLabel *pt_infoLabel;
     QAction *pt_openSessionAct;
     QAction *pt_exitAct;

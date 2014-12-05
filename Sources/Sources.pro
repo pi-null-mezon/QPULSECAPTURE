@@ -27,7 +27,8 @@ SOURCES +=  main.cpp\
             qeasyplot.cpp \
             qbackgroundwidget.cpp \
             mappingdialog.cpp \
-            qharmonicmap.cpp
+            qharmonicmap.cpp \
+            qvideoslider.cpp
 
 HEADERS  += mainwindow.h \
             qimagewidget.h \
@@ -39,7 +40,8 @@ HEADERS  += mainwindow.h \
             qeasyplot.h \
             qbackgroundwidget.h \
             mappingdialog.h \
-            qharmonicmap.h
+            qharmonicmap.h \
+            qvideoslider.h
 
 FORMS += qsettingsdialog.ui \
          mappingdialog.ui

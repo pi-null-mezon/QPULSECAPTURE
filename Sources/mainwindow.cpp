@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent):
     pt_centralWidgetLayout = new QVBoxLayout();
     this->setCentralWidget(pt_centralWidget);
     pt_centralWidget->setLayout(pt_centralWidgetLayout);
-    pt_centralWidgetLayout->setMargin(0);
+    pt_centralWidgetLayout->setMargin(FRAME_MARGIN);
 
     //--------------------------------------------------------------
     pt_display = new QImageWidget(); // Widgets without a parent are “top level” (independent) widgets. All other widgets are drawn within their parent
@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent):
 
     //--------------------------------------------------------------
     m_dialogSetCounter = 0;
+    pt_videoSlider = NULL;
 
     //--------------------------------------------------------------
     m_timer.setTimerType(Qt::PreciseTimer);
@@ -269,9 +270,25 @@ bool MainWindow::openvideofile()
         delete pt_infoLabel;
         pt_infoLabel = NULL;
     }
+
+
+    delete pt_videoSlider;
+    pt_videoSlider = NULL;
+    pt_videoSlider = new QVideoSlider(this);
+    pt_videoSlider->setRange(0, (int)pt_videoCapture->getFrameCounts());
+    pt_videoSlider->setOrientation(Qt::Horizontal);
+    pt_videoSlider->setTickPosition(QSlider::TicksBothSides);
+    pt_videoSlider->setTickInterval(32);
+    pt_centralWidgetLayout->addWidget(pt_videoSlider);
+    connect(pt_videoCapture, SIGNAL(capturedFrameNumber(int)), pt_videoSlider, SLOT(setValue(int)));
+    connect(pt_videoSlider, SIGNAL(sliderPressed()), this, SLOT(onpause()));
+    connect(pt_videoSlider, SIGNAL(sliderReleased(int)), pt_videoCapture, SLOT(setFrameNumber(int)));
+    connect(pt_videoSlider, SIGNAL(sliderReleased(int)), this, SLOT(onresume()));
+
     onresume();
     return true;
 }
+
 
 //------------------------------------------------------------------------------------
 
@@ -294,6 +311,10 @@ bool MainWindow::opendevice()
         delete pt_infoLabel;
         pt_infoLabel = NULL;
     }
+
+    delete pt_videoSlider;
+    pt_videoSlider = NULL;
+
     onresume();
     return true;
 }

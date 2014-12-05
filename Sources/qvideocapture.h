@@ -65,6 +65,7 @@ public:
 
 signals:
     void frame_was_captured(const cv::Mat& value); // should be emmited right after a new frame was captured, to use in your own Qt-projects first do qRegisterMetaType<cv::Mat>("cv::Mat")
+    void capturedFrameNumber(const int number);
     //------------------------------------------
     void set_default_brightness(int value);
     void set_default_contrast(int value);
@@ -88,6 +89,8 @@ public slots:
     int open_deviceSelectDialog();                      // On success it should return device id for opendevice(...) function, thus you should use it in than way: class_instance->opendevice( device_select_dialog(), some_value )
     bool open_resolutionDialog();                       // creates an QDialog instance with video device resolution-controls, should be used as a GUI implementation of the camera controll functions
     bool open_settingsDialog();                         // creates an QDialog instance with video device characteristic-controls, should be used as a GUI implementation of the camera controll functions
+    double getFrameCounts();
+    void setFrameNumber(int number);
     //------------------------------------------
     bool set(int propertyID , double value);// this function should to call cv::VideoCapture::set(propertyID, value)
     bool set_brightness(int value);
@@ -105,7 +108,8 @@ private:
     cv::Mat m_frame;                        // an OpenCV's object for image storing
     QTimer *pt_timer;                       // a timer for frames grabbing
     bool deviceFlag;                        // this flag should to show when frames are grabbing from video device [true] and when from video file [false] (I was using it for settings and resolution dialogs, which can't be called for video files playback)
-    int device_id;                          // stores the curent device identifier, 0 on default
+    int device_id;                          // stores the curent device identifier, 0 on default    
+    int m_frameCounter;                     // stores vurrent number of frame in video file
 
 private slots:
     bool read_frame();                      // calls cv::VideoCapture::read()
