@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QPULSECAPTURE"
-#define MyAppVersion "1.0.0.4"
+#define MyAppVersion "1.0.0.5"
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
@@ -13,7 +13,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{F30EAB04-87F3-4BB3-A463-A9D4E99C2935}
+AppId={{1872A4FB-B90E-4A3D-80DF-FCCC4A6F660C}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -26,7 +26,7 @@ LicenseFile=C:\Programing\QPULSECAPTURE\LICENSE
 InfoBeforeFile=C:\Programing\QPULSECAPTURE\README.md
 InfoAfterFile=C:\Programing\QPULSECAPTURE\Resources\Inno_setup_script\Show after installation.txt
 OutputDir=C:\Programing\QPULSECAPTURE\Install
-OutputBaseFilename=QPULSECAPTURE_v1.0.0.4_setup
+OutputBaseFilename={#MyAppName}_{#MyAppVersion}_setup
 SetupIconFile=C:\Programing\QPULSECAPTURE\Resources\Inno_setup_script\Setup.ico
 Compression=lzma
 SolidCompression=yes
@@ -44,43 +44,46 @@ Source: "{#QtLibs}\icuin51.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\icuuc51.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\libEGL.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\libGLESv2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Bluetooth.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5CLucene.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Concurrent.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Bluetooth.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5CLucene.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Concurrent.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Declarative.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Designer.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5DesignerComponents.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Declarative.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Designer.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5DesignerComponents.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Help.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Help.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\Qt5Multimedia.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5MultimediaQuick_p.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5MultimediaWidgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5MultimediaQuick_p.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5MultimediaWidgets.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\Qt5Network.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Nfc.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5OpenGL.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Positioning.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5PrintSupport.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Qml.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Quick.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5QuickParticles.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5QuickTest.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Script.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5ScriptTools.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Sensors.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5SerialPort.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Sql.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5Test.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5WebKit.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5WebKitWidgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Nfc.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5OpenGL.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Positioning.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5PrintSupport.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Qml.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Quick.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5QuickParticles.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5QuickTest.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Script.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5ScriptTools.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Sensors.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5SerialPort.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Sql.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5Test.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5WebKit.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5WebKitWidgets.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5WinExtras.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5WinExtras.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\Qt5Xml.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\Qt5XmlPatterns.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "{#QtLibs}\Qt5XmlPatterns.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\..\plugins\platforms\qminimal.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
 Source: "{#QtLibs}\..\plugins\platforms\qoffscreen.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
 Source: "{#QtLibs}\..\plugins\platforms\qwindows.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
+Source: "{#QtLibs}\..\plugins\mediaservice\dsengine.dll"; DestDir: "{app}\mediaservice"; Flags: ignoreversion
+Source: "{#QtLibs}\..\plugins\mediaservice\qtmedia_audioengine.dll"; DestDir: "{app}\mediaservice"; Flags: ignoreversion
+Source: "{#QtLibs}\..\plugins\mediaservice\wmfengine.dll"; DestDir: "{app}\mediaservice"; Flags: ignoreversion
 Source: "C:\Programing\QPULSECAPTURE\Resources\normal_heart_rate_at_rest.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Programing\QPULSECAPTURE\Resources\WVCF_utility.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Programing\QPULSECAPTURE\Resources\FFTW\fftw3-32\libfftw3-3.dll"; DestDir: "{app}"; Flags: ignoreversion
