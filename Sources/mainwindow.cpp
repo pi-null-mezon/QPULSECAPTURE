@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent):
     pt_centralWidgetLayout->addWidget(pt_display);
 
     //--------------------------------------------------------------
-    pt_infoLabel = new QLabel(tr("<i>Choose a menu option, or make right-click to invoke a context menu</i>"));
+    pt_infoLabel = new QLabel(tr("<i>Start new measurement session</i>"));
     pt_infoLabel->setFrameStyle(QFrame::Box | QFrame::Sunken);
     pt_infoLabel->setAlignment(Qt::AlignCenter);
     pt_infoLabel->setWordWrap( true );
@@ -161,7 +161,7 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
-    pt_fileMenu = this->menuBar()->addMenu(tr("&File"));
+    pt_fileMenu = this->menuBar()->addMenu(tr("&Session"));
     pt_fileMenu->addAction(pt_openSessionAct);
     pt_fileMenu->addSeparator();
     pt_fileMenu->addAction(pt_exitAct);
