@@ -262,17 +262,25 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
         unsigned char *p; // a pointer to store the adresses of image rows
         if(output.channels() == 3)
         {
+            unsigned char tempRed;
+            unsigned char tempGreen;
+            unsigned char tempBlue;
             for(unsigned int j = Y; j < Y + rectheight; j++)
             {
                 p = output.ptr(j); //takes pointer to beginning of data on rows
                 for(unsigned int i = X; i < X + rectwidth; i++)
-                {
-                    blue += p[3*i];
-                    green += p[3*i+1];
-                    red += p[3*i+2];
-                            //p[3*i] = 0;
-                            //p[3*i+1] = 0;
-                            //p[3*i+2] = 0;
+                {                  
+                    tempBlue = p[3*i];
+                    tempGreen = p[3*i+1];
+                    tempRed = p[3*i+2];
+                    if( isSkinColor(tempRed, tempGreen, tempBlue)) {
+                        blue += tempBlue;
+                        green += tempGreen;
+                        red += tempRed;
+                        //p[3*i] = 255;
+                        p[3*i+1] = 255;
+                        //p[3*i+2] = 0;
+                    }
                 }
             }
         }

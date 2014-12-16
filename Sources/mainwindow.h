@@ -120,6 +120,7 @@ private:
     QAction *pt_greenAct;
     QAction *pt_allAct;
     QAction *pt_pcaAct;
+    QAction *pt_experimentalAct;
 
     QHarmonicProcessorMap *pt_map;
 

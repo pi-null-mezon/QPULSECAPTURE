@@ -38,3 +38,6 @@
 *.mp4
 *.wmv
 *.db
+
+# Images for manual
+/Resources/Docs/WorkFlow

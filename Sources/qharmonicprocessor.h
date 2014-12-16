@@ -13,14 +13,13 @@
 #define DIGITAL_FILTER_LENGTH 5 // in counts
 
 
-
 class QHarmonicProcessor : public QObject
 {
     Q_OBJECT
 public:
     explicit QHarmonicProcessor(QObject *parent = NULL, quint16 length_of_data = 256, quint16 length_of_buffer = 256 );
     ~QHarmonicProcessor();
-    enum ColorChannel { Red, Green, Blue, All };
+    enum ColorChannel { Red, Green, Blue, All, Experimental };
     enum XMLparserError { NoError, FileOpenError, FileExistanceError, ReadError, ParseFailure };
     enum SexID { Male, Female };
     enum TwoSideAlpha { FiftyPercents, TwentyPercents, TenPercents, FivePercents, TwoPercents };

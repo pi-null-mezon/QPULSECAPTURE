@@ -51,7 +51,39 @@ private:
     quint16 m_mapCellSizeY;
     cv::Rect m_mapRect;
     unsigned char **v_pixelSet; // memory should be allocated in setMapCellSize() call
+
+    bool isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue);
 };
+
+inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue)
+{
+    //from Ghazali Osman Muhammad, Suzuri Hitam and Mohd Nasir Ismail
+    //"ENHANCED SKIN COLOUR CLASSIFIER USING RGB RATIO MODEL" International Journal on Soft Computing (IJSC) Vol.3, No.4, November 2012
+    //Swift’s rule
+    /*if( (valueBlue > valueRed)    &&
+        (valueGreen < valueBlue)    &&
+        (valueGreen > valueRed)     &&
+        ( (valueBlue < (valueRed >> 2))  || (valueBlue > 200) ) ) {
+        return false;
+    } else return true;*/
+
+    //Kovac's rule
+    /*if( (valueRed > 95) && (valueRed > valueGreen)    &&
+        (valueGreen > 40) && (valueBlue > 20)           &&
+        ((valueRed - qMin(valueGreen,valueBlue)) > 15)  &&
+        ((valueRed - valueGreen) > 15 ) ) {
+        return true;
+    } else return false;*/
+
+    //Modified Kovac's rule
+    if( (valueRed > 115) && (valueRed > valueGreen)     &&
+        (valueGreen > 75) && (valueBlue > 35)           &&
+        ((valueRed - qMin(valueGreen,valueBlue)) > 35)  &&
+        ((valueRed - valueGreen) > 35 ) ) {
+        return true;
+    } else return false;
+}
+
 
 //------------------------------------------------------------------------------------------------------
 #endif // QOPENCVPROCESSOR_H

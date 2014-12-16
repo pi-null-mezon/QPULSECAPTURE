@@ -141,6 +141,11 @@ void MainWindow::createActions()
     pt_allAct->setCheckable(true);
     pt_colorMapper->setMapping(pt_allAct,3);
     connect(pt_allAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
+    pt_experimentalAct = new QAction(tr("Experimental"), pt_colorActGroup);
+    pt_experimentalAct->setStatusTip(tr("Experimental color enrollment scheme"));
+    pt_experimentalAct->setCheckable(true);
+    pt_colorMapper->setMapping(pt_experimentalAct, 4);
+    connect(pt_experimentalAct,SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
     pt_greenAct->setChecked(true);
 
     pt_pcaAct = new QAction(tr("PCA align"), this);
