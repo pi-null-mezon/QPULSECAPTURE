@@ -39,9 +39,11 @@ public slots:
     cv::Rect getRect(); // returns current m_cvRect
     void setMapRegion(const cv::Rect &input_rect); // sets up map region, see m_mapRect
     void setMapCellSize(quint16 sizeX, quint16 sizeY);
+    void setSkinSearchingFlag(bool value);
 
 private:
     bool m_fullFaceFlag;
+    bool m_skinFlag;
     int64 m_timeCounter;    // stores time of application/computer start
     double m_framePeriod;   // stores time of frame processing
     cv::Rect m_cvRect;      // this rect is used by process_rectregion_pulse slot
@@ -76,10 +78,10 @@ inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char 
     } else return false;*/
 
     //Modified Kovac's rule
-    if( (valueRed > 115) && (valueRed > valueGreen)     &&
-        (valueGreen > 75) && (valueBlue > 35)           &&
-        ((valueRed - qMin(valueGreen,valueBlue)) > 35)  &&
-        ((valueRed - valueGreen) > 35 ) ) {
+    if( (valueRed > 115) &&
+        (valueRed > valueGreen) && (valueBlue > 45)     &&
+        ((valueRed - qMin(valueGreen,valueBlue)) > 45)  &&
+        ((valueRed - valueGreen) > 45 ) ) {
         return true;
     } else return false;
 }

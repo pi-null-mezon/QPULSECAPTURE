@@ -16,7 +16,8 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_cvRect.width = 0;
     m_cvRect.height = 0;
     m_framePeriod = 0.0;
-    m_fullFaceFlag = false;
+    m_fullFaceFlag = true;
+    m_skinFlag = false;
 
     v_pixelSet = NULL;
 }
@@ -115,6 +116,9 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
         dX = (int)rectwidth/4; // the horizontal portion of rect domain that will be enrolled
         dY = (int)rectheight/13; //...
         unsigned char *p; // this pointer will be used to store adresses of the image rows
+        unsigned char tempBlue;
+        unsigned char tempRed;
+        unsigned char tempGreen;
 
         if(m_fullFaceFlag == false)
         {
@@ -180,19 +184,45 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
         {
             if(output.channels() == 3)
             {
-                for(unsigned int j = Y; j < Y + rectheight; j++)
+                if(m_skinFlag)
                 {
-                    p = output.ptr(j); //takes pointer to beginning of data on row
-                    for(unsigned int i = X; i < X + rectwidth; i++)
+                    for(unsigned int j = Y; j < Y + rectheight; j++)
                     {
-                        blue += p[3*i];
-                        green += p[3*i+1];
-                        red += p[3*i+2];
-                        //Uncomment if want to see the enrolled domain on image
-                        //p[3*i] = 0;
-                        p[3*i+1] = 255;
-                        //p[3*i+2] = 0;
+                        p = output.ptr(j); //takes pointer to beginning of data on row
+                        for(unsigned int i = X; i < X + rectwidth; i++)
+                        {
+                            tempBlue = p[3*i];
+                            tempGreen = p[3*i+1];
+                            tempRed = p[3*i+2];
+                            if( isSkinColor(tempRed, tempGreen, tempBlue)) {
+                                area++;
+                                blue += tempBlue;
+                                green += tempGreen;
+                                red += tempRed;
+                                //p[3*i] = 255;
+                                p[3*i+1] = 255;
+                                //p[3*i+2] = 0;
+                            }
+                        }
                     }
+                }
+                else
+                {
+                    for(unsigned int j = Y; j < Y + rectheight; j++)
+                    {
+                        p = output.ptr(j); //takes pointer to beginning of data on row
+                        for(unsigned int i = X; i < X + rectwidth; i++)
+                        {
+                            blue += p[3*i];
+                            green += p[3*i+1];
+                            red += p[3*i+2];
+                            //Uncomment if want to see the enrolled domain on image
+                            //p[3*i] = 0;
+                            p[3*i+1] = 255;
+                            //p[3*i+2] = 0;
+                        }
+                    }
+                    area = rectwidth*rectheight;
                 }
             }
             else
@@ -209,8 +239,8 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                 }
                 blue = green;
                 red = green;
-            }
-            area = rectwidth*rectheight;
+                area = rectwidth*rectheight;
+            }           
         }
     }
 
@@ -218,7 +248,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     //-----end of if(faces_vector.size() != 0)-----
     m_framePeriod = ((double)cv::getTickCount() -  m_timeCounter)*1000.0 / cv::getTickFrequency();
     m_timeCounter = cv::getTickCount();
-    if(faces_vector.size() != 0)
+    if((faces_vector.size() != 0) && (area > 0))
     {
         cv::rectangle( output, faces_vector[0] , cv::Scalar(255,25,25));
         emit dataCollected( red , green, blue, area, m_framePeriod);
@@ -231,7 +261,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
         }
         else
         {
-            emit selectRegion("Come closer, please");
+            emit selectRegion("Try to come closer or to change a light");
         }
     }
     emit frameProcessed(output, m_framePeriod);
@@ -256,32 +286,54 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     unsigned long red = 0;
     unsigned long green = 0;
     unsigned long blue = 0;
+    unsigned long area = 0;
     //-------------------------------------------------------------------------
     if((rectheight > 0) && (rectwidth > 0))
     {
         unsigned char *p; // a pointer to store the adresses of image rows
         if(output.channels() == 3)
         {
-            unsigned char tempRed;
-            unsigned char tempGreen;
-            unsigned char tempBlue;
-            for(unsigned int j = Y; j < Y + rectheight; j++)
+            if(m_skinFlag)
             {
-                p = output.ptr(j); //takes pointer to beginning of data on rows
-                for(unsigned int i = X; i < X + rectwidth; i++)
-                {                  
-                    tempBlue = p[3*i];
-                    tempGreen = p[3*i+1];
-                    tempRed = p[3*i+2];
-                    if( isSkinColor(tempRed, tempGreen, tempBlue)) {
-                        blue += tempBlue;
-                        green += tempGreen;
-                        red += tempRed;
-                        //p[3*i] = 255;
-                        p[3*i+1] = 255;
-                        //p[3*i+2] = 0;
+                unsigned char tempRed;
+                unsigned char tempGreen;
+                unsigned char tempBlue;
+                for(unsigned int j = Y; j < Y + rectheight; j++)
+                {
+                    p = output.ptr(j); //takes pointer to beginning of data on rows
+                    for(unsigned int i = X; i < X + rectwidth; i++)
+                    {
+                        tempBlue = p[3*i];
+                        tempGreen = p[3*i+1];
+                        tempRed = p[3*i+2];
+                        if( isSkinColor(tempRed, tempGreen, tempBlue)) {
+                            area++;
+                            blue += tempBlue;
+                            green += tempGreen;
+                            red += tempRed;
+                            //p[3*i] = 255;
+                            p[3*i+1] = 255;
+                            //p[3*i+2] = 0;
+                        }
                     }
                 }
+            }
+            else
+            {
+                for(unsigned int j = Y; j < Y + rectheight; j++)
+                {
+                    p = output.ptr(j); //takes pointer to beginning of data on rows
+                    for(unsigned int i = X; i < X + rectwidth; i++)
+                    {
+                        blue += p[3*i];
+                        green += p[3*i+1];
+                        red += p[3*i+2];
+                            //p[3*i] = 255;
+                            //p[3*i+1] = 255;
+                            //p[3*i+2] = 0;
+                    }
+                }
+                area = rectwidth*rectheight;
             }
         }
         else
@@ -295,15 +347,16 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                         //p[i] = 0;
                 }
             }
+            area = rectwidth*rectheight;
         }
     }
     //------end of if((rectheight > 0) && (rectwidth > 0))
     m_framePeriod = ((double)cv::getTickCount() -  m_timeCounter)*1000.0 / cv::getTickFrequency();
     m_timeCounter = cv::getTickCount();
-    if((rectheight > 0) && (rectwidth > 0))
+    if( area > 0 )
     {
         cv::rectangle( output , m_cvRect, cv::Scalar(255,25,25));
-        emit dataCollected(red, green, blue, rectwidth*rectheight, m_framePeriod);
+        emit dataCollected(red, green, blue, area, m_framePeriod);
     }
     else
     {
@@ -405,5 +458,10 @@ void QOpencvProcessor::setMapCellSize(quint16 sizeX, quint16 sizeY)
         v_pixelSet = NULL;
     }
     v_pixelSet = new unsigned char*[m_mapCellSizeY];
+}
+
+void QOpencvProcessor::setSkinSearchingFlag(bool value)
+{
+    m_skinFlag = value;
 }
 

@@ -160,6 +160,10 @@ void MainWindow::createActions()
     pt_selectAllAct = new QAction(tr("&Select all"), this);
     pt_selectAllAct->setStatusTip(tr("Select whole image"));
     connect(pt_selectAllAct, SIGNAL(triggered()), pt_display, SLOT(selectWholeImage()));
+
+    pt_skinAct = new QAction(tr("&Only skin"), this);
+    pt_skinAct->setStatusTip(tr("Enroll pixels wih color close to skin only"));
+    pt_skinAct->setCheckable(true);
 }
 
 //------------------------------------------------------------------------------------
@@ -180,6 +184,8 @@ void MainWindow::createMenus()
     pt_modeMenu->addActions(pt_colorActGroup->actions());
     pt_modeMenu->addSeparator();
     pt_modeMenu->addAction(pt_pcaAct);
+    pt_modeMenu->addSeparator();
+    pt_modeMenu->addAction(pt_skinAct);
     pt_modeMenu->addSeparator();
     pt_modeMenu->addAction(pt_mapAct);
     pt_optionsMenu->addSeparator();
@@ -209,6 +215,7 @@ void MainWindow::createThreads()
     pt_opencvProcessor = new QOpencvProcessor();
     pt_opencvProcessor->moveToThread( pt_improcThread );
     connect(pt_improcThread, SIGNAL(finished()), pt_opencvProcessor, SLOT(deleteLater()));
+    connect(pt_skinAct, SIGNAL(triggered(bool)), pt_opencvProcessor, SLOT(setSkinSearchingFlag(bool)));
     //---------------------------------------------------------------
 
     pt_harmonicProcessor = NULL;
