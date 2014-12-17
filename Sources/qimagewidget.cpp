@@ -204,7 +204,7 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
             if(!m_warningString.isEmpty())
             {
                 font.setPointSizeF( pointsize * 2);
-                qreal pX = input_rect.x() + (input_rect.width() - m_warningString.size()*pointsize - 2*m_margin) / 2.0;
+                qreal pX = input_rect.x() + ((qreal)input_rect.width() - m_warningString.size()*pointsize) / 2.0;
                 qreal pY = input_rect.y() + font.pointSizeF() + (input_rect.height() - font.pointSizeF() ) / 2.0;
 
                 QPainterPath path_warning;

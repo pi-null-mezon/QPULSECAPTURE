@@ -186,8 +186,10 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
             {
                 if(m_skinFlag)
                 {
-                    for(unsigned int j = Y; j < Y + rectheight; j++)
-                    {
+                    for(unsigned int j = Y - dY; j < Y + rectheight + dY; j++) // it is lucky that unsigned int saves from out of image memory cells processing from image top bound, but not from bottom where you should check this issue explicitly
+                    {                       
+                        if(j >= output.rows)
+                            break;
                         p = output.ptr(j); //takes pointer to beginning of data on row
                         for(unsigned int i = X; i < X + rectwidth; i++)
                         {
@@ -261,7 +263,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
         }
         else
         {
-            emit selectRegion("Try to come closer or to change a light");
+            emit selectRegion("Come closer, change the light");
         }
     }
     emit frameProcessed(output, m_framePeriod);
