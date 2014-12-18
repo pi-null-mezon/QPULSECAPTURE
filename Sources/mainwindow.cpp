@@ -466,19 +466,19 @@ void MainWindow::callDirectShowSdialog()
 void MainWindow::configure_and_start_session()
 {
     this->onpause();
-    QSettingsDialog dialog;
-    if(dialog.exec() == QDialog::Accepted)
+    if(m_settingsDialog.exec() == QDialog::Accepted)
     {     
         if(pt_harmonicProcessor)
         {
             pt_harmonicThread->quit();
             pt_harmonicThread->wait();
         }
+        pt_greenAct->trigger(); // because green channel is default in QHarmonicProcessor
         //------------------Close all opened plot dialogs---------------------
         closeAllDialogs();
         //---------------------Harmonic processor------------------------
         pt_harmonicThread = new QThread(this);
-        pt_harmonicProcessor = new QHarmonicProcessor(NULL, dialog.get_datalength(), dialog.get_bufferlength());
+        pt_harmonicProcessor = new QHarmonicProcessor(NULL, m_settingsDialog.get_datalength(), m_settingsDialog.get_bufferlength());
         pt_harmonicProcessor->moveToThread(pt_harmonicThread);
         connect(pt_harmonicThread, SIGNAL(finished()),pt_harmonicProcessor, SLOT(deleteLater()));
         connect(pt_harmonicThread, SIGNAL(finished()),pt_harmonicThread, SLOT(deleteLater()));
@@ -488,9 +488,9 @@ void MainWindow::configure_and_start_session()
             pt_recordAct->setChecked(false);
         }
         //---------------------------------------------------------------
-        if(dialog.get_customPatientFlag())
+        if(m_settingsDialog.get_customPatientFlag())
         {
-            if(pt_harmonicProcessor->loadWarningRates(dialog.get_stringDistribution().toLocal8Bit().constData(),(QHarmonicProcessor::SexID)dialog.get_patientSex(),dialog.get_patientAge(),(QHarmonicProcessor::TwoSideAlpha)dialog.get_patientPercentile()) == QHarmonicProcessor::FileExistanceError)
+            if(pt_harmonicProcessor->loadWarningRates(m_settingsDialog.get_stringDistribution().toLocal8Bit().constData(),(QHarmonicProcessor::SexID)m_settingsDialog.get_patientSex(),m_settingsDialog.get_patientAge(),(QHarmonicProcessor::TwoSideAlpha)m_settingsDialog.get_patientPercentile()) == QHarmonicProcessor::FileExistanceError)
             {
                 QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open population distribution file"), QMessageBox::Ok, this, Qt::Dialog);
                 msgBox.exec();
@@ -499,9 +499,9 @@ void MainWindow::configure_and_start_session()
         //---------------------------------------------------------------
         disconnect(pt_videoCapture,SIGNAL(frame_was_captured(cv::Mat)),pt_opencvProcessor,SLOT(faceProcess(cv::Mat)));
         disconnect(pt_videoCapture,SIGNAL(frame_was_captured(cv::Mat)),pt_opencvProcessor,SLOT(rectProcess(cv::Mat)));
-        if(dialog.get_flagCascade())
+        if(m_settingsDialog.get_flagCascade())
         {
-            QString filename = dialog.get_stringCascade();
+            QString filename = m_settingsDialog.get_stringCascade();
             while(!pt_opencvProcessor->loadClassifier(filename.toStdString()))
             {
                 QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not load classifier file"), QMessageBox::Ok | QMessageBox::Open, this, Qt::Dialog);
@@ -529,7 +529,7 @@ void MainWindow::configure_and_start_session()
         //connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_display, SLOT(updatePointer(const qreal*,quint16)));
         connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
         //--------------------------------------------------------------      
-        if(dialog.get_FFTflag())
+        if(m_settingsDialog.get_FFTflag())
         {
             connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(ComputeFrequency()));
         }
@@ -544,12 +544,12 @@ void MainWindow::configure_and_start_session()
         pt_harmonicThread->start();
         pt_optionsMenu->setEnabled(true);
 
-        if(dialog.get_flagVideoFile())
+        if(m_settingsDialog.get_flagVideoFile())
             this->openvideofile();
         else
             this->opendevice();
 
-        m_timer.setInterval( dialog.get_timerValue() );
+        m_timer.setInterval( m_settingsDialog.get_timerValue() );
         this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
     }
     this->onresume();

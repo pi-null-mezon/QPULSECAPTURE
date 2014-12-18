@@ -124,6 +124,7 @@ private:
     QAction *pt_experimentalAct;
 
     QHarmonicProcessorMap *pt_map;
+    QSettingsDialog m_settingsDialog;
 
 private slots:
     void decrease_dialogSetCounter();
