@@ -261,7 +261,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
         }
         else
         {
-            emit selectRegion("Come closer, change the light");
+            emit selectRegion("Come closer or change light");
         }
     }
     emit frameProcessed(output, m_framePeriod);

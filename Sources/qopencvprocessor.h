@@ -80,8 +80,8 @@ inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char 
     //Modified Kovac's rule
     if( (valueRed > 115) &&
         (valueRed > valueGreen) && (valueBlue > 45)     &&
-        ((valueRed - qMin(valueGreen,valueBlue)) > 45)  &&
-        ((valueRed - valueGreen) > 45 ) ) {
+        ((valueRed - qMin(valueGreen,valueBlue)) > 35)  &&
+        ((valueRed - valueGreen) > 25 ) ) {
         return true;
     } else return false;
 }

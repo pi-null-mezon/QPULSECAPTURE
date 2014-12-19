@@ -549,6 +549,7 @@ void MainWindow::configure_and_start_session()
         else
             this->opendevice();
 
+        connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
         m_timer.setInterval( m_settingsDialog.get_timerValue() );
         this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
     }
@@ -736,8 +737,7 @@ void MainWindow::startRecord()
     if(m_saveFile.isOpen()) {
         pt_recordAct->setChecked(true);
         m_textStream.setDevice(&m_saveFile);
-        m_textStream << "dd.MM.yyyy hh:mm:ss.zzz\tCNSignal\tMeanRed\tMeanGreen\tMeanBlue\tPulseRate,bpm\tSNR,dB\n";
-        connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
+        m_textStream << "dd.MM.yyyy hh:mm:ss.zzz\tCNSignal\tMeanRed\tMeanGreen\tMeanBlue\tPulseRate,bpm\tSNR,dB\n";       
     }
 }
 
