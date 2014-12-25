@@ -31,11 +31,14 @@ bool QVideoCapture::openfile(const QString &filename)
 bool QVideoCapture::opendevice(int period) // period should be entered in ms
 {
     pt_timer->stop();
-    if( m_cvCapture.open( device_id ) )
+    if(device_id >= 0)
     {
-        deviceFlag = true;
-        pt_timer->setInterval( period );
-        return true;
+        if( m_cvCapture.open( device_id ) )
+        {
+            deviceFlag = true;
+            pt_timer->setInterval( period );
+            return true;
+        }
     }
     return false;
 }
@@ -452,10 +455,16 @@ int QVideoCapture::open_deviceSelectDialog()
    layout.addLayout(&Lbuttons);
    dialog.setLayout(&layout);
 
-    if( dialog.exec() == QDialog::Accepted )
+    switch(dialog.exec())
     {
-        device_id = CBid.currentIndex();
+        case QDialog::Accepted:
+            device_id = CBid.currentIndex();
+            break;
+        case QDialog::Rejected:
+            device_id = -1;
+            break;
     }
+    qWarning("%d", device_id);
     return device_id;
 }
 

@@ -279,9 +279,8 @@ void QHarmonicProcessor::ComputeFrequency()
         power_multiplyed_by_index += i * v_Amplitude[i];
     }
     qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / power_of_first_harmonic );
-    bias = sqrt(bias * bias); // take abs of bias
-    qreal resultWeight = (HALF_INTERVAL + 1 - bias)/(HALF_INTERVAL + 1);
-    m_SNR *= resultWeight * resultWeight * resultWeight * resultWeight; // make more multiplication to add more nonlinearity
+    bias *= bias; // take square of of the bias
+    m_SNR *= (1 / (1 + bias)) ;
     emit snrUpdated(m_ID, m_SNR); // signal for mapper
 
     if(m_SNR > SNR_TRESHOLD)

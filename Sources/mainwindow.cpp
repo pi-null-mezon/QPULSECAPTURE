@@ -266,7 +266,6 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 bool MainWindow::openvideofile()
 {
-    onpause();
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open video file"), "/video", tr("Video (*.avi *.mp4 *.wmv)"));
     while( !pt_videoCapture->openfile(fileName) ) {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open video file!"), QMessageBox::Open | QMessageBox::Cancel, this, Qt::Dialog);
@@ -283,7 +282,6 @@ bool MainWindow::openvideofile()
         pt_infoLabel = NULL;
     }
 
-
     delete pt_videoSlider;
     pt_videoSlider = NULL;
     pt_videoSlider = new QVideoSlider(this);
@@ -296,8 +294,6 @@ bool MainWindow::openvideofile()
     connect(pt_videoSlider, SIGNAL(sliderPressed()), this, SLOT(onpause()));
     connect(pt_videoSlider, SIGNAL(sliderReleased(int)), pt_videoCapture, SLOT(setFrameNumber(int)));
     connect(pt_videoSlider, SIGNAL(sliderReleased(int)), this, SLOT(onresume()));
-
-    onresume();
     return true;
 }
 
@@ -306,7 +302,6 @@ bool MainWindow::openvideofile()
 
 bool MainWindow::opendevice()
 {
-    onpause();
     pt_videoCapture->open_deviceSelectDialog();
     while( !pt_videoCapture->opendevice() )
     {
@@ -326,8 +321,6 @@ bool MainWindow::opendevice()
 
     delete pt_videoSlider;
     pt_videoSlider = NULL;
-
-    onresume();
     return true;
 }
 
@@ -468,14 +461,12 @@ void MainWindow::configure_and_start_session()
     this->onpause();
     if(m_settingsDialog.exec() == QDialog::Accepted)
     {     
+        closeAllDialogs();
         if(pt_harmonicProcessor)
         {
             pt_harmonicThread->quit();
             pt_harmonicThread->wait();
-        }
-        pt_greenAct->trigger(); // because green channel is default in QHarmonicProcessor
-        //------------------Close all opened plot dialogs---------------------
-        closeAllDialogs();
+        }       
         //---------------------Harmonic processor------------------------
         pt_harmonicThread = new QThread(this);
         pt_harmonicProcessor = new QHarmonicProcessor(NULL, m_settingsDialog.get_datalength(), m_settingsDialog.get_bufferlength());
@@ -497,8 +488,8 @@ void MainWindow::configure_and_start_session()
             }
         }
         //---------------------------------------------------------------
-        disconnect(pt_videoCapture,SIGNAL(frame_was_captured(cv::Mat)),pt_opencvProcessor,SLOT(faceProcess(cv::Mat)));
-        disconnect(pt_videoCapture,SIGNAL(frame_was_captured(cv::Mat)),pt_opencvProcessor,SLOT(rectProcess(cv::Mat)));
+        disconnect(pt_videoCapture,SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(faceProcess(cv::Mat)));
+        disconnect(pt_videoCapture,SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(rectProcess(cv::Mat)));
         if(m_settingsDialog.get_flagCascade())
         {
             QString filename = m_settingsDialog.get_stringCascade();
@@ -524,10 +515,6 @@ void MainWindow::configure_and_start_session()
         {
             connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(rectProcess(cv::Mat)), Qt::BlockingQueuedConnection);
         }
-        //--------------------------------------------------------------
-        connect(pt_opencvProcessor, SIGNAL(dataCollected(ulong,ulong,ulong,ulong,double)), pt_harmonicProcessor, SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
-        //connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_display, SLOT(updatePointer(const qreal*,quint16)));
-        connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
         //--------------------------------------------------------------      
         if(m_settingsDialog.get_FFTflag())
         {
@@ -537,23 +524,30 @@ void MainWindow::configure_and_start_session()
         {
             connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(CountFrequency()));
         }
+        connect(pt_opencvProcessor, SIGNAL(dataCollected(ulong,ulong,ulong,ulong,double)), pt_harmonicProcessor, SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
+        connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
         connect(pt_harmonicProcessor, SIGNAL(HeartRateUpdated(qreal,qreal,bool)), pt_display, SLOT(updateValues(qreal,qreal,bool)));
-        //--------------------------------------------------------------
-        connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));
+        connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));      
         connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPCAMode(bool)));
+        connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
         pt_harmonicThread->start();
+
+        m_timer.setInterval( m_settingsDialog.get_timerValue() );
         pt_optionsMenu->setEnabled(true);
+        pt_greenAct->trigger(); // because green channel is default in QHarmonicProcessor
 
         if(m_settingsDialog.get_flagVideoFile())
-            this->openvideofile();
+        {
+            if(this->openvideofile())
+                this->onresume();
+        }
         else
-            this->opendevice();
-
-        connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
-        m_timer.setInterval( m_settingsDialog.get_timerValue() );
+        {
+            if(this->opendevice())
+                this->onresume();
+        }
         this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
     }
-    this->onresume();
 }
 
 //------------------------------------------------------------------------------------------
