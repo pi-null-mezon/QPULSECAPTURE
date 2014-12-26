@@ -258,11 +258,13 @@ void QHarmonicProcessor::ComputeFrequency()
     /*-------------------------SNR estimation evaluation-----------------------*/
     qreal noise_power = 0.0;
     qreal signal_power = 0.0;
+    qreal power_multiplyed_by_index = 0.0;
     for (quint16 i = bottom_bound; i < top_bound; i++)
     {
         if ( (i >= (index_of_maxpower - HALF_INTERVAL )) && (i <= (index_of_maxpower + HALF_INTERVAL)) )
         {
             signal_power += v_Amplitude[i];
+            power_multiplyed_by_index += i * v_Amplitude[i];
         }
         else
         {
@@ -270,22 +272,13 @@ void QHarmonicProcessor::ComputeFrequency()
         }
     }
     m_SNR = 10 * log10( signal_power / noise_power ); // this string may cause problem in msvc11, future issue to handle exeption
-
-    qreal power_multiplyed_by_index = 0.0;
-    qreal power_of_first_harmonic = 0.0;
-    for (qint16 i = (index_of_maxpower - HALF_INTERVAL); i <= (index_of_maxpower + HALF_INTERVAL); i++)
-    {
-        power_of_first_harmonic += v_Amplitude[i];
-        power_multiplyed_by_index += i * v_Amplitude[i];
-    }
-    qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / power_of_first_harmonic );
-    bias *= bias; // take square of of the bias
-    m_SNR *= (1 / (1 + bias)) ;
+    qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / signal_power );
+    m_SNR *= (1 / (1 + bias*bias)) ;
     emit snrUpdated(m_ID, m_SNR); // signal for mapper
 
     if(m_SNR > SNR_TRESHOLD)
     {
-        m_HeartRate = (power_multiplyed_by_index / power_of_first_harmonic) * 60000.0 / buffer_duration;
+        m_HeartRate = (power_multiplyed_by_index / signal_power) * 60000.0 / buffer_duration;
         if((m_HeartRate <= m_rightTreshold) && (m_HeartRate >= m_leftThreshold))
             emit HeartRateUpdated(m_HeartRate, m_SNR, true);
         else
