@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QThread>
-#include <QMutex>
 
 #include "qharmonicprocessor.h"
 
@@ -34,7 +33,6 @@ private:
     qreal *v_outputmap;
     QHarmonicProcessor *v_processors;
     QThread *v_threads;
-    QMutex m_mutex;
     quint32 m_updations;
     qreal m_min;
     qreal m_max;

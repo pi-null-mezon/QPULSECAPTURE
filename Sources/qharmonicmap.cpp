@@ -62,8 +62,6 @@ void QHarmonicProcessorMap::updateHarmonicProcessor(unsigned long red, unsigned 
 
 void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
 {
-    m_mutex.lock();
-
     v_map[id] = value;
     if(value > m_max) {
         m_max = value;
@@ -81,8 +79,6 @@ void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
         m_max = DEFAULT_SNR_MAX;
         m_min = DEFAULT_SNR_MIN;
     }
-
-   m_mutex.unlock();
 }
 
 //==========================================================================================================

@@ -111,7 +111,6 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         qreal ch1_temp = (qreal)green / area;
         qreal ch2_temp = (qreal)(red + blue) / 2*area;
 
-        ch1_temp -= ch2_temp;
         m_MeanCh1 += (ch1_temp  - v_RawCh1[curpos]) / m_DataLength;
         m_MeanCh2 += (ch2_temp - v_RawCh2[curpos]) / m_DataLength;
         v_RawCh1[curpos] = ch1_temp;
@@ -127,7 +126,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         ch1_sko = sqrt(ch1_sko / (m_DataLength - 1));
         ch2_sko = sqrt(ch2_sko / (m_DataLength - 1));
         //v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh2[curpos] - m_MeanCh2) / ch2_sko;
-        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko;
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1);
 
     } else {
 
@@ -177,7 +176,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
             m_output *= -1.0;
         }
     }
-    v_BinaryOutput[curpos] = m_output; // note, however, that v_BinaryOutput accumulate phase delay about DIGITAL_FILTER_LENGTH
+    v_BinaryOutput[curpos] = m_output; // note, however, that v_BinaryOutput accumulates phase delay about DIGITAL_FILTER_LENGTH
     emit BinaryOutputUpdated(v_BinaryOutput, m_DataLength);
     //----------------------------------------------------------------------------
 

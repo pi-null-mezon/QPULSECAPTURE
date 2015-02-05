@@ -133,10 +133,10 @@ bool QVideoCapture::open_resolutionDialog()
             QVBoxLayout comboboxes;
             comboboxes.setMargin(5);
                 QComboBox CBresolution;
-                CBresolution.addItem("320 x 240"); // 0
+                CBresolution.addItem("640 x 360"); // 0
                 CBresolution.addItem("640 x 480"); // 1
                 CBresolution.addItem("800 x 600"); // 2
-                CBresolution.addItem("1024 x 768"); // 3
+                CBresolution.addItem("960 x 720"); // 3
                 CBresolution.addItem("1280 x 720"); // 4
                 CBresolution.addItem("1920 x 1080"); // 5
                 CBresolution.setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -147,8 +147,7 @@ bool QVideoCapture::open_resolutionDialog()
                 CBm_framerate.addItem("25 fps"); // 1
                 CBm_framerate.addItem("20 fps"); // 2
                 CBm_framerate.addItem("15 fps"); // 3
-                CBm_framerate.addItem("10 fps"); // 4
-                CBm_framerate.addItem("5 fps"); // 4
+                CBm_framerate.addItem("60 fps"); // 4
                 CBm_framerate.setSizeAdjustPolicy(QComboBox::AdjustToContents);
                 CBm_framerate.setCurrentIndex(0);
                 QLabel Lm_framerate("Set framerate:");

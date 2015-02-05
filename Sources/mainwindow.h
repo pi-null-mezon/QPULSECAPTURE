@@ -100,6 +100,7 @@ private:
     QMenu *pt_deviceMenu;
     QMenu *pt_helpMenu;
     QMenu *pt_modeMenu;
+    QMenu *pt_appearenceMenu;
     QVideoCapture *pt_videoCapture;
     QOpencvProcessor *pt_opencvProcessor;
     QThread *pt_improcThread;

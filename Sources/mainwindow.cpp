@@ -188,13 +188,14 @@ void MainWindow::createMenus()
     pt_modeMenu->addAction(pt_skinAct);
     pt_modeMenu->addSeparator();
     pt_modeMenu->addAction(pt_mapAct);
-    pt_optionsMenu->addSeparator();
-    pt_optionsMenu->addAction(pt_fastVisualizationAct);
-    pt_optionsMenu->addAction(pt_changeColorsAct);
     pt_optionsMenu->setEnabled(false);
 
+    pt_appearenceMenu = menuBar()->addMenu(tr("&Appearence"));
+    pt_appearenceMenu->addAction(pt_fastVisualizationAct);
+    pt_appearenceMenu->addAction(pt_changeColorsAct);
+
     //-------------------------------------------------
-    pt_deviceMenu = menuBar()->addMenu(tr("&Video"));
+    pt_deviceMenu = menuBar()->addMenu(tr("&Device"));
     pt_deviceMenu->addAction(pt_deviceSetAct);
     pt_deviceMenu->addAction(pt_deviceResAct);
     pt_deviceMenu->addSeparator();
