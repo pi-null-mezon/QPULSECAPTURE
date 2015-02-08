@@ -30,7 +30,7 @@ signals:
     void rect_was_entered(const cv::Rect &value);
 
 public slots:
-    void updateImage(const cv::Mat &image, qreal frame_period); // takes cv::Mat image and converts it to the appropriate Qt QImage format
+    void updateImage(const cv::Mat &image, qreal frame_period, quint32 pixels_enrolled); // takes cv::Mat image and converts it to the appropriate Qt QImage format
     void updatePointer(const qreal *pointer, quint16 length);  // updates pointer to data;
     void updateValues(qreal value1, qreal value2, bool flag); // use to update strings
     void switchColorScheme(); // use to switch between black and white color of text on the image

@@ -35,6 +35,7 @@ bool QVideoCapture::opendevice(int period) // period should be entered in ms
     {
         if( m_cvCapture.open( device_id ) )
         {
+            m_cvCapture.set(CV_CAP_PROP_MODE, 1.0);
             deviceFlag = true;
             pt_timer->setInterval( period );
             return true;
@@ -178,7 +179,7 @@ bool QVideoCapture::open_resolutionDialog()
         {
             m_cvCapture.set( CV_CAP_PROP_FRAME_WIDTH, CBresolution.itemText(CBresolution.currentIndex()).section(" x ",0,0).toDouble() );
             m_cvCapture.set( CV_CAP_PROP_FRAME_HEIGHT, CBresolution.itemText(CBresolution.currentIndex()).section(" x ",1,1).toDouble() );
-            pt_timer->setInterval( 1000/CBm_framerate.itemText(CBm_framerate.currentIndex()).section(" ",0,0).toDouble() );          
+            pt_timer->setInterval( 1000/CBm_framerate.itemText(CBm_framerate.currentIndex()).section(" ",0,0).toDouble() );
         }
         return true;
     }
@@ -463,7 +464,7 @@ int QVideoCapture::open_deviceSelectDialog()
             device_id = -1;
             break;
     }
-    qWarning("%d", device_id);
+    qWarning("Device ID: %d", device_id);
     return device_id;
 }
 

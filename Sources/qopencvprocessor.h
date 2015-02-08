@@ -20,7 +20,7 @@ public:
     explicit QOpencvProcessor(QObject *parent = 0);
 
 signals:
-    void frameProcessed(const cv::Mat& value, double frame_period); //should be emited in the end of each frame processing
+    void frameProcessed(const cv::Mat& value, double frame_period, quint32 pixels_enrolled); //should be emited in the end of each frame processing
     void dataCollected(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
     void selectRegion(const char * string);     // emit it if no objects has been detected or no regions are selected
     void mapCellProcessed(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);

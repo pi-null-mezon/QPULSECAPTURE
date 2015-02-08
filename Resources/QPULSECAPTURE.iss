@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QPULSECAPTURE"
-#define MyAppVersion "1.0.0.7"
+#define MyAppVersion "1.0.0.0"
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
@@ -85,8 +85,8 @@ Source: "{#QtLibs}\..\plugins\mediaservice\dsengine.dll"; DestDir: "{app}\medias
 Source: "{#QtLibs}\..\plugins\mediaservice\qtmedia_audioengine.dll"; DestDir: "{app}\mediaservice"; Flags: ignoreversion
 Source: "{#QtLibs}\..\plugins\mediaservice\wmfengine.dll"; DestDir: "{app}\mediaservice"; Flags: ignoreversion
 Source: "C:\Programing\QPULSECAPTURE\Resources\normal_heart_rate_at_rest.xml"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Programing\QPULSECAPTURE\Resources\WVCF_utility.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Programing\QPULSECAPTURE\Resources\FFTW\fftw3-32\libfftw3-3.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programing\QVideoProcessing\Resources\WVCF_utility.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programing\3rdParties\FFTW\fftw3-32\libfftw3-3.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\opencv_core248.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\opencv_ffmpeg248.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\opencv_highgui248.dll"; DestDir: "{app}"; Flags: ignoreversion

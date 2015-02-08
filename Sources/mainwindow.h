@@ -99,6 +99,7 @@ private:
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;
     QMenu *pt_helpMenu;
+    QMenu *pt_colormodeMenu;
     QMenu *pt_modeMenu;
     QMenu *pt_appearenceMenu;
     QVideoCapture *pt_videoCapture;

@@ -1,17 +1,19 @@
 #--------------------------------------ALGLIB---------------------------------
-INCLUDEPATH += $$PWD/../Resources/ALGLIB
+ALGLIB_DIR = C:/Programing/3rdParties/ALGLIB
 
-SOURCES +=  $$PWD/../Resources/ALGLIB/statistics.cpp \
-            $$PWD/../Resources/ALGLIB/alglibinternal.cpp \
-            $$PWD/../Resources/ALGLIB/alglibmisc.cpp \
-            $$PWD/../Resources/ALGLIB/ap.cpp \
-            $$PWD/../Resources/ALGLIB/dataanalysis.cpp \
-            $$PWD/../Resources/ALGLIB/diffequations.cpp \
-            $$PWD/../Resources/ALGLIB/fasttransforms.cpp \
-            $$PWD/../Resources/ALGLIB/integration.cpp \
-            $$PWD/../Resources/ALGLIB/interpolation.cpp \
-            $$PWD/../Resources/ALGLIB/linalg.cpp \
-            $$PWD/../Resources/ALGLIB/optimization.cpp \
-            $$PWD/../Resources/ALGLIB/solvers.cpp \
-            $$PWD/../Resources/ALGLIB/specialfunctions.cpp
+INCLUDEPATH += $${ALGLIB_DIR}
+
+SOURCES +=  $${ALGLIB_DIR}/statistics.cpp \
+            $${ALGLIB_DIR}/alglibinternal.cpp \
+            $${ALGLIB_DIR}/alglibmisc.cpp \
+            $${ALGLIB_DIR}/ap.cpp \
+            $${ALGLIB_DIR}/dataanalysis.cpp \
+            $${ALGLIB_DIR}/diffequations.cpp \
+            $${ALGLIB_DIR}/fasttransforms.cpp \
+            $${ALGLIB_DIR}/integration.cpp \
+            $${ALGLIB_DIR}/interpolation.cpp \
+            $${ALGLIB_DIR}/linalg.cpp \
+            $${ALGLIB_DIR}/optimization.cpp \
+            $${ALGLIB_DIR}/solvers.cpp \
+            $${ALGLIB_DIR}/specialfunctions.cpp
 #-----------------------------------------------------------------------------

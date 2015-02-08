@@ -17,7 +17,7 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_cvRect.height = 0;
     m_framePeriod = 0.0;
     m_fullFaceFlag = true;
-    m_skinFlag = false;
+    m_skinFlag = true;
 
     v_pixelSet = NULL;
 }
@@ -70,7 +70,7 @@ void QOpencvProcessor::customProcess(const cv::Mat &input)
     m_framePeriod = (cv::getTickCount() -  m_timeCounter) * 1000.0 / cv::getTickFrequency(); // result is calculated in milliseconds
     m_timeCounter = cv::getTickCount();
 
-    emit frameProcessed(output, m_framePeriod);
+    emit frameProcessed(output, m_framePeriod, output.cols*output.rows);
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                         red += p[3*i+2];
                         //Uncomment if want to see the enrolled domain on image
                         //p[3*i] = 0;
-                        p[3*i+1] = 255;
+                        //p[3*i+1] = 255;
                         //p[3*i+2] = 0;
                     }
                 }
@@ -264,7 +264,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
             emit selectRegion("Come closer or change light");
         }
     }
-    emit frameProcessed(output, m_framePeriod);
+    emit frameProcessed(output, m_framePeriod, area);
 }
 
 //------------------------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     {
         emit selectRegion("Select region on image");
     }
-    emit frameProcessed(output, m_framePeriod);
+    emit frameProcessed(output, m_framePeriod, area);
 }
 
 //-----------------------------------------------------------------------------------------------

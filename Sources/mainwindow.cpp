@@ -104,9 +104,10 @@ void MainWindow::createActions()
     pt_fastVisualizationAct = new QAction(tr("Co&ntour"), this);
     pt_fastVisualizationAct->setStatusTip(tr("Switch between contoured or uncontoured style of text on the screen"));
     pt_fastVisualizationAct->setCheckable(true);
+    pt_fastVisualizationAct->setChecked(true);
     connect(pt_fastVisualizationAct, SIGNAL(triggered(bool)),pt_display, SLOT(toggle_advancedvisualization(bool)));
 
-    pt_changeColorsAct = new QAction(tr("Co&lor"), this);
+    pt_changeColorsAct = new QAction(tr("TextCo&lor"), this);
     pt_changeColorsAct->setStatusTip(tr("Switch between black or white color of text on the screen"));
     connect(pt_changeColorsAct, SIGNAL(triggered()), pt_display, SLOT(switchColorScheme()));
 
@@ -126,16 +127,16 @@ void MainWindow::createActions()
     pt_redAct->setCheckable(true);
     pt_colorMapper->setMapping(pt_redAct,0);
     connect(pt_redAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
-    pt_blueAct = new QAction(tr("Blue"), pt_colorActGroup);
-    pt_blueAct->setStatusTip(tr("Enroll only blue channel"));
-    pt_blueAct->setCheckable(true);
-    pt_colorMapper->setMapping(pt_blueAct,2);
-    connect(pt_blueAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
     pt_greenAct = new QAction(tr("Green"), pt_colorActGroup);
     pt_greenAct->setStatusTip(tr("Enroll only green channel"));
     pt_greenAct->setCheckable(true);
     pt_colorMapper->setMapping(pt_greenAct,1);
     connect(pt_greenAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
+    pt_blueAct = new QAction(tr("Blue"), pt_colorActGroup);
+    pt_blueAct->setStatusTip(tr("Enroll only blue channel"));
+    pt_blueAct->setCheckable(true);
+    pt_colorMapper->setMapping(pt_blueAct,2);
+    connect(pt_blueAct, SIGNAL(triggered()), pt_colorMapper, SLOT(map()));
     pt_allAct = new QAction(tr("RGB"), pt_colorActGroup);
     pt_allAct->setStatusTip(tr("Enroll all channels"));
     pt_allAct->setCheckable(true);
@@ -164,6 +165,7 @@ void MainWindow::createActions()
     pt_skinAct = new QAction(tr("&Only skin"), this);
     pt_skinAct->setStatusTip(tr("Enroll pixels wih color close to skin only"));
     pt_skinAct->setCheckable(true);
+    pt_skinAct->setChecked(true);
 }
 
 //------------------------------------------------------------------------------------
@@ -179,15 +181,13 @@ void MainWindow::createMenus()
     pt_optionsMenu = menuBar()->addMenu(tr("&Options"));
     pt_optionsMenu->addAction(pt_openPlotDialog);
     pt_optionsMenu->addAction(pt_recordAct);
-    pt_optionsMenu->addSeparator();
+    pt_optionsMenu->addAction(pt_mapAct);
+    pt_colormodeMenu = pt_optionsMenu->addMenu(tr("&Spectrum"));
+    pt_colormodeMenu->addActions(pt_colorActGroup->actions());
     pt_modeMenu = pt_optionsMenu->addMenu(tr("&Mode"));
-    pt_modeMenu->addActions(pt_colorActGroup->actions());
-    pt_modeMenu->addSeparator();
     pt_modeMenu->addAction(pt_pcaAct);
     pt_modeMenu->addSeparator();
     pt_modeMenu->addAction(pt_skinAct);
-    pt_modeMenu->addSeparator();
-    pt_modeMenu->addAction(pt_mapAct);
     pt_optionsMenu->setEnabled(false);
 
     pt_appearenceMenu = menuBar()->addMenu(tr("&Appearence"));
@@ -236,7 +236,7 @@ void MainWindow::createThreads()
     qRegisterMetaType<cv::Rect>("cv::Rect");
 
     //----------------------Connections------------------------------
-    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double)), pt_display, SLOT(updateImage(cv::Mat,double)));
+    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double,quint32)), pt_display, SLOT(updateImage(cv::Mat,double,quint32)));
     connect(pt_display, SIGNAL(rect_was_entered(cv::Rect)), pt_opencvProcessor, SLOT(setRect(cv::Rect)));
     connect(pt_opencvProcessor, SIGNAL(selectRegion(const char*)), pt_display, SLOT(set_warning_status(const char*)));
     connect(pt_opencvProcessor, SIGNAL(mapRegionUpdated(cv::Rect)), pt_display, SLOT(updadeMapRegion(cv::Rect)));
@@ -377,15 +377,14 @@ void MainWindow::show_help()
 MainWindow::~MainWindow()
 {
     emit closeVideo();
-    pt_videoThread->quit();
-    pt_videoThread->wait();
 
      if(m_saveFile.isOpen())
     {
         m_saveFile.close();
     }
 
-    pt_videoCapture->close();
+    pt_videoThread->quit();
+    pt_videoThread->wait();
 
     pt_improcThread->quit();
     pt_improcThread->wait();
@@ -448,11 +447,11 @@ void MainWindow::opendevicesettingsdialog()
 
 void MainWindow::callDirectShowSdialog()
 {   
-    if (!QProcess::startDetached(QString("WVCF_utility.exe"),QStringList("-l")))// runs the ShellExecute function on Windows
+    if (!QProcess::startDetached(QString("WVCF_utility.exe"),QStringList("-l -c")))// runs the ShellExecute function on Windows
     {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open utility!"), QMessageBox::Ok, this, Qt::Dialog);
         msgBox.exec();
-    } 
+    }
 }
 
 //----------------------------------------------------------------------------------------
@@ -484,7 +483,7 @@ void MainWindow::configure_and_start_session()
         {
             if(pt_harmonicProcessor->loadWarningRates(m_settingsDialog.get_stringDistribution().toLocal8Bit().constData(),(QHarmonicProcessor::SexID)m_settingsDialog.get_patientSex(),m_settingsDialog.get_patientAge(),(QHarmonicProcessor::TwoSideAlpha)m_settingsDialog.get_patientPercentile()) == QHarmonicProcessor::FileExistanceError)
             {
-                QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open population distribution file"), QMessageBox::Ok, this, Qt::Dialog);
+                QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not find population distribution file"), QMessageBox::Ok, this, Qt::Dialog);
                 msgBox.exec();
             }
         }
@@ -548,6 +547,8 @@ void MainWindow::configure_and_start_session()
                 this->onresume();
         }
         this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
+    } else {
+        emit closeVideo();
     }
 }
 
@@ -670,7 +671,6 @@ void MainWindow::createPlotDialog()
 void MainWindow::decrease_dialogSetCounter()
 {
     m_dialogSetCounter--;
-    qWarning("Plot dialogs left: %d", LIMIT_OF_DIALOGS_NUMBER - m_dialogSetCounter);
 }
 
 //-------------------------------------------------------------------------------------------
@@ -679,7 +679,7 @@ void MainWindow::make_record_to_file(qreal signalValue, qreal meanRed, qreal mea
 {
     if(m_saveFile.isOpen())
     {
-        m_textStream << QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz")
+        m_textStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz")
                      << "\t" << signalValue << "\t" << meanRed << "\t" << meanGreen
                      << "\t" << meanBlue << "\t" << qRound(freqValue) << "\t" << snrValue << "\n";
     }
@@ -716,12 +716,12 @@ void MainWindow::startRecord()
         }
     }
 
-    m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to file"),"/records", "Text file (*.txt)"));
+    m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to file"),"Records/record.txt", "Text file (*.txt)"));
 
     while(!m_saveFile.open(QIODevice::WriteOnly))   {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not save file with such name, try another name"), QMessageBox::Save | QMessageBox::Cancel, this, Qt::Dialog);
         if(msgBox.exec() == QMessageBox::Save) {
-            m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"/Records/record.txt", tr("Text file (*.txt)")));
+            m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/record.txt", tr("Text file (*.txt)")));
         }
         else {
             pt_recordAct->setChecked(false);
@@ -732,7 +732,10 @@ void MainWindow::startRecord()
     if(m_saveFile.isOpen()) {
         pt_recordAct->setChecked(true);
         m_textStream.setDevice(&m_saveFile);
-        m_textStream << "dd.MM.yyyy hh:mm:ss.zzz\tCNSignal\tMeanRed\tMeanGreen\tMeanBlue\tPulseRate,bpm\tSNR,dB\n";       
+        m_textStream.setRealNumberNotation(QTextStream::FixedNotation);
+        m_textStream.setRealNumberPrecision(3);
+        m_textStream << "QPULSECAPTURE RECORD " << QDateTime::currentDateTime().toString("dd.MM.yyyy")
+                     << "\nhh:mm:ss.zzz\tCNSignal\tMeanRed\tMeanGreen\tMeanBlue\tPulseRate,bpm\tSNR,dB\n";
     }
 }
 

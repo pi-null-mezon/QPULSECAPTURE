@@ -16,7 +16,7 @@ QImageWidget::QImageWidget(QWidget *parent): QWidget(parent)
     m_informationColor = QColor(Qt::black);
     m_contourColor = QColor(Qt::black);
     m_fillColor = QColor(Qt::white);
-    m_advancedvisualizationFlag = false;
+    m_advancedvisualizationFlag = true;
     m_drawDataFlag = false;
     v_map = NULL;
     v_colors = NULL;
@@ -64,9 +64,11 @@ QImageWidget::~QImageWidget()
 
 //-----------------------------------------------------------------------------------
 
-void QImageWidget::updateImage(const cv::Mat& image, qreal frame_period)
+void QImageWidget::updateImage(const cv::Mat& image, qreal frame_period, quint32 pixels_enrolled)
 {
-    m_informationString = QString::number(frame_period, 'f', 1) + " ms, " + QString::number(image.cols) + "x" + QString::number(image.rows);
+    m_informationString = QString::number(frame_period, 'f', 1) + " ms, "
+                          + QString::number(image.cols) + "x" + QString::number(image.rows) + " / "
+                          + QString::number(pixels_enrolled);
 
     switch ( image.type() )
     {
