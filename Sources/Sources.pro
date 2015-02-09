@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET =    QPULSECAPTURE
 TEMPLATE =  app
-VERSION =   1.0.3.0
+VERSION =   2.0.0.0
 
 DEFINES +=  APP_NAME=\\\"$${TARGET}\\\" \
             APP_VERSION=\\\"$${VERSION}\\\"
@@ -29,7 +29,7 @@ SOURCES +=  main.cpp\
             mappingdialog.cpp \
             qharmonicmap.cpp \
             qvideoslider.cpp \
-    qprocessingdialog.cpp
+            qprocessingdialog.cpp
 
 HEADERS  += mainwindow.h \
             qimagewidget.h \
@@ -43,7 +43,7 @@ HEADERS  += mainwindow.h \
             mappingdialog.h \
             qharmonicmap.h \
             qvideoslider.h \
-    qprocessingdialog.h
+            qprocessingdialog.h
 
 FORMS += qsettingsdialog.ui \
          mappingdialog.ui \

@@ -79,7 +79,7 @@ void MainWindow::createActions()
     connect(pt_resumeAct, SIGNAL(triggered()), this, SLOT(onresume()));
 
     pt_exitAct = new QAction(tr("E&xit"), this);
-    pt_exitAct->setStatusTip(tr("Application exit"));
+    pt_exitAct->setStatusTip(tr("See You next time ;)"));
     connect(pt_exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     pt_aboutAct = new QAction(tr("&About"), this);
@@ -339,7 +339,7 @@ void MainWindow::show_about()
 {
    QDialog *aboutdialog = new QDialog();
    aboutdialog->setWindowTitle("About dialog");
-   aboutdialog->setFixedSize(256,128);
+   aboutdialog->setFixedSize(232,128);
 
    QVBoxLayout *templayout = new QVBoxLayout();
    templayout->setMargin(5);
@@ -348,7 +348,6 @@ void MainWindow::show_about()
    projectname->setFrameStyle(QFrame::Box | QFrame::Raised);
    projectname->setAlignment(Qt::AlignCenter);
    QLabel *projectauthors = new QLabel( QString(APP_AUTHOR) + "\n\n" + QString(APP_COMPANY) + "\n\n" + QString(APP_RELEASE_DATE) );
-   projectauthors->setWordWrap(true);
    projectauthors->setAlignment(Qt::AlignCenter);
    QLabel *hyperlink = new QLabel( APP_EMAIL );
    hyperlink->setToolTip("Tap here to send an email");
@@ -556,8 +555,9 @@ void MainWindow::configure_and_start_session()
         }
         this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
     } else {
-        pt_optionsMenu->setEnabled(false);
-        emit closeVideo();
+        //pt_optionsMenu->setEnabled(false);
+        //emit closeVideo();
+        statusBar()->showMessage(tr("You can prolong Paused session by means of Resume option in context menu"));
     }
 }
 
@@ -600,7 +600,7 @@ void MainWindow::createPlotDialog()
             pt_dialogSet[ m_dialogSetCounter ]->setWindowTitle(dialogTypeComboBox.currentText() + " plot");
             pt_dialogSet[ m_dialogSetCounter ]->setAttribute(Qt::WA_DeleteOnClose, true);
             connect(pt_dialogSet[ m_dialogSetCounter ], SIGNAL(destroyed()), this, SLOT(decrease_dialogSetCounter()));
-            pt_dialogSet[ m_dialogSetCounter ]->setMinimumSize(320, 240);
+            pt_dialogSet[ m_dialogSetCounter ]->setMinimumSize(480, 320);
 
             QVBoxLayout *pt_layout = new QVBoxLayout( pt_dialogSet[ m_dialogSetCounter ] );
             pt_layout->setMargin(FRAME_MARGIN);
@@ -611,13 +611,13 @@ void MainWindow::createPlotDialog()
                     case 0: // Signal trace
                         connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names("Frame","Centered & normalized signal");
-                        pt_plot->set_vertical_Borders(-5.0,5.0);
+                        pt_plot->set_vertical_Borders(-4.0,4.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                         break;
                     case 1: // Spectrum trace
                         connect(pt_harmonicProcessor, SIGNAL(SpectrumUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names("Freq.count","DFT amplitude spectrum");
-                        pt_plot->set_vertical_Borders(0.0,25000.0);
+                        pt_plot->set_vertical_Borders(0.0,1.0);
                         pt_plot->set_coordinatesPrecision(0,1);
                         pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
                         break;
@@ -842,7 +842,7 @@ void MainWindow::openProcessingDialog()
 {
     if(pt_harmonicProcessor) {
 
-        QProcessingDialog *dialog = new QProcessingDialog(NULL);
+        QProcessingDialog *dialog = new QProcessingDialog(this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->setTimer(m_timer.interval());
         dialog->setMaximumInterval(pt_harmonicProcessor->getDataLength());
@@ -853,7 +853,7 @@ void MainWindow::openProcessingDialog()
 
     } else {
 
-        QMessageBox msg(QMessageBox::Information, tr("Warning"),tr("Start new session before!") );
+        QMessageBox msg(QMessageBox::Warning, tr("Warning"),tr("Start new session before!") );
         msg.exec();
 
     }

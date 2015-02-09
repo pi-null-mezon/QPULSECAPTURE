@@ -1,12 +1,13 @@
 QPULSECAPTURE	
 =========================================================================================
-An application for the contactless heart rate measurement.
+An application for the contactless heart rate measurements by means of video processing
 
-The "QPULSECAPTURE" project, a descendant of "PULSECAPTURE", firstly was designed
-for contactless heart rate measurements by means of an ordinary webcam. But later We have
-found that such technology can provide a measurements of photoplethysmogram signal of
-face skin reflection. As mentioned, this project had been created as next step of
-"PULSECAPTURE", but this time We have used libraries with GNU GPL and BSD licenses only. 
+Main feaetures:
+- provides real time & contactless heart rate measurement (up to each second update), measurement error depends on webcam quality, stationarity of illumination and CPU speed, but in most cases it is less than 3 bpm;
+- provides real time video (from web cam) & existing video file processing (.mp4, .wmv, .avi);
+- provides a record of registered signals to a hard drive;
+- provides mapping of arterial pulse on image (can be used as the face detector);
+- compares your heart rate with normal heart rate at rest, with age and sex distribution (statistic courtesy by USA National Health Statistics).
 
 Minimal system requirements:
 - Intel Pentium IV 3.0 GHz;
@@ -18,7 +19,7 @@ Acknowledgements:
 - FFTW (http://www.fftw.org/);
 - ALGLIB (http://www.alglib.net/);
 - Qt (http://qt-project.org/);
-- And for all engineers and programmers, who make the open source products.
+- And for all engineers and programmers who make the open source products! Cheers!
 
 For the developers:
 - all dependencies are provided in Sources.pro;

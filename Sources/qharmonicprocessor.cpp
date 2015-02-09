@@ -310,9 +310,15 @@ void QHarmonicProcessor::ComputeFrequency()
 
     fftw_execute(m_plan); // Datas were prepared, now execute fftw_plan
 
+    qreal totalPower = 0.0;
     for (quint16 i = 0; i < (m_BufferLength/2 + 1); i++)
     {
         v_Amplitude[i] = v_Spectrum[i][0]*v_Spectrum[i][0] + v_Spectrum[i][1]*v_Spectrum[i][1];
+        totalPower += v_Amplitude[i];
+    }
+    for (quint16 i = 0; i < (m_BufferLength/2 + 1); i++)
+    {
+        v_Amplitude[i] /= totalPower;
     }
     emit SpectrumUpdated(v_Amplitude, m_BufferLength/2 + 1);
 
