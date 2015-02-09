@@ -28,7 +28,8 @@ SOURCES +=  main.cpp\
             qbackgroundwidget.cpp \
             mappingdialog.cpp \
             qharmonicmap.cpp \
-            qvideoslider.cpp
+            qvideoslider.cpp \
+    qprocessingdialog.cpp
 
 HEADERS  += mainwindow.h \
             qimagewidget.h \
@@ -41,10 +42,12 @@ HEADERS  += mainwindow.h \
             qbackgroundwidget.h \
             mappingdialog.h \
             qharmonicmap.h \
-            qvideoslider.h
+            qvideoslider.h \
+    qprocessingdialog.h
 
 FORMS += qsettingsdialog.ui \
-         mappingdialog.ui
+         mappingdialog.ui \
+    qprocessingdialog.ui
 
 RC_ICONS = $$PWD/../Resources/Docs/App_ico.ico
 #CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT

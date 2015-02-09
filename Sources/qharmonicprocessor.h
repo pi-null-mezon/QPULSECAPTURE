@@ -11,6 +11,7 @@
 #define SNR_TRESHOLD 2.0 // in most cases this value is suitable when (m_BufferLength == 256)
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
+#define MEAN_INTERVAL 16 // should be greater than one, but less than m_datalength
 
 
 class QHarmonicProcessor : public QObject
@@ -19,7 +20,7 @@ class QHarmonicProcessor : public QObject
 public:
     explicit QHarmonicProcessor(QObject *parent = NULL, quint16 length_of_data = 256, quint16 length_of_buffer = 256 );
     ~QHarmonicProcessor();
-    enum ColorChannel { Red, Green, Blue, All, Experimental };
+    enum ColorChannel { Red, Green, Blue, RGB, Experimental };
     enum XMLparserError { NoError, FileOpenError, FileExistanceError, ReadError, ParseFailure };
     enum SexID { Male, Female };
     enum TwoSideAlpha { FiftyPercents, TwentyPercents, TenPercents, FivePercents, TwoPercents };
@@ -42,7 +43,11 @@ public slots:
     void setPCAMode(bool value); // controls PCA alignment
     void switchColorMode(int value); // controls colors enrollment
     int  loadWarningRates(const char *fileName, SexID sex, int age, TwoSideAlpha alpha);
-    void setID(quint32 value);
+    void setID(quint32 value); // use it to set ID, it is used for QHarmonicMapper internal logic management
+    void setEstiamtionInterval(int value); // use it to set m_estimationInterval property value
+    unsigned int getDataLength() const;
+    unsigned int getBufferLength() const;
+    unsigned int getEstimationInterval() const;
 
 private:
     qreal *v_Signal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
@@ -83,6 +88,7 @@ private:
     quint8 loopOnTwo(qint16 difference) const;
 
     quint32 m_ID;
+    quint16 m_estimationInterval; // stores the number of counts that will be used to evaluate mean and sko estimations
 };
 
 // inline, for speed, must therefore reside in header file

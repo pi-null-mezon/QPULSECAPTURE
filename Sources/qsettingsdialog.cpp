@@ -20,13 +20,7 @@ QSettingsDialog::~QSettingsDialog()
 //--------------------------------------------
 quint32 get_power_of_two(quint16 power)
 {
-    quint32 result = 1;
-    while(power > 0)
-    {
-        result <<= 1;
-        power--;
-    }
-    return result;
+    return (0x00000001 << power);
 }
 //--------------------------------------------
 

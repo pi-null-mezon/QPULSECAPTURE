@@ -3,6 +3,7 @@
 #include <QXmlStreamAttributes>
 #include <QFile>
 
+
 //----------------------------------------------------------------------------------------------------------
 QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, quint16 length_of_buffer) :
     QObject(parent),
@@ -20,7 +21,8 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_leftThreshold(70),
     m_rightTreshold(80),
     m_output(1.0),
-    m_ID(0)
+    m_ID(0),
+    m_estimationInterval(MEAN_INTERVAL)
 {
     // Memory allocation
     v_RawCh1 = new qreal[m_DataLength];
@@ -85,7 +87,86 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     PCA_RAW_RGB(position, 1) = (qreal)green / area;
     PCA_RAW_RGB(position, 2) = (qreal)blue / area;
 
-    if(m_channel == All) {
+    quint16 pos = 0;
+    if(m_channel == RGB) {
+
+        v_RawCh1[curpos] = (qreal)(red - green) / area;
+        v_RawCh2[curpos] = (qreal)(red + green - 2 * blue) / area;
+
+        m_MeanCh1 = 0.0;
+        m_MeanCh2 = 0.0;
+        for(quint16 i = 0; i < m_estimationInterval; i++)
+        {
+            pos = loop(curpos - i);
+            m_MeanCh1 += v_RawCh1[pos];
+            m_MeanCh2 += v_RawCh2[pos];
+        }
+        m_MeanCh1 /= m_estimationInterval;
+        m_MeanCh2 /= m_estimationInterval;
+
+        qreal ch1_sko = 0.0;
+        qreal ch2_sko = 0.0;
+        for (unsigned int i = 0; i < m_estimationInterval; i++)
+        {
+            pos = loop(curpos - i);
+            ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
+            ch2_sko += (v_RawCh2[pos] - m_MeanCh2)*(v_RawCh2[pos] - m_MeanCh2);
+        }
+        ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
+        ch2_sko = sqrt(ch2_sko / (m_estimationInterval - 1));
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh2[curpos] - m_MeanCh2) / ch2_sko;
+
+    } else if(m_channel == Experimental) {
+
+        v_RawCh1[curpos] = (qreal)green / area;
+
+        m_MeanCh1 = 0.0;
+        for(uint i = 0; i < m_estimationInterval; i++){
+            m_MeanCh1 += v_RawCh1[loop(curpos - i)];
+        }
+        m_MeanCh1 /= m_estimationInterval;
+
+        qreal ch1_sko = 0.0;
+        for (unsigned int i = 0; i < m_estimationInterval; i++)
+        {
+            pos = loop(curpos - i);
+            ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
+        }
+        ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ch1_sko;
+
+    } else {
+
+        switch(m_channel) {
+            case Red:
+                v_RawCh1[curpos] = (qreal)red / area;
+                break;
+            case Green:
+                v_RawCh1[curpos] = (qreal)green / area;
+                break;
+            case Blue:
+                v_RawCh1[curpos] = (qreal)blue / area;
+                break;
+        }
+
+        m_MeanCh1 = 0.0;
+        for(quint16 i = 0; i < m_estimationInterval; i++)
+        {
+            m_MeanCh1 += v_RawCh1[loop(curpos - i)];
+        }
+        m_MeanCh1 /= m_estimationInterval;
+
+        qreal ch1_sko = 0.0;
+        for (quint16 i = 0; i < m_estimationInterval; i++)
+        {
+            pos = loop(curpos - i);
+            ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
+        }
+        ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ ch1_sko;
+    }
+
+    /*if(m_channel == RGB) {
 
         qreal ch1_temp = (qreal)(red - green) / area;
         qreal ch2_temp = (qreal)(red + green - 2 * blue) / area;
@@ -108,24 +189,22 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
     } else if(m_channel == Experimental) {
 
-        qreal ch1_temp = (qreal)(green - blue) / area;
-        //qreal ch2_temp = (qreal)(red + blue) / 2*area;
+        v_RawCh1[curpos] = (qreal)green / area;
 
-        m_MeanCh1 += (ch1_temp  - v_RawCh1[curpos]) / m_DataLength;
-        //m_MeanCh2 += (ch2_temp - v_RawCh2[curpos]) / m_DataLength;
-        v_RawCh1[curpos] = ch1_temp;
-        //v_RawCh2[curpos] = ch2_temp;
+        m_MeanCh1 = 0.0;
+        for(uint i = 0; i < m_estimationInterval; i++){
+            m_MeanCh1 += v_RawCh1[loop(curpos - i)];
+        }
+        m_MeanCh1 /= m_estimationInterval;
 
         qreal ch1_sko = 0.0;
-        //qreal ch2_sko = 0.0;
-        for (unsigned int i = 0; i < m_DataLength; i++)
+        quint16 pos = 0;
+        for (unsigned int i = 0; i < m_estimationInterval; i++)
         {
-            ch1_sko += (v_RawCh1[i] - m_MeanCh1)*(v_RawCh1[i] - m_MeanCh1);
-            //ch2_sko += (v_RawCh2[i] - m_MeanCh2)*(v_RawCh2[i] - m_MeanCh2);
+            pos = loop(curpos - i);
+            ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
         }
-        ch1_sko = sqrt(ch1_sko / (m_DataLength - 1));
-        //ch2_sko = sqrt(ch2_sko / (m_DataLength - 1));
-        //v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh2[curpos] - m_MeanCh2) / ch2_sko;
+        ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
         v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ch1_sko;
 
     } else {
@@ -153,7 +232,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         ch1_sko = sqrt(ch1_sko / (m_DataLength - 1));
         v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ ch1_sko;
 
-    }
+    }*/
 
     v_Time[curpos] = time;
     emit TimeUpdated(v_Time, m_DataLength);
@@ -439,4 +518,30 @@ void QHarmonicProcessor::setID(quint32 value)
 
 //------------------------------------------------------------------------------------------------
 
+void QHarmonicProcessor::setEstiamtionInterval(int value)
+{
+    if((value > 1) && (value <= m_DataLength))
+        m_estimationInterval = value;
+}
+
+//------------------------------------------------------------------------------------------------
+
+unsigned int QHarmonicProcessor::getDataLength() const
+{
+    return m_DataLength;
+}
+
+//------------------------------------------------------------------------------------------------
+
+unsigned int QHarmonicProcessor::getBufferLength() const
+{
+    return m_BufferLength;
+}
+
+//------------------------------------------------------------------------------------------------
+
+unsigned int QHarmonicProcessor::getEstimationInterval() const
+{
+    return m_estimationInterval;
+}
 

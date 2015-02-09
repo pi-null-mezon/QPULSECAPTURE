@@ -1,5 +1,6 @@
 #include <QDateTime>
 #include "mainwindow.h"
+#include "qprocessingdialog.h"
 //------------------------------------------------------------------------------------
 
 #define FRAME_MARGIN 5
@@ -166,6 +167,10 @@ void MainWindow::createActions()
     pt_skinAct->setStatusTip(tr("Enroll pixels wih color close to skin only"));
     pt_skinAct->setCheckable(true);
     pt_skinAct->setChecked(true);
+
+    pt_adjustAct = new QAction(tr("&Timing"), this);
+    pt_adjustAct->setStatusTip(tr("Allows to adjust time between frequency evaluations & data normalization interval"));
+    connect(pt_adjustAct, SIGNAL(triggered()), this, SLOT(openProcessingDialog()));
 }
 
 //------------------------------------------------------------------------------------
@@ -182,7 +187,8 @@ void MainWindow::createMenus()
     pt_optionsMenu->addAction(pt_openPlotDialog);
     pt_optionsMenu->addAction(pt_recordAct);
     pt_optionsMenu->addAction(pt_mapAct);
-    pt_colormodeMenu = pt_optionsMenu->addMenu(tr("&Spectrum"));
+    pt_optionsMenu->addSeparator();
+    pt_colormodeMenu = pt_optionsMenu->addMenu(tr("&Light"));
     pt_colormodeMenu->addActions(pt_colorActGroup->actions());
     pt_modeMenu = pt_optionsMenu->addMenu(tr("&Mode"));
     pt_modeMenu->addAction(pt_pcaAct);
@@ -259,6 +265,8 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
     menu.addSeparator();
     menu.addAction(pt_pauseAct);
     menu.addAction(pt_resumeAct);
+    menu.addSeparator();
+    menu.addAction(pt_adjustAct);
     menu.addSeparator();   
     menu.exec(event->globalPos());
 }
@@ -548,6 +556,7 @@ void MainWindow::configure_and_start_session()
         }
         this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
     } else {
+        pt_optionsMenu->setEnabled(false);
         emit closeVideo();
     }
 }
@@ -827,5 +836,27 @@ void MainWindow::openMapDialog()
             pt_mapAct->setChecked(false);
         }
     }
+}
+
+void MainWindow::openProcessingDialog()
+{
+    if(pt_harmonicProcessor) {
+
+        QProcessingDialog *dialog = new QProcessingDialog(NULL);
+        dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+        dialog->setTimer(m_timer.interval());
+        dialog->setMaximumInterval(pt_harmonicProcessor->getDataLength());
+        dialog->setInterval(pt_harmonicProcessor->getEstimationInterval());
+        connect(dialog, &QProcessingDialog::timerValueUpdated, &m_timer, &QTimer::setInterval);
+        connect(dialog, SIGNAL(intervalValueUpdated(int)), pt_harmonicProcessor, SLOT(setEstiamtionInterval(int)));
+        dialog->show();
+
+    } else {
+
+        QMessageBox msg(QMessageBox::Information, tr("Warning"),tr("Start new session before!") );
+        msg.exec();
+
+    }
+
 }
 

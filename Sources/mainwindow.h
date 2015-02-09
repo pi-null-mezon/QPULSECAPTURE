@@ -67,6 +67,7 @@ public slots:
     void make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void startRecord();
     void openMapDialog();
+    void openProcessingDialog();
 
 private:
     void createActions();
@@ -95,6 +96,7 @@ private:
     QAction *pt_mapAct;
     QAction *pt_selectAllAct;
     QAction *pt_skinAct;
+    QAction *pt_adjustAct;
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;
