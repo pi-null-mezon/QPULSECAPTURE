@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent):
 
     //--------------------------------------------------------------
     m_dialogSetCounter = 0;
+    m_sessionsCounter = 0;
     pt_videoSlider = NULL;
 
     //--------------------------------------------------------------
@@ -545,15 +546,24 @@ void MainWindow::configure_and_start_session()
 
         if(m_settingsDialog.get_flagVideoFile())
         {
-            if(this->openvideofile())
-                this->onresume();
+            if(this->openvideofile()) {
+                if(m_sessionsCounter == 0)
+                    QTimer::singleShot(2500, this, SLOT(onresume())); // should solve issue with first launch suspension
+                else
+                    this->onresume();
+            }
         }
         else
         {
-            if(this->opendevice())
-                this->onresume();
+            if(this->opendevice()) {
+                if(m_sessionsCounter == 0)
+                    QTimer::singleShot(2500, this, SLOT(onresume())); // should solve issue with first launch suspension
+                else
+                    this->onresume();     // should solve issue with first launch suspension
+            }
         }
         this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
+        m_sessionsCounter++;
     } else {
         //pt_optionsMenu->setEnabled(false);
         //emit closeVideo();
@@ -853,7 +863,7 @@ void MainWindow::openProcessingDialog()
 
     } else {
 
-        QMessageBox msg(QMessageBox::Warning, tr("Warning"),tr("Start new session before!") );
+        QMessageBox msg(QMessageBox::Information, tr("Warning"),tr("Start new session before!") );
         msg.exec();
 
     }

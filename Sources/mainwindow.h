@@ -130,6 +130,8 @@ private:
     QHarmonicProcessorMap *pt_map;
     QSettingsDialog m_settingsDialog;
 
+    quint16 m_sessionsCounter;
+
 private slots:
     void decrease_dialogSetCounter();
     void closeAllDialogs();

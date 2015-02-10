@@ -35,7 +35,6 @@ bool QVideoCapture::opendevice(int period) // period should be entered in ms
     {
         if( m_cvCapture.open( device_id ) )
         {
-            m_cvCapture.set(CV_CAP_PROP_MODE, 1.0);
             deviceFlag = true;
             pt_timer->setInterval( period );
             return true;

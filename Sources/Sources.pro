@@ -47,10 +47,10 @@ HEADERS  += mainwindow.h \
 
 FORMS += qsettingsdialog.ui \
          mappingdialog.ui \
-    qprocessingdialog.ui
+         qprocessingdialog.ui
 
-RC_ICONS = $$PWD/../Resources/Docs/App_ico.ico
-#CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT
+RC_ICONS = $$PWD/../Resources/Docs/QPULSECAPTURE.ico
+CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT
 
 include(OPENCV.pri)
 include(FFTW.pri)

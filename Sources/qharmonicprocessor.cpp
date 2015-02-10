@@ -119,21 +119,30 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     } else if(m_channel == Experimental) {
 
         v_RawCh1[curpos] = (qreal)green / area;
+        v_RawCh2[curpos] = (qreal)(red + blue) / area;
 
         m_MeanCh1 = 0.0;
-        for(uint i = 0; i < m_estimationInterval; i++){
-            m_MeanCh1 += v_RawCh1[loop(curpos - i)];
+        m_MeanCh2 = 0.0;
+        for(quint16 i = 0; i < m_estimationInterval; i++)
+        {
+            pos = loop(curpos - i);
+            m_MeanCh1 += v_RawCh1[pos];
+            m_MeanCh2 += v_RawCh2[pos];
         }
         m_MeanCh1 /= m_estimationInterval;
+        m_MeanCh2 /= m_estimationInterval;
 
         qreal ch1_sko = 0.0;
+        qreal ch2_sko = 0.0;
         for (unsigned int i = 0; i < m_estimationInterval; i++)
         {
             pos = loop(curpos - i);
             ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
+            ch2_sko += (v_RawCh2[pos] - m_MeanCh2)*(v_RawCh2[pos] - m_MeanCh2);
         }
         ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
-        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ch1_sko;
+        ch2_sko = sqrt(ch2_sko / (m_estimationInterval - 1));
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh2[curpos] - m_MeanCh2) / ch2_sko;
 
     } else {
 
@@ -165,74 +174,6 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
         v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ ch1_sko;
     }
-
-    /*if(m_channel == RGB) {
-
-        qreal ch1_temp = (qreal)(red - green) / area;
-        qreal ch2_temp = (qreal)(red + green - 2 * blue) / area;
-
-        m_MeanCh1 += (ch1_temp - v_RawCh1[curpos]) / m_DataLength;
-        m_MeanCh2 += (ch2_temp - v_RawCh2[curpos]) / m_DataLength;
-        v_RawCh1[curpos] = ch1_temp;
-        v_RawCh2[curpos] = ch2_temp;
-
-        qreal ch1_sko = 0.0;
-        qreal ch2_sko = 0.0;
-        for (unsigned int i = 0; i < m_DataLength; i++)
-        {
-            ch1_sko += (v_RawCh1[i] - m_MeanCh1)*(v_RawCh1[i] - m_MeanCh1);
-            ch2_sko += (v_RawCh2[i] - m_MeanCh2)*(v_RawCh2[i] - m_MeanCh2);
-        }
-        ch1_sko = sqrt(ch1_sko / (m_DataLength - 1));
-        ch2_sko = sqrt(ch2_sko / (m_DataLength - 1));
-        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh2[curpos] - m_MeanCh2) / ch2_sko;
-
-    } else if(m_channel == Experimental) {
-
-        v_RawCh1[curpos] = (qreal)green / area;
-
-        m_MeanCh1 = 0.0;
-        for(uint i = 0; i < m_estimationInterval; i++){
-            m_MeanCh1 += v_RawCh1[loop(curpos - i)];
-        }
-        m_MeanCh1 /= m_estimationInterval;
-
-        qreal ch1_sko = 0.0;
-        quint16 pos = 0;
-        for (unsigned int i = 0; i < m_estimationInterval; i++)
-        {
-            pos = loop(curpos - i);
-            ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
-        }
-        ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
-        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ch1_sko;
-
-    } else {
-
-        qreal temp = 0.0;
-        switch(m_channel) {
-            case Red:
-                temp = (qreal)red / area;
-                break;
-            case Green:
-                temp = (qreal)green / area;
-                break;
-            case Blue:
-                temp = (qreal)blue / area;
-                break;
-        }
-        m_MeanCh1 += (temp - v_RawCh1[curpos])/m_DataLength;
-        v_RawCh1[curpos] = temp;
-
-        qreal ch1_sko = 0.0;
-        for (unsigned int i = 0; i < m_DataLength; i++)
-        {
-            ch1_sko += (v_RawCh1[i] - m_MeanCh1)*(v_RawCh1[i] - m_MeanCh1);
-        }
-        ch1_sko = sqrt(ch1_sko / (m_DataLength - 1));
-        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ ch1_sko;
-
-    }*/
 
     v_Time[curpos] = time;
     emit TimeUpdated(v_Time, m_DataLength);

@@ -38,6 +38,8 @@
 *.mp4
 *.wmv
 *.db
+*.pdf
+*.psd
 
 # Images for manual
 /Resources/Docs/WorkFlow
