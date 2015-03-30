@@ -13,7 +13,7 @@ class QHarmonicProcessorMap: public QObject
 public:
     QHarmonicProcessorMap(QObject* parent = NULL, quint32 width = 32, quint32 height = 32);
     ~QHarmonicProcessorMap();
-    enum MapType {SNRMap, VPGMap };
+    enum MapType {SNRMap, VPGMap};
 
 signals:
     void updateMap();

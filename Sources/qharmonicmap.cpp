@@ -1,7 +1,7 @@
 #include "qharmonicmap.h"
 
-#define DEFAULT_SNR_MIN -10.0
-#define DEFAULT_SNR_MAX 10.0
+#define DEFAULT_MIN -3.0
+#define DEFAULT_MAX 3.0
 //==========================================================================================================
 QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, quint32 height):
     QObject(parent),
@@ -9,8 +9,8 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     m_height(height),
     m_length(width*height),
     m_updations(0),
-    m_min(DEFAULT_SNR_MIN),
-    m_max(DEFAULT_SNR_MAX),
+    m_min(DEFAULT_MIN),
+    m_max(DEFAULT_MAX),
     m_cell(0),
     m_type(VPGMap)
 {
@@ -75,8 +75,8 @@ void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
         }
         emit mapUpdated(v_outputmap, m_width, m_height, m_max, m_min);
         m_updations = 0;
-        m_max = DEFAULT_SNR_MAX;
-        m_min = DEFAULT_SNR_MIN;
+        m_max = DEFAULT_MAX;
+        m_min = DEFAULT_MIN;
     }
 }
 

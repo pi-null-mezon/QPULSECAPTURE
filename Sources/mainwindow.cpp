@@ -548,7 +548,7 @@ void MainWindow::configure_and_start_session()
         {
             if(this->openvideofile()) {
                 if(m_sessionsCounter == 0)
-                    QTimer::singleShot(2500, this, SLOT(onresume())); // should solve issue with first launch suspension
+                    QTimer::singleShot(1500, this, SLOT(onresume())); // should solve issue with first launch suspension
                 else
                     this->onresume();
             }
@@ -557,7 +557,7 @@ void MainWindow::configure_and_start_session()
         {
             if(this->opendevice()) {
                 if(m_sessionsCounter == 0)
-                    QTimer::singleShot(2500, this, SLOT(onresume())); // should solve issue with first launch suspension
+                    QTimer::singleShot(1500, this, SLOT(onresume())); // should solve issue with first launch suspension
                 else
                     this->onresume();     // should solve issue with first launch suspension
             }
@@ -809,9 +809,7 @@ void MainWindow::openMapDialog()
 
                     pt_mapThread = new QThread(this);
                     pt_map = new QHarmonicProcessorMap(NULL, dialog.getMapWidth(), dialog.getMapHeight());
-                    qWarning("map type is %d",dialog.getMapType());
                     pt_map->setMapType(dialog.getMapType());
-                    qWarning("map type is %d",dialog.getMapType());
                     pt_map->moveToThread(pt_mapThread);
                     connect(pt_opencvProcessor, SIGNAL(mapCellProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(updateHarmonicProcessor(ulong,ulong,ulong,ulong,double)));
                     connect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));

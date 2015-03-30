@@ -49,7 +49,7 @@ FORMS += qsettingsdialog.ui \
          mappingdialog.ui \
          qprocessingdialog.ui
 
-RC_ICONS = $$PWD/../Resources/Docs/QPULSECAPTURE.ico
+RC_ICONS = $$PWD/../Resources/Docs/App.ico
 CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT
 
 include(OPENCV.pri)

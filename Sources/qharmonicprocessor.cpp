@@ -119,30 +119,15 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     } else if(m_channel == Experimental) {
 
         v_RawCh1[curpos] = (qreal)green / area;
-        v_RawCh2[curpos] = (qreal)(red + blue) / area;
 
         m_MeanCh1 = 0.0;
-        m_MeanCh2 = 0.0;
         for(quint16 i = 0; i < m_estimationInterval; i++)
         {
-            pos = loop(curpos - i);
-            m_MeanCh1 += v_RawCh1[pos];
-            m_MeanCh2 += v_RawCh2[pos];
+            m_MeanCh1 += v_RawCh1[loop(curpos - i)];
         }
         m_MeanCh1 /= m_estimationInterval;
-        m_MeanCh2 /= m_estimationInterval;
 
-        qreal ch1_sko = 0.0;
-        qreal ch2_sko = 0.0;
-        for (unsigned int i = 0; i < m_estimationInterval; i++)
-        {
-            pos = loop(curpos - i);
-            ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
-            ch2_sko += (v_RawCh2[pos] - m_MeanCh2)*(v_RawCh2[pos] - m_MeanCh2);
-        }
-        ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
-        ch2_sko = sqrt(ch2_sko / (m_estimationInterval - 1));
-        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh2[curpos] - m_MeanCh2) / ch2_sko;
+        v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1);
 
     } else {
 
@@ -179,7 +164,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     emit TimeUpdated(v_Time, m_DataLength);
     v_Signal[curpos] = ( v_Input[loopInput(curpos)] + v_Signal[loop(curpos - 1)] ) / 2.0;
     emit SignalUpdated(v_Signal, m_DataLength);
-    emit vpgUpdated(m_ID, v_Signal[curpos]);
+
 
     //----------------------------------------------------------------------------
     qreal outputValue = 0.0;
@@ -188,7 +173,8 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         outputValue += v_Input[i];
     }
     v_SmoothedSignal[loopInput(curpos)] = outputValue / DIGITAL_FILTER_LENGTH;
-    v_Derivative[loopOnTwo(curpos)] = v_SmoothedSignal[loopInput(curpos)] - v_SmoothedSignal[loopInput(curpos - (DIGITAL_FILTER_LENGTH - 1))];
+    emit vpgUpdated(m_ID, v_SmoothedSignal[loopInput(curpos)]);
+    v_Derivative[loopOnTwo(curpos)] = v_SmoothedSignal[loopInput(curpos)] - v_SmoothedSignal[loopInput(curpos - 1)];
     if( (v_Derivative[0]*v_Derivative[1]) < 0.0 )
     {
         m_zerocrossing = (++m_zerocrossing) % 2;
