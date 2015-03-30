@@ -118,7 +118,7 @@ void MainWindow::createActions()
     connect(pt_openPlotDialog, SIGNAL(triggered()), this, SLOT(createPlotDialog()));
 
     pt_recordAct = new QAction(tr("&Record"), this);
-    pt_recordAct->setStatusTip(tr("Start to record current measurement ssession in to output text file"));
+    pt_recordAct->setStatusTip(tr("Start to record measurements in to output text file"));
     connect(pt_recordAct, SIGNAL(triggered()), this, SLOT(startRecord()));
     pt_recordAct->setCheckable(true);
 
@@ -762,7 +762,6 @@ void MainWindow::startRecord()
 
 void MainWindow::openMapDialog()
 {
-
     cv::Rect tempRect = pt_opencvProcessor->getRect();
     if((tempRect.width <= 0) || (tempRect.height <= 0))
     {
@@ -773,78 +772,58 @@ void MainWindow::openMapDialog()
     }
     else
     {
-        if(!pt_mapAct->isChecked())
-        {
             QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Another map?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, this, Qt::Dialog);
             int resultCode = msgBox.exec();
-            if(resultCode == QMessageBox::No)
+            if(resultCode == QMessageBox::Cancel)
             {
-                if(pt_map)
-                {
-                    if(pt_map)
-                    {
-                        pt_mapThread->quit();
-                        pt_mapThread->wait();
-                    }
-                    disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
-                    disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
-                    disconnect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
-                    pt_display->updateMap(NULL,0,0,0.0,0.0);
-                    delete pt_map;
-                    pt_map = NULL;
-
-                }
                 pt_mapAct->setChecked(false);
                 return;
             }
-            if(resultCode == QMessageBox::Cancel)
-            {
-                pt_mapAct->setChecked(true);
-                return;
-            }
-        }
-
-        if(pt_map)
-        {
+            //--------Clean memory and resources------
             if(pt_map)
             {
-                pt_mapThread->quit();
-                pt_mapThread->wait();
+                if(pt_map)
+                {
+                    pt_mapThread->quit();
+                    pt_mapThread->wait();
+                }
+                disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
+                disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
+                disconnect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
+                pt_display->updateMap(NULL,0,0,0.0,0.0);
+                delete pt_map;
+                pt_map = NULL;
             }
-            disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
-            disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
-            disconnect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
-            pt_display->updateMap(NULL,0,0,0.0,0.0);
-            delete pt_map;
-            pt_map = NULL;
-        }
-
-        mappingdialog dialog;
-        dialog.setImageHeight(tempRect.height);
-        dialog.setImageWidth(tempRect.width);
-
-        if(dialog.exec() == QDialog::Accepted)
-        {            
-            pt_opencvProcessor->setMapCellSize(dialog.getCellSize(), dialog.getCellSize());
-            pt_opencvProcessor->setMapRegion(cv::Rect(tempRect.x,tempRect.y,dialog.getCellSize()*dialog.getMapWidth(),dialog.getCellSize()*dialog.getMapHeight()));
-
-            pt_mapThread = new QThread(this);
-            pt_map = new QHarmonicProcessorMap(NULL, dialog.getMapWidth(), dialog.getMapHeight());
-            pt_map->moveToThread(pt_mapThread);
-            connect(pt_opencvProcessor, SIGNAL(mapCellProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(updateHarmonicProcessor(ulong,ulong,ulong,ulong,double)));
-            connect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
-            connect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
-            connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)), Qt::BlockingQueuedConnection);
-            connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_map, SIGNAL(updatePCAMode(bool)));
-            connect(pt_colorMapper, SIGNAL(mapped(int)), pt_map, SIGNAL(changeColorChannel(int)));
-            connect(pt_mapThread, SIGNAL(finished()), pt_mapThread, SLOT(deleteLater()));
-            pt_mapThread->start();
-            pt_mapAct->setChecked(true);
-        }
-        else
-        {
             pt_mapAct->setChecked(false);
-        }
+            //-----------------End-------------------
+            if(resultCode == QMessageBox::Yes)
+            {
+                mappingdialog dialog;
+                dialog.setImageHeight(tempRect.height);
+                dialog.setImageWidth(tempRect.width);
+
+                if(dialog.exec() == QDialog::Accepted)
+                {
+                    pt_opencvProcessor->setMapCellSize(dialog.getCellSize(), dialog.getCellSize());
+                    pt_opencvProcessor->setMapRegion(cv::Rect(tempRect.x,tempRect.y,dialog.getCellSize()*dialog.getMapWidth(),dialog.getCellSize()*dialog.getMapHeight()));
+
+                    pt_mapThread = new QThread(this);
+                    pt_map = new QHarmonicProcessorMap(NULL, dialog.getMapWidth(), dialog.getMapHeight());
+                    qWarning("map type is %d",dialog.getMapType());
+                    pt_map->setMapType(dialog.getMapType());
+                    qWarning("map type is %d",dialog.getMapType());
+                    pt_map->moveToThread(pt_mapThread);
+                    connect(pt_opencvProcessor, SIGNAL(mapCellProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(updateHarmonicProcessor(ulong,ulong,ulong,ulong,double)));
+                    connect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
+                    connect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
+                    connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)), Qt::BlockingQueuedConnection);
+                    connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_map, SIGNAL(updatePCAMode(bool)));
+                    connect(pt_colorMapper, SIGNAL(mapped(int)), pt_map, SIGNAL(changeColorChannel(int)));
+                    connect(pt_mapThread, SIGNAL(finished()), pt_mapThread, SLOT(deleteLater()));
+                    pt_mapThread->start();
+                    pt_mapAct->setChecked(true);
+                }
+            }
     }
 }
 

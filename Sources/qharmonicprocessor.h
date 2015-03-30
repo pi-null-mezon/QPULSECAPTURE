@@ -35,6 +35,8 @@ signals:
     void CurrentValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void TooNoisy(qreal snr_value);
     void snrUpdated(quint32 id, qreal snr_value); // interface signal for mapping
+    void vpgUpdated(quint32 id, qreal value);
+
 
 public slots:
     void EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);

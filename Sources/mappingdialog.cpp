@@ -8,6 +8,7 @@ mappingdialog::mappingdialog(QWidget *parent) :
     ui(new Ui::mappingdialog)
 {
     ui->setupUi(this);
+    ui->cbSNR->click();
     ui->sliderCell->setValue(DEFAULT_CELL_SIZE);
 }
 
@@ -51,18 +52,35 @@ void mappingdialog::on_sliderCell_valueChanged(int value)
     ui->editHeightMap->setText(QString::number(m_height/m_cellSize));
 }
 
-quint16 mappingdialog::getMapWidth()
+quint16 mappingdialog::getMapWidth() const
 {
     return m_width/m_cellSize;
 }
 
-quint16 mappingdialog::getMapHeight()
+quint16 mappingdialog::getMapHeight() const
 {
     return m_height/m_cellSize;
 
 }
 
-quint16 mappingdialog::getCellSize()
+quint16 mappingdialog::getCellSize() const
 {
     return m_cellSize;
+}
+
+void mappingdialog::on_cbVPG_clicked(bool checked)
+{
+    ui->cbSNR->setChecked(!checked);
+    m_mapType = QHarmonicProcessorMap::MapType::VPGMap;
+}
+
+void mappingdialog::on_cbSNR_clicked(bool checked)
+{
+    ui->cbVPG->setChecked(!checked);
+    m_mapType = QHarmonicProcessorMap::MapType::SNRMap;
+}
+
+QHarmonicProcessorMap::MapType mappingdialog::getMapType() const
+{
+    return m_mapType;
 }
