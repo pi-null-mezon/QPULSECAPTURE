@@ -13,7 +13,7 @@ class QHarmonicProcessorMap: public QObject
 public:
     QHarmonicProcessorMap(QObject* parent = NULL, quint32 width = 32, quint32 height = 32);
     ~QHarmonicProcessorMap();
-    enum MapType {SNRMap, VPGMap};
+    enum MapType {VPGMap, SVPGMap, BVPGMap, SNRMap};
 
 signals:
     void updateMap();
@@ -21,10 +21,11 @@ signals:
     void dataArrived(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
     void changeColorChannel(int value);
     void updatePCAMode(bool value);
+    void setEstimationInterval(int value);
 
 public slots:
     void updateHarmonicProcessor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
-    void setMapType(MapType type_id);
+    void setMapType(MapType type_id);   
 
 private:
     quint32 m_cellNum;

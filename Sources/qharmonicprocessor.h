@@ -34,9 +34,11 @@ signals:
     void BinaryOutputUpdated(const qreal *pointer_to_vector, quint16 length_of_vector);
     void CurrentValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void TooNoisy(qreal snr_value);
-    void snrUpdated(quint32 id, qreal snr_value); // interface signal for mapping
-    void vpgUpdated(quint32 id, qreal value);
 
+    void snrUpdated(quint32 id, qreal snr_value);   // signal for mapping
+    void vpgUpdated(quint32 id, qreal value);       // signal for mapping
+    void svpgUpdated(quint32 id, qreal value);      // signal for mapping
+    void bvpgUpdated(quint32 id, qreal value);      // signal for mapping
 
 public slots:
     void EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);

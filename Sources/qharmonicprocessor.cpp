@@ -164,7 +164,10 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     emit TimeUpdated(v_Time, m_DataLength);
     v_Signal[curpos] = ( v_Input[loopInput(curpos)] + v_Signal[loop(curpos - 1)] ) / 2.0;
     emit SignalUpdated(v_Signal, m_DataLength);
-
+    if(m_SNR > SNR_TRESHOLD)
+        emit vpgUpdated(m_ID, v_Signal[curpos]);
+    else
+        emit vpgUpdated(m_ID, 0.0);
 
     //----------------------------------------------------------------------------
     qreal outputValue = 0.0;
@@ -173,7 +176,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         outputValue += v_Input[i];
     }
     v_SmoothedSignal[loopInput(curpos)] = outputValue / DIGITAL_FILTER_LENGTH;
-    emit vpgUpdated(m_ID, v_SmoothedSignal[loopInput(curpos)]);
+    emit svpgUpdated(m_ID, v_SmoothedSignal[loopInput(curpos)]);
     v_Derivative[loopOnTwo(curpos)] = v_SmoothedSignal[loopInput(curpos)] - v_SmoothedSignal[loopInput(curpos - 1)];
     if( (v_Derivative[0]*v_Derivative[1]) < 0.0 )
     {
@@ -185,6 +188,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     }
     v_BinaryOutput[curpos] = m_output; // note, however, that v_BinaryOutput accumulates phase delay about DIGITAL_FILTER_LENGTH
     emit BinaryOutputUpdated(v_BinaryOutput, m_DataLength);
+    emit bvpgUpdated(m_ID, v_BinaryOutput[curpos]);
     //----------------------------------------------------------------------------
 
     emit CurrentValues(v_Signal[curpos], PCA_RAW_RGB(position, 0), PCA_RAW_RGB(position, 1), PCA_RAW_RGB(position, 2), m_HeartRate, m_SNR);

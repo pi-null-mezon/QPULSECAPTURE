@@ -836,6 +836,10 @@ void MainWindow::openProcessingDialog()
         dialog->setInterval(pt_harmonicProcessor->getEstimationInterval());
         connect(dialog, &QProcessingDialog::timerValueUpdated, &m_timer, &QTimer::setInterval);
         connect(dialog, SIGNAL(intervalValueUpdated(int)), pt_harmonicProcessor, SLOT(setEstiamtionInterval(int)));
+        if(pt_map)
+        {
+            connect(dialog, SIGNAL(intervalValueUpdated(int)), pt_map, SIGNAL(setEstimationInterval(int)));
+        }
         dialog->show();
 
     } else {

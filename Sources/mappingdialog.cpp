@@ -8,7 +8,6 @@ mappingdialog::mappingdialog(QWidget *parent) :
     ui(new Ui::mappingdialog)
 {
     ui->setupUi(this);
-    ui->cbSNR->click();
     ui->sliderCell->setValue(DEFAULT_CELL_SIZE);
 }
 
@@ -68,19 +67,7 @@ quint16 mappingdialog::getCellSize() const
     return m_cellSize;
 }
 
-void mappingdialog::on_cbVPG_clicked(bool checked)
-{
-    ui->cbSNR->setChecked(!checked);
-    m_mapType = (QHarmonicProcessorMap::MapType)1;
-}
-
-void mappingdialog::on_cbSNR_clicked(bool checked)
-{
-    ui->cbVPG->setChecked(!checked);
-    m_mapType = (QHarmonicProcessorMap::MapType)0;
-}
-
 QHarmonicProcessorMap::MapType mappingdialog::getMapType() const
 {
-    return m_mapType;
+    return (QHarmonicProcessorMap::MapType)ui->CBType->currentIndex();
 }

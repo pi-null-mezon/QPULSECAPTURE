@@ -28,15 +28,12 @@ private slots:
     void on_buttonAccept_clicked();
     void on_buttonReject_clicked();
     void on_sliderCell_valueChanged(int value);
-    void on_cbVPG_clicked(bool checked);
-    void on_cbSNR_clicked(bool checked);
 
 private:
     Ui::mappingdialog *ui;
     quint16 m_cellSize;
     quint16 m_width;
     quint16 m_height;
-    QHarmonicProcessorMap::MapType m_mapType;
 };
 
 #endif // MAPPINGDIALOG_H

@@ -26,6 +26,8 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     {
         v_processors[i].setID(i); // needs for control in whitch cell of the map write particular snr value
         v_processors[i].moveToThread(&v_threads[ i % m_threadCount ]);
+        connect(this, SIGNAL(updateMap()), &v_processors[i], SLOT(ComputeFrequency()));
+        connect(this, SIGNAL(setEstimationInterval(int)), &v_processors[i], SLOT(setEstiamtionInterval(int)));
         connect(this, SIGNAL(changeColorChannel(int)), &v_processors[i], SLOT(switchColorMode(int)));
         connect(this, SIGNAL(updatePCAMode(bool)), &v_processors[i], SLOT(setPCAMode(bool)));
     }
@@ -82,22 +84,38 @@ void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
 
 void QHarmonicProcessorMap::setMapType(MapType type_id)
 {
+    for(quint32 i = 0; i < m_length; i++)
+    {
+        disconnect(&v_processors[i], SIGNAL(vpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
+        disconnect(&v_processors[i], SIGNAL(svpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
+        disconnect(&v_processors[i], SIGNAL(bvpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
+        disconnect(&v_processors[i], SIGNAL(snrUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
+    }
     m_type = type_id;
+
     switch(m_type)
     {
+        case SVPGMap:
+            for(quint32 i = 0; i < m_length; i++)
+            {
+                connect(&v_processors[i], SIGNAL(svpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
+            }
+            break;
+        case BVPGMap:
+            for(quint32 i = 0; i < m_length; i++)
+            {
+                connect(&v_processors[i], SIGNAL(bvpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
+            }
+            break;
         case SNRMap:
             for(quint32 i = 0; i < m_length; i++)
             {
-                disconnect(&v_processors[i], SIGNAL(vpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
-                connect(this, SIGNAL(updateMap()), &v_processors[i], SLOT(ComputeFrequency()));
                 connect(&v_processors[i], SIGNAL(snrUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
             }
             break;
         default: // VPGMap
             for(quint32 i = 0; i < m_length; i++)
             {
-                disconnect(this, SIGNAL(updateMap()), &v_processors[i], SLOT(ComputeFrequency()));
-                disconnect(&v_processors[i], SIGNAL(snrUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
                 connect(&v_processors[i], SIGNAL(vpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
             }
             break;
