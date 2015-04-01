@@ -172,6 +172,12 @@ void MainWindow::createActions()
     pt_adjustAct = new QAction(tr("&Timing"), this);
     pt_adjustAct->setStatusTip(tr("Allows to adjust time between frequency evaluations & data normalization interval"));
     connect(pt_adjustAct, SIGNAL(triggered()), this, SLOT(openProcessingDialog()));
+
+    pt_imageAct = new QAction(tr("&Image"), this);
+    pt_imageAct->setStatusTip(tr("View captured image on main window"));
+    pt_imageAct->setCheckable(true);
+    pt_imageAct->setChecked(true);
+    connect(pt_imageAct, SIGNAL(triggered(bool)), pt_display, SLOT(setImageFlag(bool)));
 }
 
 //------------------------------------------------------------------------------------
@@ -200,6 +206,7 @@ void MainWindow::createMenus()
     pt_appearenceMenu = menuBar()->addMenu(tr("&Appearence"));
     pt_appearenceMenu->addAction(pt_fastVisualizationAct);
     pt_appearenceMenu->addAction(pt_changeColorsAct);
+    pt_appearenceMenu->addAction(pt_imageAct);
 
     //-------------------------------------------------
     pt_deviceMenu = menuBar()->addMenu(tr("&Device"));
@@ -782,15 +789,15 @@ void MainWindow::openMapDialog()
             //--------Clean memory and resources------
             if(pt_map)
             {
+                disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
+                disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
+                disconnect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
+                QTimer::singleShot(25, pt_display, SLOT(clearMap()));
                 if(pt_map)
                 {
                     pt_mapThread->quit();
                     pt_mapThread->wait();
                 }
-                disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
-                disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
-                disconnect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
-                QTimer::singleShot(50, pt_display, SLOT(clearMap()));
                 delete pt_map;
                 pt_map = NULL;
             }
@@ -848,6 +855,6 @@ void MainWindow::openProcessingDialog()
         msg.exec();
 
     }
-
 }
+
 

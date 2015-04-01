@@ -20,6 +20,7 @@ QImageWidget::QImageWidget(QWidget *parent): QWidget(parent)
     m_drawDataFlag = false;
     v_map = NULL;
     v_colors = NULL;
+    m_imageFlag = true;
     computeColorTable();
 }
 
@@ -91,14 +92,18 @@ void QImageWidget::paintEvent(QPaintEvent* )
 {
     QPainter painter( this );
     QRect temp_rect = make_proportional_rect(this->rect(), opencv_image.cols, opencv_image.rows);
-    painter.drawImage( temp_rect, qt_image); // Draw inside widget, the image is scaled to fit the rectangle
+
+    if(m_imageFlag)
+        painter.drawImage( temp_rect, qt_image); // Draw inside widget, the image is scaled to fit the rectangle
+    else
+        painter.fillRect( temp_rect, m_contourColor);
+
     drawMap(painter, temp_rect);
     drawStrings(painter, temp_rect);          // Will draw m_informationString on the widget
 
     /*if(m_drawDataFlag)
-    {
         drawData(painter, temp_rect);
-    }*/
+    */
 }
 
 //------------------------------------------------------------------------------------
@@ -442,8 +447,13 @@ void QImageWidget::selectWholeImage()
 {
     emit rect_was_entered( cv::Rect(0,0,opencv_image.cols, opencv_image.rows) );
 }
-
+//----------------------------------------------------------------------------------
 void QImageWidget::clearMap()
 {
     v_map = NULL;
+}
+//----------------------------------------------------------------------------------
+void QImageWidget::setImageFlag(bool value)
+{
+    m_imageFlag = value;
 }

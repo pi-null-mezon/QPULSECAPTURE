@@ -97,6 +97,7 @@ private:
     QAction *pt_selectAllAct;
     QAction *pt_skinAct;
     QAction *pt_adjustAct;
+    QAction *pt_imageAct;
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;

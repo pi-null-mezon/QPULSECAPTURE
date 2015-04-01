@@ -42,6 +42,7 @@ public slots:
     void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
     void selectWholeImage();
     void clearMap();
+    void setImageFlag(bool value);
 
 protected:
     void paintEvent(QPaintEvent*);
@@ -67,6 +68,7 @@ private:
     QColor m_fillColor;      // stores color of text background
     bool m_advancedvisualizationFlag; // turn it off by means of toggle_advancedvisualization(true) to make visualization quality higher, higher visualization quality costs about +20 ms/frame on Intel Pentium IV 3.0 on Debug mode
     bool m_drawDataFlag; // a flag, that manages if user want to draw or not dome data as trace on this widget, is controlled by set_drawDataFlag(bool ...)
+    bool m_imageFlag; // controls qt_image draw function
 
     cv::Rect m_mapRect;
     quint16 m_mapCols;
