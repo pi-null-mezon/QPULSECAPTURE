@@ -41,6 +41,7 @@ public slots:
     void updadeMapRegion(const cv::Rect& input_rect);
     void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
     void selectWholeImage();
+    void clearMap();
 
 protected:
     void paintEvent(QPaintEvent*);
@@ -72,6 +73,8 @@ private:
     quint16 m_mapRows;
     qreal m_mapMax;
     qreal m_mapMin;
+    qreal m_slope;
+    qreal m_intercept;
     const qreal *v_map;
     QColor *v_colors;
 

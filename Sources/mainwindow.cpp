@@ -790,7 +790,7 @@ void MainWindow::openMapDialog()
                 disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
                 disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
                 disconnect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
-                pt_display->updateMap(NULL,0,0,0.0,0.0);
+                QTimer::singleShot(50, pt_display, SLOT(clearMap()));
                 delete pt_map;
                 pt_map = NULL;
             }
@@ -811,14 +811,14 @@ void MainWindow::openMapDialog()
                     pt_map = new QHarmonicProcessorMap(NULL, dialog.getMapWidth(), dialog.getMapHeight());
                     pt_map->setMapType(dialog.getMapType());
                     pt_map->moveToThread(pt_mapThread);
-                    connect(pt_opencvProcessor, SIGNAL(mapCellProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(updateHarmonicProcessor(ulong,ulong,ulong,ulong,double)));
+                    connect(pt_opencvProcessor, SIGNAL(mapCellProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(updateHarmonicProcessor(ulong,ulong,ulong,ulong,double)), Qt::BlockingQueuedConnection);
                     connect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
                     connect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
                     connect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)), Qt::BlockingQueuedConnection);
                     connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_map, SIGNAL(updatePCAMode(bool)));
                     connect(pt_colorMapper, SIGNAL(mapped(int)), pt_map, SIGNAL(changeColorChannel(int)));
                     connect(pt_mapThread, SIGNAL(finished()), pt_mapThread, SLOT(deleteLater()));
-                    pt_mapThread->start();
+                    pt_mapThread->start(QThread::HighestPriority);
                     pt_mapAct->setChecked(true);
                 }
             }

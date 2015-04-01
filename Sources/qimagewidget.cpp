@@ -376,6 +376,8 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
     m_mapRows = height;
     m_mapMin = min;
     m_mapMax = max;
+    m_slope = 1 / (max - min);
+    m_intercept = - min * m_slope;
 }
 
 //----------------------------------------------------------------------------------
@@ -386,16 +388,15 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
     {
         QRectF mapRect = findMapRegion(input_rect);
         painter.setPen(QColor(0,0,0,64));
-        int fontSize = mapRect.width() / (m_mapCols * 3) ;
+        int fontSize = mapRect.width() / (m_mapCols * 3);
         if(fontSize > 8)
         {
             painter.setFont(QFont("Calibri", fontSize));
             int alignmentFlag = Qt::AlignHCenter | Qt::AlignVCenter;
-            qreal coeff = (m_mapMax-m_mapMin);
             QRectF temp = QRectF(mapRect.x(), mapRect.y(), mapRect.width()/m_mapCols, mapRect.height()/m_mapRows);
-            painter.setBrush(v_colors[(int)(v_map[0]*255)]);
+            painter.setBrush(v_colors[(int)((v_map[0] * m_slope + m_intercept) * 255)]);
             painter.drawRect(temp);
-            painter.drawText(temp, alignmentFlag, QString::number(v_map[0]*coeff + m_mapMin,'f',1));
+            painter.drawText(temp, alignmentFlag, QString::number(v_map[0],'f',1));
             for(quint16 i = 1; i < m_mapCols*m_mapRows; i++)
             {
                 if((i % m_mapCols) == 0)
@@ -407,15 +408,15 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
                 {
                     temp.moveLeft(temp.x()+temp.width());
                 }
-                painter.setBrush(v_colors[(int)(v_map[i]*255)]);
+                painter.setBrush(v_colors[(int)((v_map[i] * m_slope + m_intercept) * 255)]);
                 painter.drawRect(temp);
-                painter.drawText(temp, alignmentFlag, QString::number(v_map[i]*coeff + m_mapMin,'f',1));
+                painter.drawText(temp, alignmentFlag, QString::number(v_map[i],'f',1));
             }
         }
         else
         {
             QRectF temp = QRectF(mapRect.x(), mapRect.y(), mapRect.width()/m_mapCols, mapRect.height()/m_mapRows);
-            painter.setBrush(v_colors[(int)(v_map[0]*255)]);
+            painter.setBrush(v_colors[(int)((v_map[0] * m_slope + m_intercept)*255)]);
             painter.drawRect(temp);
             for(quint16 i = 1; i < m_mapCols*m_mapRows; i++)
             {
@@ -428,7 +429,7 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
                 {
                     temp.moveLeft(temp.x()+temp.width());
                 }
-                painter.setBrush(v_colors[(int)(v_map[i]*255)]);
+                painter.setBrush(v_colors[(int)((v_map[i] * m_slope + m_intercept)*255)]);
                 painter.drawRect(temp);
             }
         }
@@ -440,4 +441,9 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
 void QImageWidget::selectWholeImage()
 {
     emit rect_was_entered( cv::Rect(0,0,opencv_image.cols, opencv_image.rows) );
+}
+
+void QImageWidget::clearMap()
+{
+    v_map = NULL;
 }

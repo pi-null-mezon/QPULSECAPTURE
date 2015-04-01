@@ -1,7 +1,7 @@
 #include "qharmonicmap.h"
 
-#define DEFAULT_MIN -3.0
-#define DEFAULT_MAX 3.0
+#define DEFAULT_MIN -2.0
+#define DEFAULT_MAX 2.0
 //==========================================================================================================
 QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, quint32 height):
     QObject(parent),
@@ -55,9 +55,12 @@ QHarmonicProcessorMap::~QHarmonicProcessorMap()
 
 void QHarmonicProcessorMap::updateHarmonicProcessor(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period)
 {
-    connect(this, SIGNAL(dataArrived(ulong,ulong,ulong,ulong,double)), &v_processors[m_cell], SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
-    emit dataArrived(red,green,blue,area,period);    
-    disconnect(this, SIGNAL(dataArrived(ulong,ulong,ulong,ulong,double)), &v_processors[m_cell], SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
+    v_processors[m_cell].EnrollData(red,green,blue,area,period);
+    /*
+      connect(this, SIGNAL(dataArrived(ulong,ulong,ulong,ulong,double)), &v_processors[m_cell], SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
+      emit dataArrived(red,green,blue,area,period);
+      disconnect(this, SIGNAL(dataArrived(ulong,ulong,ulong,ulong,double)), &v_processors[m_cell], SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
+    */
     m_cell = (++m_cell) % m_length;
 }
 
@@ -72,8 +75,9 @@ void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
     m_updations++;
     if(m_updations == m_length)
     {
-        for(quint32 i = 0; i < m_length; i++) {
-            v_outputmap[i] = (v_map[i] - m_min)/(m_max - m_min);
+        for(quint32 i = 0; i < m_length; i++)
+        {
+            v_outputmap[i] = v_map[i];
         }
         emit mapUpdated(v_outputmap, m_width, m_height, m_max, m_min);
         m_updations = 0;

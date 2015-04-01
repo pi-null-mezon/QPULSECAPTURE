@@ -6,7 +6,8 @@ The simplest way to use it - rewrite appropriate section in QOpencvProcessor::cu
 
 #include "qopencvprocessor.h"
 
-#define OBJECT_MINSIZE 150
+#define OBJECT_MINSIZE 128
+#define LEVEL_SHIFT 32
 //------------------------------------------------------------------------------------------------------
 
 QOpencvProcessor::QOpencvProcessor(QObject *parent):
@@ -134,8 +135,8 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                         red += p[3*i+2];
                         //Uncomment if want to see the enrolled domain on image
                         //p[3*i] = 0;
-                        //p[3*i+1] = 255;
-                        //p[3*i+2] = 0;
+                        //p[3*i+1] %= LEVEL_SHIFT;
+                        p[3*i+2] %= LEVEL_SHIFT;
                     }
                 }
                 for(unsigned int j = (Y + 6*dY); j < (Y + 9*dY); j++)
@@ -148,8 +149,8 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                         red += p[3*i+2];
                         //Uncomment if want to see the enrolled domain on image
                         //p[3*i] = 0;
-                        p[3*i+1] = 255;
-                        //p[3*i+2] = 0;
+                        //p[3*i+1] = LEVEL_SHIFT;
+                        p[3*i+2] %= LEVEL_SHIFT;
                     }
                 }
             }
@@ -200,8 +201,8 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                                 green += tempGreen;
                                 red += tempRed;
                                 //p[3*i] = 255;
-                                p[3*i+1] = 255;
-                                //p[3*i+2] = 0;
+                                //p[3*i+1] %= LEVEL_SHIFT;
+                                p[3*i+2] %= LEVEL_SHIFT;
                             }
                         }
                     }
@@ -218,8 +219,8 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                             red += p[3*i+2];
                             //Uncomment if want to see the enrolled domain on image
                             //p[3*i] = 0;
-                            p[3*i+1] = 255;
-                            //p[3*i+2] = 0;
+                            //p[3*i+1] %= LEVEL_SHIFT;
+                            p[3*i+2] %= LEVEL_SHIFT;
                         }
                     }
                     area = rectwidth*rectheight;
@@ -312,8 +313,8 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                             green += tempGreen;
                             red += tempRed;
                             //p[3*i] = 255;
-                            p[3*i+1] = 255;
-                            //p[3*i+2] = 0;
+                            //p[3*i+1] %= LEVEL_SHIFT;
+                            p[3*i+2] %= LEVEL_SHIFT;
                         }
                     }
                 }
