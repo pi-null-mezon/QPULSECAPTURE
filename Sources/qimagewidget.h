@@ -69,6 +69,7 @@ private:
     bool m_advancedvisualizationFlag; // turn it off by means of toggle_advancedvisualization(true) to make visualization quality higher, higher visualization quality costs about +20 ms/frame on Intel Pentium IV 3.0 on Debug mode
     bool m_drawDataFlag; // a flag, that manages if user want to draw or not dome data as trace on this widget, is controlled by set_drawDataFlag(bool ...)
     bool m_imageFlag; // controls qt_image draw function
+    quint8 m_opacity;
 
     cv::Rect m_mapRect;
     quint16 m_mapCols;
@@ -78,7 +79,7 @@ private:
     qreal m_slope;
     qreal m_intercept;
     const qreal *v_map;
-    QColor *v_colors;
+    QColor v_colors[256];
 
 private slots:
     void computeColorTable(); // call in constructor to calculate appropriate colors and write them in v_colors[]

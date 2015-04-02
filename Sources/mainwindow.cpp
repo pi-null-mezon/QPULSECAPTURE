@@ -792,7 +792,7 @@ void MainWindow::openMapDialog()
                 disconnect(pt_videoCapture, SIGNAL(frame_was_captured(cv::Mat)), pt_opencvProcessor, SLOT(mapProcess(cv::Mat)));
                 disconnect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));
                 disconnect(pt_map, SIGNAL(mapUpdated(const qreal*,quint32,quint32,qreal,qreal)), pt_display, SLOT(updateMap(const qreal*,quint32,quint32,qreal,qreal)));
-                QTimer::singleShot(25, pt_display, SLOT(clearMap()));
+                pt_display->clearMap();
                 if(pt_map)
                 {
                     pt_mapThread->quit();
@@ -816,7 +816,7 @@ void MainWindow::openMapDialog()
 
                     pt_mapThread = new QThread(this);
                     pt_map = new QHarmonicProcessorMap(NULL, dialog.getMapWidth(), dialog.getMapHeight());
-                    pt_map->setMapType(dialog.getMapType());
+                    pt_map->setMapType(dialog.getMapType(), dialog.getSNRControl());
                     pt_map->moveToThread(pt_mapThread);
                     connect(pt_opencvProcessor, SIGNAL(mapCellProcessed(ulong,ulong,ulong,ulong,double)), pt_map, SLOT(updateHarmonicProcessor(ulong,ulong,ulong,ulong,double)), Qt::BlockingQueuedConnection);
                     connect(&m_timer, SIGNAL(timeout()), pt_map, SIGNAL(updateMap()));

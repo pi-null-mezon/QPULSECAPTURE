@@ -7,6 +7,8 @@ QImage instance from cv::Mat image. The QImageWidget should be used as widget fo
 
 #include "qimagewidget.h"
 
+#define DEFAULT_OPACITY 72 //8-bit value
+
 //-----------------------------------------------------------------------------------
 
 QImageWidget::QImageWidget(QWidget *parent): QWidget(parent)
@@ -19,19 +21,14 @@ QImageWidget::QImageWidget(QWidget *parent): QWidget(parent)
     m_advancedvisualizationFlag = true;
     m_drawDataFlag = false;
     v_map = NULL;
-    v_colors = NULL;
     m_imageFlag = true;
+    m_opacity = DEFAULT_OPACITY;
     computeColorTable();
 }
 
 //-----------------------------------------------------------------------------------
 void QImageWidget::computeColorTable()
 {
-    delete[] v_colors;
-    v_colors = NULL;
-
-    v_colors = new QColor[256];
-
     quint16 r = 0;
     quint16 b = 255;
     quint16 g = 0;
@@ -53,14 +50,13 @@ void QImageWidget::computeColorTable()
         {
             g -= 4;
         }
-        v_colors[i] = QColor( r, g, b, 80);
+        v_colors[i] = QColor( r, g, b, m_opacity);
     }
 }
 
 //-----------------------------------------------------------------------------------
 QImageWidget::~QImageWidget()
 {
-    delete[] v_colors;
 }
 
 //-----------------------------------------------------------------------------------
@@ -392,7 +388,7 @@ void QImageWidget::updadeMapRegion(const cv::Rect &input_rect)
     if(v_map)
     {
         QRectF mapRect = findMapRegion(input_rect);
-        painter.setPen(QColor(0,0,0,64));
+        painter.setPen(QColor(0,0,0,m_opacity));
         int fontSize = mapRect.width() / (m_mapCols * 3);
         if(fontSize > 8)
         {
@@ -456,4 +452,9 @@ void QImageWidget::clearMap()
 void QImageWidget::setImageFlag(bool value)
 {
     m_imageFlag = value;
+    if(m_imageFlag)
+        m_opacity = DEFAULT_OPACITY;
+    else
+        m_opacity = 156;
+    computeColorTable();
 }

@@ -86,13 +86,13 @@ void QHarmonicProcessorMap::updateCell(quint32 id, qreal value)
     }
 }
 
-void QHarmonicProcessorMap::setMapType(MapType type_id)
+void QHarmonicProcessorMap::setMapType(MapType type_id, bool snrControl)
 {
     for(quint32 i = 0; i < m_length; i++)
     {
+        v_processors[i].setSnrControl(snrControl);
         disconnect(&v_processors[i], SIGNAL(vpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
         disconnect(&v_processors[i], SIGNAL(svpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
-        disconnect(&v_processors[i], SIGNAL(bvpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
         disconnect(&v_processors[i], SIGNAL(snrUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
     }
     m_type = type_id;
@@ -103,12 +103,6 @@ void QHarmonicProcessorMap::setMapType(MapType type_id)
             for(quint32 i = 0; i < m_length; i++)
             {
                 connect(&v_processors[i], SIGNAL(svpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
-            }
-            break;
-        case BVPGMap:
-            for(quint32 i = 0; i < m_length; i++)
-            {
-                connect(&v_processors[i], SIGNAL(bvpgUpdated(quint32,qreal)), this, SLOT(updateCell(quint32,qreal)));
             }
             break;
         case SNRMap:

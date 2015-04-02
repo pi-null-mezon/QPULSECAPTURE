@@ -23,6 +23,7 @@ public slots:
     quint16 getMapHeight() const;
     quint16 getCellSize() const;
     QHarmonicProcessorMap::MapType getMapType() const;
+    bool getSNRControl() const;
 
 private slots:
     void on_buttonAccept_clicked();

@@ -28,11 +28,13 @@ void QProcessingDialog::on_SInterval_valueChanged(int value)
 void QProcessingDialog::setTimer(int value)
 {
     ui->STimer->setValue(value);
+    ui->ETimer->setText(QString::number(value));
 }
 
 void QProcessingDialog::setInterval(int value)
 {
     ui->SInterval->setValue(value);
+    ui->EInterval->setText(QString::number(value));
 }
 
 void QProcessingDialog::setMaximumInterval(int value)

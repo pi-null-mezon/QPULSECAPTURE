@@ -52,6 +52,7 @@ public slots:
     unsigned int getDataLength() const;
     unsigned int getBufferLength() const;
     unsigned int getEstimationInterval() const;
+    void setSnrControl(bool value);
 
 private:
     qreal *v_Signal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
@@ -93,6 +94,7 @@ private:
 
     quint32 m_ID;
     quint16 m_estimationInterval; // stores the number of counts that will be used to evaluate mean and sko estimations
+    bool m_snrControlFlag;
 };
 
 // inline, for speed, must therefore reside in header file

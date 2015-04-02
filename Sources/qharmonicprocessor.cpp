@@ -21,7 +21,8 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_rightTreshold(80),
     m_output(1.0),
     m_ID(0),
-    m_estimationInterval(MEAN_INTERVAL)
+    m_estimationInterval(MEAN_INTERVAL),
+    m_snrControlFlag(false)
 {
     // Memory allocation
     v_RawCh1 = new qreal[m_DataLength];
@@ -112,7 +113,11 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
             ch2_sko += (v_RawCh2[pos] - m_MeanCh2)*(v_RawCh2[pos] - m_MeanCh2);
         }
         ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
+        if(ch1_sko < 0.01)
+            ch1_sko = 1.0;
         ch2_sko = sqrt(ch2_sko / (m_estimationInterval - 1));
+        if(ch2_sko < 0.01)
+            ch2_sko = 1.0;
         v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1) / ch1_sko  - (v_RawCh2[curpos] - m_MeanCh2) / ch2_sko;
 
     } else if(m_channel == Experimental) {
@@ -156,6 +161,8 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
             ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
         }
         ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
+        if(ch1_sko < 0.01)
+            ch1_sko = 1.0;
         v_Input[loopInput(curpos)] = (v_RawCh1[curpos] - m_MeanCh1)/ ch1_sko;
     }
 
@@ -184,17 +191,23 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     emit BinaryOutputUpdated(v_BinaryOutput, m_DataLength);
     //----------------------------------------------------------------------------
 
-    if(m_SNR > SNR_TRESHOLD)
+    if(m_snrControlFlag)
     {
-        emit vpgUpdated(m_ID, v_Signal[curpos]);
-        emit svpgUpdated(m_ID, v_SmoothedSignal[loopInput(curpos)]);
-        emit bvpgUpdated(m_ID, m_output);
+        if(m_SNR > SNR_TRESHOLD)
+        {
+            emit vpgUpdated(m_ID, v_Signal[curpos]);
+            emit svpgUpdated(m_ID, v_SmoothedSignal[loopInput(curpos)]);
+        }
+        else
+        {
+            emit vpgUpdated(m_ID, 0.0);
+            emit svpgUpdated(m_ID, 0.0);
+        }
     }
     else
     {
-        emit vpgUpdated(m_ID, 0.0);
-        emit svpgUpdated(m_ID, 0.0);
-        emit bvpgUpdated(m_ID, 0.0);
+        emit vpgUpdated(m_ID, v_Signal[curpos]);
+        emit svpgUpdated(m_ID, v_SmoothedSignal[loopInput(curpos)]);
     }
 
     //----------------------------------------------------------------------------
@@ -295,9 +308,14 @@ void QHarmonicProcessor::ComputeFrequency()
             noise_power += v_Amplitude[i];
         }
     }
-    m_SNR = 10 * log10( signal_power / noise_power ); // this string may cause problem in msvc11, future issue to handle exeption
-    qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / signal_power );
-    m_SNR *= (1 / (1 + bias*bias)) ;
+    if(signal_power < 0.01)
+        m_SNR = -13.0;
+    else
+    {
+        m_SNR = 10 * log10( signal_power / noise_power ); // this string may cause problem in msvc11, future issue to handle exeption
+        qreal bias = (qreal)index_of_maxpower - ( power_multiplyed_by_index / signal_power );
+        m_SNR *= (1 / (1 + bias*bias));
+    }
     emit snrUpdated(m_ID, m_SNR); // signal for mapper
 
     if(m_SNR > SNR_TRESHOLD)
@@ -489,5 +507,12 @@ unsigned int QHarmonicProcessor::getBufferLength() const
 unsigned int QHarmonicProcessor::getEstimationInterval() const
 {
     return m_estimationInterval;
+}
+
+//------------------------------------------------------------------------------------------------
+
+void QHarmonicProcessor::setSnrControl(bool value)
+{
+    m_snrControlFlag = value;
 }
 

@@ -71,3 +71,8 @@ QHarmonicProcessorMap::MapType mappingdialog::getMapType() const
 {
     return (QHarmonicProcessorMap::MapType)ui->CBType->currentIndex();
 }
+
+bool mappingdialog::getSNRControl() const
+{
+    return ui->cbSNRControl->isChecked();
+}

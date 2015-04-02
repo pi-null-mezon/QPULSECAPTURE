@@ -67,15 +67,21 @@
              </sizepolicy>
             </property>
             <property name="minimum">
-             <number>125</number>
+             <number>50</number>
             </property>
             <property name="maximum">
              <number>5000</number>
             </property>
             <property name="singleStep">
-             <number>125</number>
+             <number>50</number>
             </property>
             <property name="pageStep">
+             <number>500</number>
+            </property>
+            <property name="value">
+             <number>500</number>
+            </property>
+            <property name="sliderPosition">
              <number>500</number>
             </property>
             <property name="orientation">
@@ -152,6 +158,9 @@
             </property>
             <property name="singleStep">
              <number>2</number>
+            </property>
+            <property name="sliderPosition">
+             <number>10</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
