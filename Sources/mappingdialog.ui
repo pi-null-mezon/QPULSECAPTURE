@@ -380,6 +380,11 @@
           <string>SNR imaging</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>Amplitude of pulse</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="7" column="0" colspan="3">

@@ -54,6 +54,11 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
         }
     }
 
+    for(quint16 i = 0; i < DIGITAL_FILTER_LENGTH; i++)
+    {
+        v_Input[i] = 0.0;
+    }
+
     // Memory allocation block for ALGLIB arrays
     PCA_RAW_RGB.setlength(m_BufferLength, 3); // 3 because RED, GREEN and BLUE colors represent 3 independent variables
     PCA_Variance.setlength(3);
@@ -307,7 +312,7 @@ void QHarmonicProcessor::ComputeFrequency()
         {
             noise_power += v_Amplitude[i];
         }
-    }
+    }    
     if(signal_power < 0.01)
         m_SNR = -13.0;
     else
@@ -328,6 +333,17 @@ void QHarmonicProcessor::ComputeFrequency()
     }
     else
        emit TooNoisy(m_SNR);
+
+    if(m_snrControlFlag)
+    {
+        if(m_SNR > SNR_TRESHOLD)
+           emit amplitudeUpdated(m_ID, 10*signal_power);
+        else
+            emit amplitudeUpdated(m_ID, 0.0);
+    }
+    else
+        emit amplitudeUpdated(m_ID, 10*signal_power);
+
 }
 
 //----------------------------------------------------------------------------------------------------
