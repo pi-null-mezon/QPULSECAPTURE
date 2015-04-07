@@ -178,6 +178,11 @@ void MainWindow::createActions()
     pt_imageAct->setCheckable(true);
     pt_imageAct->setChecked(true);
     connect(pt_imageAct, SIGNAL(triggered(bool)), pt_display, SLOT(setImageFlag(bool)));
+
+    pt_calibAct = new QAction(tr("&Calibrate"), this);
+    pt_calibAct->setStatusTip(tr("Calibrate colors on selected region"));
+    pt_calibAct->setCheckable(true);
+    pt_calibAct->setChecked(false);
 }
 
 //------------------------------------------------------------------------------------
@@ -201,6 +206,7 @@ void MainWindow::createMenus()
     pt_modeMenu->addAction(pt_pcaAct);
     pt_modeMenu->addSeparator();
     pt_modeMenu->addAction(pt_skinAct);
+    pt_modeMenu->addAction(pt_calibAct);
     pt_optionsMenu->setEnabled(false);
 
     pt_appearenceMenu = menuBar()->addMenu(tr("&Appearence"));
@@ -231,6 +237,7 @@ void MainWindow::createThreads()
     pt_opencvProcessor->moveToThread( pt_improcThread );
     connect(pt_improcThread, SIGNAL(finished()), pt_opencvProcessor, SLOT(deleteLater()));
     connect(pt_skinAct, SIGNAL(triggered(bool)), pt_opencvProcessor, SLOT(setSkinSearchingFlag(bool)));
+    connect(pt_calibAct, SIGNAL(triggered(bool)), pt_opencvProcessor, SLOT(calibrate(bool)));
     //---------------------------------------------------------------
 
     pt_harmonicProcessor = NULL;

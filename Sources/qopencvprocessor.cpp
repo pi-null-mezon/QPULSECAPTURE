@@ -18,9 +18,10 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_cvRect.height = 0;
     m_framePeriod = 0.0;
     m_fullFaceFlag = true;
-    m_skinFlag = true;
-
+    m_skinFlag = true;   
     v_pixelSet = NULL;
+    m_seekCalibColors = false;
+    m_calibFlag = false;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -294,6 +295,31 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
         unsigned char *p; // a pointer to store the adresses of image rows
         if(output.channels() == 3)
         {
+            if(m_seekCalibColors)
+            {
+                unsigned char tempRed;
+                unsigned char tempGreen;
+                unsigned char tempBlue;
+                for(unsigned int j = Y; j < Y + rectheight; j++)
+                {
+                    p = output.ptr(j); //takes pointer to beginning of data on rows
+                    for(unsigned int i = X; i < X + rectwidth; i++)
+                    {
+                        tempBlue = p[3*i];
+                        tempGreen = p[3*i+1];
+                        tempRed = p[3*i+2];
+                        if( isCalibColor(tempGreen) && isSkinColor(tempRed, tempGreen, tempBlue) ) {
+                            area++;
+                            blue += tempBlue;
+                            green += tempGreen;
+                            red += tempRed;
+                            p[3*i] %= LEVEL_SHIFT;
+                            //p[3*i+1] %= LEVEL_SHIFT;
+                            p[3*i+2] %= LEVEL_SHIFT;
+                        }
+                    }
+                }
+            } else {
             if(m_skinFlag)
             {
                 unsigned char tempRed;
@@ -336,6 +362,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                 }
                 area = rectwidth*rectheight;
             }
+            }
         }
         else
         {
@@ -357,7 +384,28 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     if( area > 0 )
     {
         cv::rectangle( output , m_cvRect, cv::Scalar(255,25,25));
-        emit dataCollected(red, green, blue, area, m_framePeriod);
+        emit dataCollected(red, green, blue, area, m_framePeriod);      
+        if(m_calibFlag)
+        {
+            v_calibValues[m_calibSamples] = (qreal)green/area;
+            m_calibMean += v_calibValues[m_calibSamples];
+            m_calibSamples++;
+            if(m_calibSamples == CALIBRATION_VECTOR_LENGTH)
+            {
+                m_calibMean /= CALIBRATION_VECTOR_LENGTH;
+                m_calibError = 0.0;
+                for(quint16 i = 0; i < CALIBRATION_VECTOR_LENGTH; i++)
+                {
+                    m_calibError += (v_calibValues[i] - m_calibMean)*(v_calibValues[i] - m_calibMean);
+                }
+                m_calibError = 10 * sqrt( m_calibError /(CALIBRATION_VECTOR_LENGTH - 1) );
+                qWarning("mean: %f; error: %f; samples: %d", m_calibMean,m_calibError, m_calibSamples);
+                m_calibSamples = 0;
+                m_calibFlag = false;
+                m_seekCalibColors = true;
+                emit calibrationDone(m_calibMean, m_calibError/10, m_calibSamples);
+            }
+        }
     }
     else
     {
@@ -466,3 +514,14 @@ void QOpencvProcessor::setSkinSearchingFlag(bool value)
     m_skinFlag = value;
 }
 
+void QOpencvProcessor::calibrate(bool value)
+{
+    if(!value) {
+        m_seekCalibColors = false;
+        return;
+    } else {
+        m_calibFlag = true;
+        m_calibSamples = 0;
+        m_calibMean = 0.0;
+    }
+}

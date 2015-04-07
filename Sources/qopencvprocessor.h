@@ -11,6 +11,8 @@ The simplest way to use it - rewrite appropriate section in QOpencvProcessor::cu
 #include <QObject>
 #include <opencv2/opencv.hpp>
 
+#define CALIBRATION_VECTOR_LENGTH 25
+
 //------------------------------------------------------------------------------------------------------
 
 class QOpencvProcessor : public QObject
@@ -25,6 +27,7 @@ signals:
     void selectRegion(const char * string);     // emit it if no objects has been detected or no regions are selected
     void mapCellProcessed(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
     void mapRegionUpdated(const cv::Rect& rect);
+    void calibrationDone(qreal mean, qreal stdev, quint16 samples);
 
 public slots:
     void customProcess(const cv::Mat &input);   // just a template of how a program logic should work
@@ -35,6 +38,7 @@ public slots:
     bool loadClassifier(const std::string& filename); // an interface to CascadeClassifier::load(...) function
     void setFullFaceFlag(bool value);           // interface to define if algorithm will process full rectangle region returned by detectmultiscale(...) or parts them
     void mapProcess(const cv::Mat &input);
+    void calibrate(bool value);
 
     cv::Rect getRect(); // returns current m_cvRect
     void setMapRegion(const cv::Rect &input_rect); // sets up map region, see m_mapRect
@@ -54,7 +58,15 @@ private:
     cv::Rect m_mapRect;
     unsigned char **v_pixelSet; // memory should be allocated in setMapCellSize() call
 
+    bool m_calibFlag;
+    bool m_seekCalibColors;
+    quint16 m_calibSamples;
+    qreal m_calibMean;
+    qreal m_calibError;
+    quint8 v_calibValues[CALIBRATION_VECTOR_LENGTH];
+
     bool isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue);
+    bool isCalibColor(unsigned char value);
 };
 
 inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue)
@@ -82,6 +94,14 @@ inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char 
         (valueRed > valueGreen) && (valueBlue > 45)     &&
         ((valueRed - qMin(valueGreen,valueBlue)) > 35)  &&
         ((valueRed - valueGreen) > 25 ) ) {
+        return true;
+    } else return false;
+}
+
+inline bool QOpencvProcessor::isCalibColor(unsigned char value)
+{
+    if( ((qreal)value < (m_calibMean + m_calibError)) && ((qreal)value > (m_calibMean - m_calibError)))
+    {
         return true;
     } else return false;
 }
