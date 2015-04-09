@@ -9,12 +9,12 @@
 //------------------------------------------------------------------------------------
 const char * MainWindow::QPlotDialogName[]=
 {
-    "Signal vs frame",
-    "Amplitude spectrum",
-    "Frame time vs frame",
-    "PCA 1-st projection",
-    "Filter output vs frame",
-    "Signal phase diagram"
+    QT_TR_NOOP("Signal vs frame"),
+    QT_TR_NOOP("Amplitude spectrum"),
+    QT_TR_NOOP("Frame time vs frame"),
+    QT_TR_NOOP("PCA 1-st projection"),
+    QT_TR_NOOP("Filter output vs frame"),
+    QT_TR_NOOP("Signal phase diagram")
 };
 //------------------------------------------------------------------------------------
 
@@ -598,8 +598,8 @@ void MainWindow::createPlotDialog()
         QHBoxLayout buttonsLayout;
         centralLayout.addWidget(&groupBox);
         centralLayout.addLayout(&buttonsLayout);
-        QPushButton acceptButton("Accept");
-        QPushButton rejectButton("Cancel");
+        QPushButton acceptButton(tr("Accept"));
+        QPushButton rejectButton(tr("Cancel"));
         buttonsLayout.addWidget(&acceptButton);
         buttonsLayout.addWidget(&rejectButton);
         connect(&acceptButton, &QPushButton::clicked, &dialog, &QDialog::accept);
@@ -611,17 +611,17 @@ void MainWindow::createPlotDialog()
         groupBoxLayout.addWidget(&dialogTypeComboBox);
         for(quint8 i = 0; i < sizeof(QPlotDialogName)/sizeof(char*); i++)
         {
-            dialogTypeComboBox.addItem( QPlotDialogName[i] );
+            dialogTypeComboBox.addItem( tr(QPlotDialogName[i]) );
         }
         dialogTypeComboBox.setCurrentIndex(0);
 
-        dialog.setWindowTitle("Plot select dialog");
-        dialog.setMinimumSize(256,128);
+        dialog.setWindowTitle(tr("Plot select dialog"));
+        dialog.setFixedSize(256,128);
 
         if(dialog.exec() == QDialog::Accepted)
         {
             pt_dialogSet[ m_dialogSetCounter ] = new QDialog(NULL, Qt::Window);
-            pt_dialogSet[ m_dialogSetCounter ]->setWindowTitle(dialogTypeComboBox.currentText() + " plot");
+            pt_dialogSet[ m_dialogSetCounter ]->setWindowTitle(dialogTypeComboBox.currentText());
             pt_dialogSet[ m_dialogSetCounter ]->setAttribute(Qt::WA_DeleteOnClose, true);
             connect(pt_dialogSet[ m_dialogSetCounter ], SIGNAL(destroyed()), this, SLOT(decrease_dialogSetCounter()));
             pt_dialogSet[ m_dialogSetCounter ]->setMinimumSize(480, 320);
@@ -634,40 +634,40 @@ void MainWindow::createPlotDialog()
                 {
                     case 0: // Signal trace
                         connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
-                        pt_plot->set_axis_names("Frame","Centered & normalized signal");
+                        pt_plot->set_axis_names(tr("Frame"),tr("Centered & normalized signal"));
                         pt_plot->set_vertical_Borders(-4.0,4.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                         break;
                     case 1: // Spectrum trace
                         connect(pt_harmonicProcessor, SIGNAL(SpectrumUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
-                        pt_plot->set_axis_names("Freq.count","DFT amplitude spectrum");
+                        pt_plot->set_axis_names(tr("Freq.count"),tr("DFT amplitude spectrum"));
                         pt_plot->set_vertical_Borders(0.0,1.0);
                         pt_plot->set_coordinatesPrecision(0,1);
                         pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
                         break;
                     case 2: // Time trace
                         connect(pt_harmonicProcessor, SIGNAL(TimeUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
-                        pt_plot->set_axis_names("Frame","processing period per frame, ms");
+                        pt_plot->set_axis_names(tr("Frame"),tr("processing period per frame, ms"));
                         pt_plot->set_vertical_Borders(0.0,100.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                         pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
                         break;
                     case 3: // PCA 1st projection trace
                         connect(pt_harmonicProcessor, SIGNAL(PCAProjectionUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
-                        pt_plot->set_axis_names("Frame","Normalised & centered projection on 1-st PCA direction");
+                        pt_plot->set_axis_names(tr("Frame"),tr("Normalised & centered projection on 1-st PCA direction"));
                         pt_plot->set_vertical_Borders(-5.0,5.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                     break;
                     case 4: // Digital filter output
                         connect(pt_harmonicProcessor, SIGNAL(BinaryOutputUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
-                        pt_plot->set_axis_names("Frame","Digital derivative after smoothing");
+                        pt_plot->set_axis_names(tr("Frame"),tr("Digital derivative after smoothing"));
                         pt_plot->set_vertical_Borders(-2.0,2.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                     break;
                     case 5: // signal phase shift
                         connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_DrawRegime(QEasyPlot::PhaseRegime);
-                        pt_plot->set_axis_names("Signal count","Signal count");
+                        pt_plot->set_axis_names(tr("Signal count"),tr("Signal count"));
                         pt_plot->set_vertical_Borders(-5.0,5.0);
                         pt_plot->set_horizontal_Borders(-5.0, 5.0);
                         pt_plot->set_X_Ticks(11);

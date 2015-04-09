@@ -63,7 +63,7 @@ QImageWidget::~QImageWidget()
 
 void QImageWidget::updateImage(const cv::Mat& image, qreal frame_period, quint32 pixels_enrolled)
 {
-    m_informationString = QString::number(frame_period, 'f', 1) + " ms, "
+    m_informationString = QString::number(frame_period, 'f', 1) + tr(" ms, ")
                           + QString::number(image.cols) + "x" + QString::number(image.rows) + " / "
                           + QString::number(pixels_enrolled);
 
@@ -175,11 +175,11 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
 
                 if(m_frequencyString.isEmpty())
                 {
-                    painter.drawText(startX, startY, "Unreliable");
+                    painter.drawText(startX, startY, tr("Unreliable"));
                 }
                 else
                 {
-                    painter.drawText(startX + m_frequencyString.size() * pointsize * 2.25, startY, "bpm");                   
+                    painter.drawText(startX + m_frequencyString.size() * pointsize * 2.25, startY, tr("bpm"));
                 }
                 painter.drawText(startX, startY + pointsize*1.5, m_snrString);
             }
@@ -230,11 +230,11 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                 font.setPointSizeF( pointsize );
                 if(m_frequencyString.isEmpty())
                 {
-                    path.addText(startX, startY, font ,"Unreliable");
+                    path.addText(startX, startY, font , tr("Unreliable"));
                 }
                 else
                 {
-                    path.addText(startX + m_frequencyString.size() * pointsize * 2.25, startY, font ,"bpm");
+                    path.addText(startX + m_frequencyString.size() * pointsize * 2.25, startY, font , tr("bpm"));
                 }
                 path.addText(startX, startY + pointsize*1.5, font, m_snrString);
             }
@@ -267,7 +267,7 @@ void QImageWidget::updateValues(qreal value1, qreal value2, bool flag) // value1
         m_frequencyColor = QColor(Qt::red);
     }
     m_frequencyString = QString::number(value1, 'f', 0);
-    m_snrString = "SNR: " +QString::number(value2,'f',2) + " dB";
+    m_snrString = "SNR: " +QString::number(value2,'f',2) + tr(" dB");
 }
 
 //-----------------------------------------------------------------------------------
@@ -336,7 +336,7 @@ void QImageWidget::switchColorScheme()
 void QImageWidget::set_warning_status(const char * input_string)
 {
     m_frequencyString.clear();
-    m_warningString = QString( input_string );
+    m_warningString = tr( input_string );
 }
 
 //----------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ void QImageWidget::set_drawDataFlag(bool value)
 void QImageWidget::clearFrequencyString(qreal value)
 {
     m_frequencyString.clear();
-    m_snrString = "SNR: " + QString::number(value,'f',2) + " dB";
+    m_snrString = "SNR: " + QString::number(value,'f',2) + tr(" dB");
 }
 
 //----------------------------------------------------------------------------------

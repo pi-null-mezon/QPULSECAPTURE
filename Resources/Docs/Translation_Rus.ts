@@ -4,6 +4,36 @@
 <context>
     <name>MainWindow</name>
     <message>
+        <location filename="../../Sources/mainwindow.cpp" line="12"/>
+        <source>Signal vs frame</source>
+        <translation>Светоотражение/кадр</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="13"/>
+        <source>Amplitude spectrum</source>
+        <translation>Амплитудно-частотный спектр</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="14"/>
+        <source>Frame time vs frame</source>
+        <translation>Время обработки/кадр</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="15"/>
+        <source>PCA 1-st projection</source>
+        <translation>Проекция на направление первой ГК/ кадр</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="16"/>
+        <source>Filter output vs frame</source>
+        <translation>Детектор пересечения нуля/кадр</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="17"/>
+        <source>Signal phase diagram</source>
+        <translation type="unfinished">Циклограмма отсчётов сигнала светоотражения</translation>
+    </message>
+    <message>
         <location filename="../../Sources/mainwindow.cpp" line="40"/>
         <source>&lt;i&gt;Start new measurement session&lt;/i&gt;</source>
         <translation>Начните работу с запуска новой сессии измерений</translation>
@@ -242,7 +272,7 @@
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="173"/>
         <source>Allows to adjust time between frequency evaluations &amp; data normalization interval</source>
-        <translation>Настройка периода выполнения измерений частоты аретриального пульса</translation>
+        <translation>Позволяет задать временные интервалы измерений</translation>
     </message>
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="176"/>
@@ -339,7 +369,7 @@
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="508"/>
         <source>Can not find population distribution file</source>
-        <translation>Не удаётся найти файл с популяционным распределением</translation>
+        <translation>Не удаётся найти файл с популяционной нормой частот</translation>
     </message>
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="520"/>
@@ -370,6 +400,64 @@
         <location filename="../../Sources/mainwindow.cpp" line="597"/>
         <source>Select appropriate plot type:</source>
         <translation>Выберите желаемый вид графика:</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="601"/>
+        <source>Accept</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="602"/>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="618"/>
+        <source>Plot select dialog</source>
+        <translation>Тип окна</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="637"/>
+        <location filename="../../Sources/mainwindow.cpp" line="650"/>
+        <location filename="../../Sources/mainwindow.cpp" line="657"/>
+        <location filename="../../Sources/mainwindow.cpp" line="663"/>
+        <source>Frame</source>
+        <translation>Кадр</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="637"/>
+        <source>Centered &amp; normalized signal</source>
+        <translation>Центрированный и нормализованный сигнал светоотражения</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="643"/>
+        <source>Freq.count</source>
+        <translation>Частотный отсчёт</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="643"/>
+        <source>DFT amplitude spectrum</source>
+        <translation>Амплитудно-частотный спектр ДПФ сигнала светоотражения</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="650"/>
+        <source>processing period per frame, ms</source>
+        <translation>Время обработки кадра, мс</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="657"/>
+        <source>Normalised &amp; centered projection on 1-st PCA direction</source>
+        <translation>Проекция на первое направление ГК</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="663"/>
+        <source>Digital derivative after smoothing</source>
+        <translation>Отклик детектора</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="670"/>
+        <source>Signal count</source>
+        <translation>Отсчёт центрированного и нормированного сигнала светоотражения</translation>
     </message>
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="678"/>
@@ -429,7 +517,7 @@
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="789"/>
         <source>Another map?</source>
-        <translation>Начать новое картирование</translation>
+        <translation>Новая карта?</translation>
     </message>
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="861"/>
@@ -439,7 +527,48 @@
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="861"/>
         <source>Start new session before!</source>
-        <translation>Сначала начните новую сессию измерений</translation>
+        <translation>Начните новую сессию измерений!</translation>
+    </message>
+</context>
+<context>
+    <name>QImageWidget</name>
+    <message>
+        <location filename="../../Sources/qimagewidget.cpp" line="66"/>
+        <source> ms, </source>
+        <translation> мс, </translation>
+    </message>
+    <message>
+        <location filename="../../Sources/qimagewidget.cpp" line="178"/>
+        <location filename="../../Sources/qimagewidget.cpp" line="233"/>
+        <source>Unreliable</source>
+        <translation>Действует помеха</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/qimagewidget.cpp" line="182"/>
+        <location filename="../../Sources/qimagewidget.cpp" line="237"/>
+        <source>bpm</source>
+        <translation>ударов в минуту</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/qimagewidget.cpp" line="270"/>
+        <location filename="../../Sources/qimagewidget.cpp" line="361"/>
+        <source> dB</source>
+        <translation> дБл</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="262"/>
+        <source>Load cascade for detection</source>
+        <translation>Загрузите шаблон для распознавания</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="266"/>
+        <source>Come closer or change light</source>
+        <translation>Приблизьтесь или поменяйте свет</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="412"/>
+        <source>Select region on image</source>
+        <translation>Выберите область изображения</translation>
     </message>
 </context>
 <context>
@@ -687,12 +816,12 @@
     <message>
         <location filename="../../Sources/qvideocapture.cpp" line="124"/>
         <source>Camcorder resolution</source>
-        <translation>Разрешение видеоизображения</translation>
+        <translation>Разрешение видео</translation>
     </message>
     <message>
         <location filename="../../Sources/qvideocapture.cpp" line="195"/>
         <source>Camcorder settings</source>
-        <translation type="unfinished">Настройки видеоизображения</translation>
+        <translation>Настройки видео</translation>
     </message>
     <message>
         <location filename="../../Sources/qvideocapture.cpp" line="347"/>

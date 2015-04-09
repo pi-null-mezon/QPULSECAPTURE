@@ -259,11 +259,11 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     {
         if(m_classifier.empty())
         {
-            emit selectRegion("Load cascade for detection");
+            emit selectRegion( QT_TRANSLATE_NOOP("QImageWidget", "Load cascade for detection") );
         }
         else
         {
-            emit selectRegion("Come closer or change light");
+            emit selectRegion( QT_TRANSLATE_NOOP("QImageWidget", "Come closer or change light") );
         }
     }
     emit frameProcessed(output, m_framePeriod, area);
@@ -409,7 +409,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     }
     else
     {
-        emit selectRegion("Select region on image");
+        emit selectRegion( QT_TRANSLATE_NOOP("QImageWidget", "Select region on image" ) );
     }
     emit frameProcessed(output, m_framePeriod, area);
 }
