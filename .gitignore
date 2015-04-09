@@ -40,6 +40,8 @@
 *.db
 *.pdf
 *.psd
+*.qm
 
 # Images for manual
 /Resources/Docs/WorkFlow
+

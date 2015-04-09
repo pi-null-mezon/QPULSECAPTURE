@@ -49,6 +49,9 @@ FORMS += qsettingsdialog.ui \
          mappingdialog.ui \
          qprocessingdialog.ui
 
+TRANSLATIONS += $$PWD/../Resources/Docs/Translation_Rus.ts
+
+
 RC_ICONS = $$PWD/../Resources/Docs/App.ico
 #CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT
 
