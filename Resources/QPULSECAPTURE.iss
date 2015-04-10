@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QPULSECAPTURE"
-#define MyAppVersion "2.0.0.0"
+#define MyAppVersion "2.1.0.1"
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
@@ -13,7 +13,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{7DECD364-50FE-4B9E-B117-EABE17AA71D3}
+AppId={{E6897233-C878-4593-B926-005DDE8778D6}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -32,7 +32,8 @@ Compression=lzma
 SolidCompression=yes
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "English"; MessagesFile: "compiler:Default.isl"
+Name: "Russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -68,16 +69,15 @@ Source: "{#OpencvLibs}\opencv_highgui248.dll"; DestDir: "{app}"; Flags: ignoreve
 Source: "{#OpencvLibs}\opencv_imgproc248.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\opencv_objdetect248.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\..\..\..\..\sources\data\haarcascades\haarcascade_frontalface_alt.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
-;Source: "{#OpencvLibs}\..\..\..\..\sources\data\haarcascades\haarcascade_frontalface_alt_tree.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
-;Source: "{#OpencvLibs}\..\..\..\..\sources\data\haarcascades\haarcascade_frontalface_alt2.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
 Source: "{#OpencvLibs}\..\..\..\..\sources\data\haarcascades\haarcascade_frontalface_default.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
 Source: "{#OpencvLibs}\..\..\..\..\sources\data\lbpcascades\lbpcascade_frontalface.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
-Source: "C:\programing\qpulsecapture\resources\docs\Manual (RUS, v1.0.0.6).pdf"; DestDir: "{app}\Docs"; Flags: ignoreversion
+;Source: "C:\programing\qpulsecapture\resources\docs\Manual (RUS, v1.0.0.6).pdf"; DestDir: "{app}\Docs"; Flags: ignoreversion
+Source: "C:\Programing\QPULSECAPTURE\Resources\Docs\Translation_Rus.qm"; DestDir: "{app}"; Flags: ignoreversion; Languages: "Russian"
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\Manual"; Filename: "{app}\Docs\Manual (RUS, v1.0.0.6).pdf"
+;Name: "{group}\Manual"; Filename: "{app}\Docs\Manual (RUS, v1.0.0.6).pdf"
 Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
