@@ -111,6 +111,9 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
 
     if(faces_vector.size() != 0) // if classifier find something, then do...
     {
+        cv::Mat blurRegion(output, faces_vector[0]);
+        cv::blur(blurRegion, blurRegion, cv::Size(5,5));
+
         X = faces_vector[0].x; // take actual coordinate
         Y = faces_vector[0].y; // take actual coordinate
         rectwidth = faces_vector[0].width; // take actual size

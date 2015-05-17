@@ -173,7 +173,8 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
     v_Time[curpos] = time;
     emit TimeUpdated(v_Time, m_DataLength);
-    v_Signal[curpos] = ( v_Input[loopInput(curpos)] + v_Signal[loop(curpos - 1)] ) / 2.0;
+    //v_Signal[curpos] = ( v_Input[loopInput(curpos)] + v_Signal[loop(curpos - 1)] ) / 2.0;
+    v_Signal[curpos] = ( v_Input[loopInput(curpos)] + v_Input[loopInput(curpos - 1)] + v_Signal[loop(curpos - 1)] + v_Signal[loop(curpos - 2)] ) / 4.0;
     emit SignalUpdated(v_Signal, m_DataLength);
 
     //----------------------------------------------------------------------------

@@ -28,7 +28,7 @@
 *.app
 
 # Paths
-*.pro.user
+*.pro.user*
 /Install
 /Resources/WVCF_utility
 /Resources/FFTW
