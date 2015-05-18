@@ -26,7 +26,7 @@ QHarmonicProcessorMap::QHarmonicProcessorMap(QObject *parent, quint32 width, qui
     {
         v_processors[i].setID(i); // needs for control in whitch cell of the map write particular snr value
         v_processors[i].moveToThread(&v_threads[ i % m_threadCount ]);
-        connect(this, SIGNAL(updateMap()), &v_processors[i], SLOT(ComputeFrequency()));
+        connect(this, SIGNAL(updateMap()), &v_processors[i], SLOT(computeHeartRate()));
         connect(this, SIGNAL(setEstimationInterval(int)), &v_processors[i], SLOT(setEstiamtionInterval(int)));
         connect(this, SIGNAL(changeColorChannel(int)), &v_processors[i], SLOT(switchColorMode(int)));
         connect(this, SIGNAL(updatePCAMode(bool)), &v_processors[i], SLOT(setPCAMode(bool)));

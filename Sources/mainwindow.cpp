@@ -10,12 +10,13 @@
 const char * MainWindow::QPlotDialogName[]=
 {
     QT_TR_NOOP("Heart signal vs frame"),
-    QT_TR_NOOP("Amplitude spectrum"),
+    QT_TR_NOOP("Heart amplitude spectrum"),
     QT_TR_NOOP("Frame time vs frame"),
     QT_TR_NOOP("PCA 1-st projection"),
     QT_TR_NOOP("Filter output vs frame"),
-    QT_TR_NOOP("Signal phase diagram"),
-    QT_TR_NOOP("Breath signal vs frame")
+    QT_TR_NOOP("Heart signal phase diagram"),
+    QT_TR_NOOP("Breath signal vs frame"),
+    QT_TR_NOOP("Breath amplitude spectrum")
 };
 //------------------------------------------------------------------------------------
 
@@ -541,16 +542,20 @@ void MainWindow::configure_and_start_session()
         //--------------------------------------------------------------      
         if(m_settingsDialog.get_FFTflag())
         {
-            connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(ComputeFrequency()));
+            connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(computeHeartRate()));
         }
         else
         {
             connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(CountFrequency()));
         }
+        connect(&m_timer, SIGNAL(timeout()), pt_harmonicProcessor, SLOT(computeBreathRate()));
+
         connect(pt_opencvProcessor, SIGNAL(dataCollected(ulong,ulong,ulong,ulong,double)), pt_harmonicProcessor, SLOT(EnrollData(ulong,ulong,ulong,ulong,double)));
-        connect(pt_harmonicProcessor, SIGNAL(TooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
-        connect(pt_harmonicProcessor, SIGNAL(HeartRateUpdated(qreal,qreal,bool)), pt_display, SLOT(updateValues(qreal,qreal,bool)));
-        connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));      
+        connect(pt_harmonicProcessor, SIGNAL(heartTooNoisy(qreal)), pt_display, SLOT(clearFrequencyString(qreal)));
+        connect(pt_harmonicProcessor, SIGNAL(heartRateUpdated(qreal,qreal,bool)), pt_display, SLOT(updateValues(qreal,qreal,bool)));
+        connect(pt_harmonicProcessor, SIGNAL(breathRateUpdated(qreal,qreal)), pt_display, SLOT(updateBreathStrings(qreal,qreal)));
+        connect(pt_harmonicProcessor, SIGNAL(breathTooNoisy(qreal)), pt_display, SLOT(clearBreathRateString(qreal)));
+        connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));
         connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPCAMode(bool)));
         connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
         pt_harmonicThread->start();
@@ -634,13 +639,13 @@ void MainWindow::createPlotDialog()
                 switch(dialogTypeComboBox.currentIndex())
                 {
                     case 0: // Signal trace
-                        connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(heartSignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names(tr("Frame"),tr("Centered & normalized signal"));
                         pt_plot->set_vertical_Borders(-4.0,4.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                         break;
                     case 1: // Spectrum trace
-                        connect(pt_harmonicProcessor, SIGNAL(SpectrumUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(heartSpectrumUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_axis_names(tr("Freq.count"),tr("DFT amplitude spectrum"));
                         pt_plot->set_vertical_Borders(0.0,1.0);
                         pt_plot->set_coordinatesPrecision(0,1);
@@ -669,7 +674,7 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(255,255,0));
                     break;
                     case 5: // signal phase shift
-                        connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        connect(pt_harmonicProcessor, SIGNAL(heartSignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
                         pt_plot->set_DrawRegime(QEasyPlot::PhaseRegime);
                         pt_plot->set_axis_names(tr("Signal count"),tr("Signal count"));
                         pt_plot->set_vertical_Borders(-5.0,5.0);
@@ -683,7 +688,15 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_vertical_Borders(-5.0,5.0);
                         pt_plot->set_X_Ticks(11);
                         pt_plot->set_coordinatesPrecision(0,2);
-                        pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(0,0,255));
+                        pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(0,255,255));
+                    break;
+                    case 7: // Spectrum trace
+                        connect(pt_harmonicProcessor, SIGNAL(breathSpectrumUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        pt_plot->set_axis_names(tr("Freq.count"),tr("DFT amplitude spectrum"));
+                        pt_plot->set_vertical_Borders(0.0,1.0);
+                        pt_plot->set_coordinatesPrecision(0,1);
+                        pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
+                        pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(255,0,0));
                     break;
                 }
             pt_dialogSet[ m_dialogSetCounter ]->setContextMenuPolicy(Qt::ActionsContextMenu);

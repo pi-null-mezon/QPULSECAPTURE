@@ -182,6 +182,17 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                     painter.drawText(startX + m_frequencyString.size() * pointsize * 2.25, startY, tr("bpm"));
                 }
                 painter.drawText(startX, startY + pointsize*1.5, m_snrString);
+
+                startY +=  pointsize * 4.0 ;
+                if(m_breathRateString.isEmpty())
+                {
+                    painter.drawText(startX, startY , tr("Unreliable"));
+                }
+                else
+                {
+                    painter.drawText(startX, startY, m_breathRateString + tr(" rpm"));
+                }
+                painter.drawText(startX, startY + pointsize*1.5, m_breathSNRString);
             }
         }
     }
@@ -206,7 +217,7 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
 
             if(!m_warningString.isEmpty())
             {
-                font.setPointSizeF( pointsize * 2);
+                font.setPointSizeF( pointsize * 1.5);
                 qreal pX = input_rect.x() + ((qreal)input_rect.width() - m_warningString.size()*pointsize) / 2.0;
                 qreal pY = input_rect.y() + font.pointSizeF() + (input_rect.height() - font.pointSizeF() ) / 2.0;
 
@@ -237,7 +248,18 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                     path.addText(startX + m_frequencyString.size() * pointsize * 2.25, startY, font , tr("bpm"));
                 }
                 path.addText(startX, startY + pointsize*1.5, font, m_snrString);
-            }
+
+                startY += pointsize * 4.0;
+                if(m_breathRateString.isEmpty())
+                {
+                    path.addText(startX, startY, font , tr("Unreliable"));
+                }
+                else
+                {
+                    path.addText(startX, startY, font , m_breathRateString + tr(" rpm"));
+                }
+                path.addText(startX, startY + pointsize*1.5, font, m_breathSNRString);
+            }                     
             painter.drawPath(path);
         }
     }
@@ -268,6 +290,14 @@ void QImageWidget::updateValues(qreal value1, qreal value2, bool flag) // value1
     }
     m_frequencyString = QString::number(value1, 'f', 0);
     m_snrString = "SNR: " +QString::number(value2,'f',2) + tr(" dB");
+}
+
+//-----------------------------------------------------------------------------------
+
+void QImageWidget::updateBreathStrings(qreal breath_rate, qreal snr_value)
+{
+    m_breathRateString = QString::number(breath_rate, 'f', 0);
+    m_breathSNRString = "SNR: " + QString::number(snr_value,'f',2) + tr(" dB");
 }
 
 //-----------------------------------------------------------------------------------
@@ -336,7 +366,7 @@ void QImageWidget::switchColorScheme()
 void QImageWidget::set_warning_status(const char * input_string)
 {
     m_frequencyString.clear();
-    m_warningString = tr( input_string );
+    m_warningString = tr(input_string);
 }
 
 //----------------------------------------------------------------------------------
@@ -359,6 +389,14 @@ void QImageWidget::clearFrequencyString(qreal value)
 {
     m_frequencyString.clear();
     m_snrString = "SNR: " + QString::number(value,'f',2) + tr(" dB");
+}
+
+//----------------------------------------------------------------------------------
+
+void QImageWidget::clearBreathRateString(qreal value)
+{
+    m_breathRateString.clear();
+    m_breathSNRString = "SNR: " + QString::number(value,'f',2) + tr(" dB");
 }
 
 //----------------------------------------------------------------------------------

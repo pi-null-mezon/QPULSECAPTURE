@@ -33,11 +33,13 @@ public slots:
     void updateImage(const cv::Mat &image, qreal frame_period, quint32 pixels_enrolled); // takes cv::Mat image and converts it to the appropriate Qt QImage format
     void updatePointer(const qreal *pointer, quint16 length);  // updates pointer to data;
     void updateValues(qreal value1, qreal value2, bool flag); // use to update strings
+    void updateBreathStrings(qreal breath_rate, qreal snr_value);
     void switchColorScheme(); // use to switch between black and white color of text on the image
     void set_warning_status(const char *input_string);
     void toggle_advancedvisualization(bool value); // interface to switch m_advancedvisualizationFlag
     void set_drawDataFlag(bool value); // read m_drawDataFlag comment
     void clearFrequencyString(qreal value);
+    void clearBreathRateString(qreal value);
     void updadeMapRegion(const cv::Rect& input_rect);
     void updateMap(const qreal *pointer, quint32 width, quint32 height, qreal max, qreal min);
     void selectWholeImage();
@@ -56,6 +58,8 @@ private:
     QString m_informationString;    // stores text information that will be drawn on the widget in paintEvent
     QString m_frequencyString;  // stores frequency
     QString m_snrString;    // stores SNR string value
+    QString m_breathRateString;  // stores frequency
+    QString m_breathSNRString;    // stores SNR string value
     quint16 x0;             // stores coordinate of mousePressEvenr
     quint16 y0;             // stores coordinate of mousePressEvent
     const qreal *pt_data;         // stores pointer to external data, wich is used to draw on this widget, point it to external data vector by menas of updatePointer(...) slot

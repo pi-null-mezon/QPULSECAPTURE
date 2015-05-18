@@ -13,6 +13,10 @@
 #define DIGITAL_FILTER_LENGTH 5 // in counts
 #define MEAN_INTERVAL 16 // should be greater than one, but less than m_DataLength, determines initial value of m_estimationinterval
 
+#define BREATH_TOP_LIMIT 0.8 // in s^-1, it is 36 bpm
+#define BREATH_BOTTOM_LIMIT 0.0 // in s^-1, it is 1 bpm
+#define BREATH_HALF_INTERVAL 1
+#define BREATH_SNR_TRESHOLD 4.0
 
 class QHarmonicProcessor : public QObject
 {
@@ -26,14 +30,14 @@ public:
     enum TwoSideAlpha { FiftyPercents, TwentyPercents, TenPercents, FivePercents, TwoPercents };
 
 signals:
-    void SignalUpdated(const qreal * pointer_to_vector, quint16 length_of_vector);
-    void SpectrumUpdated(const qreal * pointer_to_vector, quint16 length_of_vector);
+    void heartSignalUpdated(const qreal * pointer_to_vector, quint16 length_of_vector);
+    void heartSpectrumUpdated(const qreal * pointer_to_vector, quint16 length_of_vector);
     void TimeUpdated(const qreal * pointer_to_vector, quint16 length_of_vector);
-    void HeartRateUpdated(qreal freq_value, qreal snr_value, bool reliable_data_flag);
+    void heartRateUpdated(qreal freq_value, qreal snr_value, bool reliable_data_flag);
     void PCAProjectionUpdated(const qreal * ppointer_to_vector, quint16 length_of_vector);
     void BinaryOutputUpdated(const qreal *pointer_to_vector, quint16 length_of_vector);
     void CurrentValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
-    void TooNoisy(qreal snr_value);
+    void heartTooNoisy(qreal snr_value);
 
     void snrUpdated(quint32 id, qreal value);    // signal for mapping
     void vpgUpdated(quint32 id, qreal value);   // signal for mapping
@@ -42,10 +46,14 @@ signals:
     void amplitudeUpdated(quint32 id, qreal value); // signal for mapping
 
     void breathSignalUpdated(const qreal *pointer, quint16 length);
+    void breathSpectrumUpdated(const qreal *pointer, quint16 length);
+    void breathRateUpdated(qreal freq_value, qreal snr_value);
+    void breathTooNoisy(qreal snr_value);
+    void breathSnrUpdated(quint32 id, qreal snr_value);
 
 public slots:
     void EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
-    void ComputeFrequency(); // use FFT algorithm for HeartRate evaluation
+    void computeHeartRate(); // use FFT algorithm for HeartRate evaluation
     void CountFrequency(); // use simple count algorithm on v_BinaryOutput for HeartRate evaluation
     void setPCAMode(bool value); // controls PCA alignment
     void switchColorMode(int value); // controls colors enrollment
@@ -56,27 +64,26 @@ public slots:
     unsigned int getBufferLength() const;
     unsigned int getEstimationInterval() const;
     void setSnrControl(bool value);
-    void ComputeBreathRate();
+    void computeBreathRate();
 
 private:
-    qreal *v_Signal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
-    qreal *v_Input; // a pointer to input counts history, for digital filtration
-    fftw_complex *v_Spectrum;  // a pointer to an array for FFT-spectrum
-    qreal m_SNR; // a variable for signal-to-noise ratio estimation storing
+    qreal *v_HeartSignal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
+    qreal *v_HeartCNSignal; // a pointer to input counts history, for digital filtration
+    fftw_complex *v_HeartSpectrum;  // a pointer to an array for FFT-spectrum
+    qreal m_HeartSNR; // a variable for signal-to-noise ratio estimation storing
     qreal *v_RawCh1; //a pointer to spattialy averaged data (you should use it to write data to an instance of a class)
     qreal *v_RawCh2; //a pointer to spattialy averaged data (you should use it to write data to an instance of a class)
-    qreal *v_ForFFT; //a pointer to data prepared for FFT
-    qreal *v_Amplitude; // stores amplitude spectrum
-    qreal m_MeanCh1;   //a variable for mean value in channel1 storing
-    qreal m_MeanCh2;   //a variable for mean value in channel2 storing
-    qreal *v_Time; //a pointer to an array for frame periods storing (values in milliseconds thus unsigned int)
+    qreal *v_HeartForFFT; //a pointer to data prepared for FFT
+    qreal *v_HeartAmplitude; // stores amplitude spectrum
+    qreal *v_HeartTime; //a pointer to an array for frame periods storing (values in milliseconds thus unsigned int)
     qreal m_HeartRate; //a variable for storing a last evaluated frequency of the 'strongest' harmonic
     unsigned int curpos; //a current position I meant
     unsigned int m_DataLength; //a length of data array
     unsigned int m_BufferLength; //a lenght of sub data array for FFT (m_BufferLength should be <= m_DataLength)
-    bool f_PCA; // this flag controls whether ComputeFrequency use ordinary computation or PCA alignment, value is controlled by set_f_PCA(...)
-    fftw_plan m_plan; // a plan for FFT evaluation
-    ColorChannel m_channel; // determines which color channel is enrolled by WriteToDataOneColor(...) method
+    bool f_PCA; // this flag controls whether computeHeartRate use ordinary computation or PCA alignment, value is controlled by set_f_PCA(...)
+    fftw_plan m_HeartPlan; // a plan for FFT evaluation
+
+    ColorChannel m_ColorChannel; // determines which color channel is enrolled by WriteToDataOneColor(...) method
     qreal *v_BinaryOutput; // a pointer to a vector of digital filter output
     qreal *v_SmoothedSignal; // for intermediate result storage
     qreal v_Derivative[2]; // to store two close counts from digital derivative
@@ -98,19 +105,22 @@ private:
 
     quint32 m_ID;
     quint16 m_estimationInterval; // stores the number of counts that will be used to evaluate mean and sko estimations
-    bool m_snrControlFlag; //
+    bool m_HeartSNRControlFlag; //
 
     qreal *v_RawBreathSignal; // stores slow changes in VPG, not centered and not normalized
     qreal *v_BreathSignal; // to store a slow waves and evaluate a breath rate
     qreal *v_BreathTime; // to store a time counters for breath signal
-    !qreal *v_BreathForFFT;
-    !qreal *v_BreathAmplitude;
+    qreal *v_BreathForFFT;
+    qreal *v_BreathAmplitude;
+    fftw_plan m_BreathPlan;
+    fftw_complex *v_BreathSpectrum;
     qreal m_BreathRate; // to store a breath rate measurement
     quint16 m_BreathStrobe;
     quint16 m_BreathStrobeCounter;
     quint16 m_BreathCurpos;
     quint16 m_BreathAverageInterval;
     quint16 m_BreathCNInterval;
+    qreal m_BreathSNR;
 };
 
 // inline, for speed, must therefore reside in header file
