@@ -14,7 +14,8 @@ const char * MainWindow::QPlotDialogName[]=
     QT_TR_NOOP("Frame time vs frame"),
     QT_TR_NOOP("PCA 1-st projection"),
     QT_TR_NOOP("Filter output vs frame"),
-    QT_TR_NOOP("Signal phase diagram")
+    QT_TR_NOOP("Signal phase diagram"),
+    QT_TR_NOOP("Slow waves vs frame")
 };
 //------------------------------------------------------------------------------------
 
@@ -672,6 +673,13 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_horizontal_Borders(-5.0, 5.0);
                         pt_plot->set_X_Ticks(11);
                         pt_plot->set_coordinatesPrecision(2,2);
+                    break;
+                    case 6: // signal phase shift
+                        connect(pt_harmonicProcessor, SIGNAL(breathSignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        pt_plot->set_axis_names(tr("Frame"),tr("Signal count"));
+                        pt_plot->set_vertical_Borders(-5.0,5.0);
+                        pt_plot->set_X_Ticks(11);
+                        pt_plot->set_coordinatesPrecision(0,2);
                     break;
                 }
             pt_dialogSet[ m_dialogSetCounter ]->setContextMenuPolicy(Qt::ActionsContextMenu);

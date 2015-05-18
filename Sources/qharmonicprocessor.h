@@ -35,11 +35,13 @@ signals:
     void CurrentValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void TooNoisy(qreal snr_value);
 
-    void snrUpdated(quint32 id, qreal value);       // signal for mapping
-    void vpgUpdated(quint32 id, qreal value);       // signal for mapping
-    void svpgUpdated(quint32 id, qreal value);      // signal for mapping
-    void bvpgUpdated(quint32 id, qreal value);      // signal for mapping
+    void snrUpdated(quint32 id, qreal value);    // signal for mapping
+    void vpgUpdated(quint32 id, qreal value);   // signal for mapping
+    void svpgUpdated(quint32 id, qreal value);  // signal for mapping
+    void bvpgUpdated(quint32 id, qreal value);  // signal for mapping
     void amplitudeUpdated(quint32 id, qreal value); // signal for mapping
+
+    void breathSignalUpdated(const qreal *pointer, quint16 length);
 
 public slots:
     void EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
@@ -54,6 +56,7 @@ public slots:
     unsigned int getBufferLength() const;
     unsigned int getEstimationInterval() const;
     void setSnrControl(bool value);
+    void ComputeBreathRate();
 
 private:
     qreal *v_Signal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)
@@ -95,7 +98,17 @@ private:
 
     quint32 m_ID;
     quint16 m_estimationInterval; // stores the number of counts that will be used to evaluate mean and sko estimations
-    bool m_snrControlFlag;
+    bool m_snrControlFlag; //
+
+    qreal *v_RawBreathSignal; // stores slow changes in VPG, not centered and not normalized
+    qreal *v_BreathSignal; // to store a slow waves and evaluate a breath rate
+    qreal *v_BreathTime; // to store a time counters for breath signal
+    qreal m_BreathRate; // to store a breath rate measurement
+    quint16 m_BreathStrobe;
+    quint16 m_BreathStrobeCounter;
+    quint16 m_BreathCurpos;
+    quint16 m_BreathAverageInterval;
+    quint16 m_BreathCNInterval;
 };
 
 // inline, for speed, must therefore reside in header file

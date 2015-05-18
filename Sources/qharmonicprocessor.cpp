@@ -22,7 +22,12 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_output(1.0),
     m_ID(0),
     m_estimationInterval(MEAN_INTERVAL),
-    m_snrControlFlag(false)
+    m_snrControlFlag(false),
+    m_BreathStrobe(2),
+    m_BreathStrobeCounter(0),
+    m_BreathCurpos(0),
+    m_BreathAverageInterval(64),
+    m_BreathCNInterval(16)
 {
     // Memory allocation
     v_RawCh1 = new qreal[m_DataLength];
@@ -37,12 +42,18 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     v_BinaryOutput = new qreal[m_DataLength];
     v_SmoothedSignal = new qreal[DIGITAL_FILTER_LENGTH];
 
+    v_RawBreathSignal = new qreal[m_DataLength];
+    v_BreathSignal = new qreal[m_DataLength];
+    v_BreathTime = new qreal[m_DataLength];
+
     // Vectors initialization
     for (quint16 i = 0; i < m_DataLength; i++)
     {
         v_RawCh1[i] = 0.0; // it should be equal to zero at start
         v_RawCh2[i] = 0.0; // it should be equal to zero at start
         v_Time[i] = 35.0; // just for ensure that at the begining there is not any "division by zero"
+        v_BreathTime[i] = 35.0;
+        v_RawBreathSignal [i]= 0.0;
         v_Signal[i] = 0.0;
         if(i % 4)
         {
@@ -81,6 +92,9 @@ QHarmonicProcessor::~QHarmonicProcessor()
     delete[] v_Amplitude;
     delete[] v_BinaryOutput;
     delete[] v_SmoothedSignal;
+    delete[] v_RawBreathSignal;
+    delete[] v_BreathSignal;
+    delete[] v_BreathTime;
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -151,6 +165,46 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
                 v_RawCh1[curpos] = (qreal)blue / area;
                 break;
         }
+
+        ///------------------------------------------Breath signal part-------------------------------------------
+        m_BreathStrobeCounter =  (++m_BreathStrobeCounter) % m_BreathStrobe;
+        if(m_BreathStrobeCounter ==  0)
+        {
+            v_BreathTime[m_BreathCurpos] = time;
+
+            ///Averaging from VPG
+            m_MeanCh1 = 0.0;
+            for(quint16 i = 0; i < m_BreathAverageInterval; i++)
+            {
+                m_MeanCh1 += v_RawCh1[loop(curpos - i)];
+            }
+            v_RawBreathSignal[m_BreathCurpos] = m_MeanCh1 / m_BreathAverageInterval;
+
+            ///Centering and normalization
+            m_MeanCh1 = 0.0;
+            for(quint16 i = 0; i < m_BreathCNInterval; i++)
+            {
+                m_MeanCh1 += v_RawBreathSignal[loop(curpos - i)];
+            }
+            m_MeanCh1 /= m_BreathCNInterval;
+            qreal temp_sko = 0.0;
+            for(quint16 i = 0; i < m_BreathCNInterval; i++)
+            {
+                temp_sko += (v_RawBreathSignal[loop(m_BreathCurpos - i)] - m_MeanCh1)*(v_RawBreathSignal[loop(m_BreathCurpos - i)] - m_MeanCh1);
+            }
+            temp_sko = sqrt(temp_sko / (m_BreathCNInterval - 1 ) );
+            if(temp_sko < 0.01)
+                temp_sko = 1.0;
+            v_BreathSignal[m_BreathCurpos] = ( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko;
+            //v_BreathSignal[m_BreathCurpos] = 0.0;
+            emit breathSignalUpdated(v_BreathSignal, m_DataLength);
+            m_BreathCurpos = (++m_BreathCurpos) % m_DataLength;
+        }
+        else
+        {
+            v_BreathTime[m_BreathCurpos] += time;
+        }
+        ///--------------------------------------------End of breath signal part-------------------------------------------------
 
         m_MeanCh1 = 0.0;
         for(quint16 i = 0; i < m_estimationInterval; i++)
@@ -531,5 +585,12 @@ unsigned int QHarmonicProcessor::getEstimationInterval() const
 void QHarmonicProcessor::setSnrControl(bool value)
 {
     m_snrControlFlag = value;
+}
+
+//------------------------------------------------------------------------------------------------
+
+void QHarmonicProcessor::ComputeBreathRate()
+{
+
 }
 
