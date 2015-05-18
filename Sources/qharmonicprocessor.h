@@ -11,7 +11,7 @@
 #define SNR_TRESHOLD 2.0 // in most cases this value is suitable when (m_BufferLength == 256)
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
-#define MEAN_INTERVAL 16 // should be greater than one, but less than m_datalength
+#define MEAN_INTERVAL 16 // should be greater than one, but less than m_DataLength, determines initial value of m_estimationinterval
 
 
 class QHarmonicProcessor : public QObject
@@ -103,6 +103,8 @@ private:
     qreal *v_RawBreathSignal; // stores slow changes in VPG, not centered and not normalized
     qreal *v_BreathSignal; // to store a slow waves and evaluate a breath rate
     qreal *v_BreathTime; // to store a time counters for breath signal
+    !qreal *v_BreathForFFT;
+    !qreal *v_BreathAmplitude;
     qreal m_BreathRate; // to store a breath rate measurement
     quint16 m_BreathStrobe;
     quint16 m_BreathStrobeCounter;

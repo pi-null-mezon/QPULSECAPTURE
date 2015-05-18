@@ -23,11 +23,11 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_ID(0),
     m_estimationInterval(MEAN_INTERVAL),
     m_snrControlFlag(false),
-    m_BreathStrobe(2),
+    m_BreathStrobe(4),
     m_BreathStrobeCounter(0),
     m_BreathCurpos(0),
-    m_BreathAverageInterval(64),
-    m_BreathCNInterval(16)
+    m_BreathAverageInterval(90),
+    m_BreathCNInterval(32)
 {
     // Memory allocation
     v_RawCh1 = new qreal[m_DataLength];
@@ -53,7 +53,8 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
         v_RawCh2[i] = 0.0; // it should be equal to zero at start
         v_Time[i] = 35.0; // just for ensure that at the begining there is not any "division by zero"
         v_BreathTime[i] = 35.0;
-        v_RawBreathSignal [i]= 0.0;
+        v_RawBreathSignal[i]= 0.0;
+        v_BreathSignal[i] = 0.0;
         v_Signal[i] = 0.0;
         if(i % 4)
         {
@@ -184,7 +185,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
             m_MeanCh1 = 0.0;
             for(quint16 i = 0; i < m_BreathCNInterval; i++)
             {
-                m_MeanCh1 += v_RawBreathSignal[loop(curpos - i)];
+                m_MeanCh1 += v_RawBreathSignal[loop(m_BreathCurpos - i)];
             }
             m_MeanCh1 /= m_BreathCNInterval;
             qreal temp_sko = 0.0;
@@ -195,8 +196,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
             temp_sko = sqrt(temp_sko / (m_BreathCNInterval - 1 ) );
             if(temp_sko < 0.01)
                 temp_sko = 1.0;
-            v_BreathSignal[m_BreathCurpos] = ( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko;
-            //v_BreathSignal[m_BreathCurpos] = 0.0;
+            v_BreathSignal[m_BreathCurpos] = ((( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko) + v_BreathSignal[loop(m_BreathCurpos - 1)] + v_BreathSignal[loop(m_BreathCurpos - 2)]) / 3.0;
             emit breathSignalUpdated(v_BreathSignal, m_DataLength);
             m_BreathCurpos = (++m_BreathCurpos) % m_DataLength;
         }

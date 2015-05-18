@@ -9,13 +9,13 @@
 //------------------------------------------------------------------------------------
 const char * MainWindow::QPlotDialogName[]=
 {
-    QT_TR_NOOP("Signal vs frame"),
+    QT_TR_NOOP("Heart signal vs frame"),
     QT_TR_NOOP("Amplitude spectrum"),
     QT_TR_NOOP("Frame time vs frame"),
     QT_TR_NOOP("PCA 1-st projection"),
     QT_TR_NOOP("Filter output vs frame"),
     QT_TR_NOOP("Signal phase diagram"),
-    QT_TR_NOOP("Slow waves vs frame")
+    QT_TR_NOOP("Breath signal vs frame")
 };
 //------------------------------------------------------------------------------------
 
@@ -645,6 +645,7 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_vertical_Borders(0.0,1.0);
                         pt_plot->set_coordinatesPrecision(0,1);
                         pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
+                        pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(255,0,0));
                         break;
                     case 2: // Time trace
                         connect(pt_harmonicProcessor, SIGNAL(TimeUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
@@ -652,6 +653,7 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_vertical_Borders(0.0,100.0);
                         pt_plot->set_coordinatesPrecision(0,2);
                         pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
+                        pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(255,0,255));
                         break;
                     case 3: // PCA 1st projection trace
                         connect(pt_harmonicProcessor, SIGNAL(PCAProjectionUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
@@ -664,6 +666,7 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_axis_names(tr("Frame"),tr("Digital derivative after smoothing"));
                         pt_plot->set_vertical_Borders(-2.0,2.0);
                         pt_plot->set_coordinatesPrecision(0,2);
+                        pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(255,255,0));
                     break;
                     case 5: // signal phase shift
                         connect(pt_harmonicProcessor, SIGNAL(SignalUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
@@ -680,6 +683,7 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_vertical_Borders(-5.0,5.0);
                         pt_plot->set_X_Ticks(11);
                         pt_plot->set_coordinatesPrecision(0,2);
+                        pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(0,0,255));
                     break;
                 }
             pt_dialogSet[ m_dialogSetCounter ]->setContextMenuPolicy(Qt::ActionsContextMenu);
