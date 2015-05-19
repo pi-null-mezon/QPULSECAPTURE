@@ -204,7 +204,6 @@ void MainWindow::createMenus()
     //------------------------------------------------
     pt_optionsMenu = menuBar()->addMenu(tr("&Options"));
     pt_optionsMenu->addAction(pt_openPlotDialog);
-    //pt_optionsMenu->addAction(pt_recordAct);
     pt_optionsMenu->addAction(pt_mapAct);
     pt_optionsMenu->addSeparator();
     pt_colormodeMenu = pt_optionsMenu->addMenu(tr("&Light"));
@@ -215,6 +214,11 @@ void MainWindow::createMenus()
     pt_modeMenu->addAction(pt_skinAct);
     pt_modeMenu->addAction(pt_calibAct);
     pt_optionsMenu->setEnabled(false);
+
+    pt_RecordsMenu = this->menuBar()->addMenu(tr("&Records"));
+    pt_RecordsMenu->addAction(pt_recordAct);
+    pt_RecordsMenu->addAction(pt_measRecAct);
+    pt_RecordsMenu->setEnabled(false);
 
     pt_appearenceMenu = menuBar()->addMenu(tr("&Appearence"));
     pt_appearenceMenu->addAction(pt_fastVisualizationAct);
@@ -511,6 +515,12 @@ void MainWindow::configure_and_start_session()
             m_signalsFile.close();
             pt_recordAct->setChecked(false);
         }
+        if(m_measurementsFile.isOpen()) {
+            disconnect(pt_harmonicProcessor, SIGNAL(measurementsUpdated(qreal,qreal,qreal,qreal)), this, SLOT(updateMeasurementsRecord(qreal,qreal,qreal,qreal)));
+            m_measurementsFile.close();
+            pt_measRecAct->setChecked(false);
+
+        }
         //---------------------------------------------------------------
         if(m_settingsDialog.get_customPatientFlag())
         {
@@ -571,6 +581,7 @@ void MainWindow::configure_and_start_session()
 
         m_timer.setInterval( m_settingsDialog.get_timerValue() );
         pt_optionsMenu->setEnabled(true);
+        pt_RecordsMenu->setEnabled(true);
         pt_greenAct->trigger(); // because green channel is default in QHarmonicProcessor
 
         if(m_settingsDialog.get_flagVideoFile())
@@ -905,10 +916,13 @@ void MainWindow::openProcessingDialog()
 
 void MainWindow::startMeasurementsRecord()
 {
+
+
     if(m_measurementsFile.isOpen())
     {
         m_measurementsFile.close();
         pt_measRecAct->setChecked(false);
+        disconnect(pt_harmonicProcessor, SIGNAL(measurementsUpdated(qreal,qreal,qreal,qreal)), this, SLOT(updateMeasurementsRecord(qreal,qreal,qreal,qreal)));
         QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Another record?"), QMessageBox::Yes | QMessageBox::No, this, Qt::Dialog);
         if(msgBox.exec() == QMessageBox::No)
         {
@@ -935,8 +949,8 @@ void MainWindow::startMeasurementsRecord()
         m_measurementsStream.setRealNumberNotation(QTextStream::FixedNotation);
         m_measurementsStream.setRealNumberPrecision(3);
         m_measurementsStream << "QPULSECAPTURE MEASUREMENTS RECORD of " << QDateTime::currentDateTime().toString("dd.MM.yyyy")
-                        << "\nhh:mm:ss\tHeartRate, bpm\tSNR, dB\tBreathRate, rpm\tSNR, dB\n";
-        connect(pt_harmonicProcessor, SIGNAL(), this, SLOT());
+                             << "\nhh:mm:ss\tHeartRate, bpm\tSNR, dB\tBreathRate, rpm\tSNR, dB\n";
+        connect(pt_harmonicProcessor, SIGNAL(measurementsUpdated(qreal,qreal,qreal,qreal)), this, SLOT(updateMeasurementsRecord(qreal,qreal,qreal,qreal)));
     }
 }
 

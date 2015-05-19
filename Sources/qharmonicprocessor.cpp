@@ -674,5 +674,7 @@ void QHarmonicProcessor::computeBreathRate()
     {
        emit breathTooNoisy(m_BreathSNR);
     }
+
+    emit measurementsUpdated(m_HeartRate, m_HeartSNR, m_BreathRate, m_BreathSNR);
 }
 

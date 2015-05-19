@@ -50,6 +50,7 @@ signals:
     void breathRateUpdated(qreal freq_value, qreal snr_value);
     void breathTooNoisy(qreal snr_value);
     void breathSnrUpdated(quint32 id, qreal snr_value);
+    void measurementsUpdated(qreal heart_rate, qreal heart_snr, qreal breath_rate, qreal breath_snr);
 
 public slots:
     void EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);

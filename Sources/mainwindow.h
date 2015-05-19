@@ -100,6 +100,7 @@ private:
     QAction *pt_imageAct;
     QAction *pt_calibAct;
     QAction *pt_measRecAct;
+    QMenu *pt_RecordsMenu;
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;

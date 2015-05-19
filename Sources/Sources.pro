@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET =    QPULSECAPTURE
 TEMPLATE =  app
-VERSION =   2.1.0.1
+VERSION =   3.0.0.0
 
 DEFINES +=  APP_NAME=\\\"$${TARGET}\\\" \
             APP_VERSION=\\\"$${VERSION}\\\"
@@ -53,7 +53,8 @@ TRANSLATIONS += $$PWD/../Resources/Docs/Translation_Rus.ts
 
 
 RC_ICONS = $$PWD/../Resources/Docs/App.ico
-#CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT
+CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT \
+                                           QT_NO_DEBUG_OUTPUT
 
 include(OPENCV.pri)
 include(FFTW.pri)
