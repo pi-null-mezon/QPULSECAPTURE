@@ -64,8 +64,8 @@ public slots:
     void onpause();
     void onresume();
     void configure_and_start_session();
-    void make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
     void startRecord();
+    void startMeasurementsRecord();
     void openMapDialog();
     void openProcessingDialog();
 
@@ -99,6 +99,7 @@ private:
     QAction *pt_adjustAct;
     QAction *pt_imageAct;
     QAction *pt_calibAct;
+    QAction *pt_measRecAct;
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;
     QMenu *pt_deviceMenu;
@@ -116,8 +117,10 @@ private:
     QTimer m_timer;
     QDialog *pt_dialogSet[LIMIT_OF_DIALOGS_NUMBER];
     quint8 m_dialogSetCounter;
-    QFile m_saveFile;
-    QTextStream m_textStream;
+    QFile m_signalsFile;
+    QTextStream m_signalsStream;
+    QFile m_measurementsFile;
+    QTextStream m_measurementsStream;
     static const char *QPlotDialogName[];
 
     QActionGroup *pt_colorActGroup;
@@ -137,6 +140,8 @@ private:
 private slots:
     void decrease_dialogSetCounter();
     void closeAllDialogs();
+    void make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue);
+    void updateMeasurementsRecord(qreal heartRate, qreal heartSNR, qreal breathRate, qreal breathSNR);
 };
 //------------------------------------------------------------------------------------------------------
 #endif // MAINWINDOW_H

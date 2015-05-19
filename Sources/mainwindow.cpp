@@ -119,8 +119,8 @@ void MainWindow::createActions()
     pt_openPlotDialog->setStatusTip(tr("Create a new window for the visualization of appropriate process"));
     connect(pt_openPlotDialog, SIGNAL(triggered()), this, SLOT(createPlotDialog()));
 
-    pt_recordAct = new QAction(tr("&Record"), this);
-    pt_recordAct->setStatusTip(tr("Start to record measurements in to output text file"));
+    pt_recordAct = new QAction(tr("&SignalsRec"), this);
+    pt_recordAct->setStatusTip(tr("Start to record signals counts in to output text file"));
     connect(pt_recordAct, SIGNAL(triggered()), this, SLOT(startRecord()));
     pt_recordAct->setCheckable(true);
 
@@ -185,6 +185,11 @@ void MainWindow::createActions()
     pt_calibAct->setStatusTip(tr("Calibrate colors on selected region"));
     pt_calibAct->setCheckable(true);
     pt_calibAct->setChecked(false);
+
+    pt_measRecAct = new QAction(tr("&MeasureRec"), this);
+    pt_measRecAct->setStatusTip(tr("Start to record heart rate & breath rate in to output text file"));
+    pt_measRecAct->setCheckable(true);
+    connect(pt_measRecAct, SIGNAL(triggered()), this, SLOT(startMeasurementsRecord()));
 }
 
 //------------------------------------------------------------------------------------
@@ -199,7 +204,7 @@ void MainWindow::createMenus()
     //------------------------------------------------
     pt_optionsMenu = menuBar()->addMenu(tr("&Options"));
     pt_optionsMenu->addAction(pt_openPlotDialog);
-    pt_optionsMenu->addAction(pt_recordAct);
+    //pt_optionsMenu->addAction(pt_recordAct);
     pt_optionsMenu->addAction(pt_mapAct);
     pt_optionsMenu->addSeparator();
     pt_colormodeMenu = pt_optionsMenu->addMenu(tr("&Light"));
@@ -402,9 +407,13 @@ MainWindow::~MainWindow()
 {
     emit closeVideo();
 
-     if(m_saveFile.isOpen())
+    if(m_signalsFile.isOpen())
     {
-        m_saveFile.close();
+        m_signalsFile.close();
+    }
+    if(m_measurementsFile.isOpen())
+    {
+        m_measurementsFile.close();
     }
 
     pt_videoThread->quit();
@@ -498,8 +507,8 @@ void MainWindow::configure_and_start_session()
         connect(pt_harmonicThread, SIGNAL(finished()),pt_harmonicProcessor, SLOT(deleteLater()));
         connect(pt_harmonicThread, SIGNAL(finished()),pt_harmonicThread, SLOT(deleteLater()));
         //---------------------------------------------------------------
-        if(m_saveFile.isOpen()) {
-            m_saveFile.close();
+        if(m_signalsFile.isOpen()) {
+            m_signalsFile.close();
             pt_recordAct->setChecked(false);
         }
         //---------------------------------------------------------------
@@ -557,7 +566,7 @@ void MainWindow::configure_and_start_session()
         connect(pt_harmonicProcessor, SIGNAL(breathTooNoisy(qreal)), pt_display, SLOT(clearBreathRateString(qreal)));
         connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));
         connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPCAMode(bool)));
-        connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal,qreal,qreal)));
+        connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal)));
         pt_harmonicThread->start();
 
         m_timer.setInterval( m_settingsDialog.get_timerValue() );
@@ -733,13 +742,13 @@ void MainWindow::decrease_dialogSetCounter()
 
 //-------------------------------------------------------------------------------------------
 
-void MainWindow::make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue)
+void MainWindow::make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue)
 {
-    if(m_saveFile.isOpen())
+    if(m_signalsFile.isOpen())
     {
-        m_textStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz")
+        m_signalsStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz")
                      << "\t" << signalValue << "\t" << meanRed << "\t" << meanGreen
-                     << "\t" << meanBlue << "\t" << qRound(freqValue) << "\t" << snrValue << "\n";
+                     << "\t" << meanBlue << "\n";
     }
 }
 
@@ -765,8 +774,8 @@ void MainWindow::closeAllDialogs()
 
 void MainWindow::startRecord()
 {
-    if(m_saveFile.isOpen()) {
-        m_saveFile.close();
+    if(m_signalsFile.isOpen()) {
+        m_signalsFile.close();
         pt_recordAct->setChecked(false);
         QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Another record?"), QMessageBox::Yes | QMessageBox::No, this, Qt::Dialog);
         if(msgBox.exec() == QMessageBox::No)
@@ -775,12 +784,12 @@ void MainWindow::startRecord()
         }
     }
 
-    m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to file"),"Records/record.txt", "Text file (*.txt)"));
+    m_signalsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/record.txt", "Text file (*.txt)"));
 
-    while(!m_saveFile.open(QIODevice::WriteOnly))   {
-        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not save file with such name, try another name"), QMessageBox::Save | QMessageBox::Cancel, this, Qt::Dialog);
+    while(!m_signalsFile.open(QIODevice::WriteOnly))   {
+        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not save file, try another name"), QMessageBox::Save | QMessageBox::Cancel, this, Qt::Dialog);
         if(msgBox.exec() == QMessageBox::Save) {
-            m_saveFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/record.txt", tr("Text file (*.txt)")));
+            m_signalsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/record.txt", tr("Text file (*.txt)")));
         }
         else {
             pt_recordAct->setChecked(false);
@@ -788,13 +797,13 @@ void MainWindow::startRecord()
         }
     }
 
-    if(m_saveFile.isOpen()) {
+    if(m_signalsFile.isOpen()) {
         pt_recordAct->setChecked(true);
-        m_textStream.setDevice(&m_saveFile);
-        m_textStream.setRealNumberNotation(QTextStream::FixedNotation);
-        m_textStream.setRealNumberPrecision(3);
-        m_textStream << "QPULSECAPTURE RECORD " << QDateTime::currentDateTime().toString("dd.MM.yyyy")
-                     << "\nhh:mm:ss.zzz\tCNSignal\tMeanRed\tMeanGreen\tMeanBlue\tPulseRate,bpm\tSNR,dB\n";
+        m_signalsStream.setDevice(&m_signalsFile);
+        m_signalsStream.setRealNumberNotation(QTextStream::FixedNotation);
+        m_signalsStream.setRealNumberPrecision(3);
+        m_signalsStream << "QPULSECAPTURE SIGNALS RECORD of " << QDateTime::currentDateTime().toString("dd.MM.yyyy")
+                        << "\nhh:mm:ss.zzz\tSignal\tRed\tGreen\tBlue\n";
     }
 }
 
@@ -865,6 +874,8 @@ void MainWindow::openMapDialog()
     }
 }
 
+//-----------------------------------------------------------------------------------
+
 void MainWindow::openProcessingDialog()
 {
     if(pt_harmonicProcessor) {
@@ -887,6 +898,56 @@ void MainWindow::openProcessingDialog()
         QMessageBox msg(QMessageBox::Information, tr("Warning"),tr("Start new session before!") );
         msg.exec();
 
+    }
+}
+
+//------------------------------------------------------------------------------------
+
+void MainWindow::startMeasurementsRecord()
+{
+    if(m_measurementsFile.isOpen())
+    {
+        m_measurementsFile.close();
+        pt_measRecAct->setChecked(false);
+        QMessageBox msgBox(QMessageBox::Question, this->windowTitle(), tr("Another record?"), QMessageBox::Yes | QMessageBox::No, this, Qt::Dialog);
+        if(msgBox.exec() == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
+    m_measurementsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save measurements into a file"),"Records/measurement.txt", "Text file (*.txt)"));
+
+    while(!m_measurementsFile.open(QIODevice::WriteOnly))   {
+        QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not save file, try another name"), QMessageBox::Save | QMessageBox::Cancel, this, Qt::Dialog);
+        if(msgBox.exec() == QMessageBox::Save) {
+            m_measurementsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/record.txt", tr("Text file (*.txt)")));
+        }
+        else {
+            pt_measRecAct->setChecked(false);
+            break;
+        }
+    }
+
+    if(m_measurementsFile.isOpen()) {
+        pt_measRecAct->setChecked(true);
+        m_measurementsStream.setDevice(&m_measurementsFile);
+        m_measurementsStream.setRealNumberNotation(QTextStream::FixedNotation);
+        m_measurementsStream.setRealNumberPrecision(3);
+        m_measurementsStream << "QPULSECAPTURE MEASUREMENTS RECORD of " << QDateTime::currentDateTime().toString("dd.MM.yyyy")
+                        << "\nhh:mm:ss\tHeartRate, bpm\tSNR, dB\tBreathRate, rpm\tSNR, dB\n";
+        connect(pt_harmonicProcessor, SIGNAL(), this, SLOT());
+    }
+}
+
+void MainWindow::updateMeasurementsRecord(qreal heartRate, qreal heartSNR, qreal breathRate, qreal breathSNR)
+{
+    if(m_measurementsFile.isOpen())
+    {
+        m_measurementsStream << QTime::currentTime().toString("hh:mm:ss")
+                             << "\t" << qRound(heartRate) << "\t"
+                             << heartSNR << "\t" << qRound(breathRate)
+                             << "\t" << breathSNR << "\n";
     }
 }
 

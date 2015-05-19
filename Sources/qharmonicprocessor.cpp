@@ -23,7 +23,7 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_ID(0),
     m_estimationInterval(MEAN_INTERVAL),
     m_HeartSNRControlFlag(false),
-    m_BreathStrobe(4),
+    m_BreathStrobe(5),
     m_BreathStrobeCounter(0),
     m_BreathCurpos(0),
     m_BreathAverageInterval(80),
@@ -208,7 +208,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
             temp_sko = sqrt(temp_sko / (m_BreathCNInterval - 1 ) );
             if(temp_sko < 0.01)
                 temp_sko = 1.0;
-            v_BreathSignal[m_BreathCurpos] = ((( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko) + v_BreathSignal[loop(m_BreathCurpos - 1)] ) / 2.0;
+            v_BreathSignal[m_BreathCurpos] = ((( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko) + v_BreathSignal[loop(m_BreathCurpos - 1)] + v_BreathSignal[loop(m_BreathCurpos - 2)]  ) / 3.0;
             emit breathSignalUpdated(v_BreathSignal, m_DataLength);
             m_BreathCurpos = (++m_BreathCurpos) % m_DataLength;
         }
@@ -284,7 +284,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
     //----------------------------------------------------------------------------
 
-    emit CurrentValues(v_HeartSignal[curpos], PCA_RAW_RGB(position, 0), PCA_RAW_RGB(position, 1), PCA_RAW_RGB(position, 2), m_HeartRate, m_HeartSNR);
+    emit CurrentValues(v_HeartSignal[curpos], PCA_RAW_RGB(position, 0), PCA_RAW_RGB(position, 1), PCA_RAW_RGB(position, 2));
     curpos = (++curpos) % m_DataLength; // for loop-like usage of ptData and the other arrays in this class
 }
 

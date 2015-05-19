@@ -13,10 +13,10 @@
 #define DIGITAL_FILTER_LENGTH 5 // in counts
 #define MEAN_INTERVAL 16 // should be greater than one, but less than m_DataLength, determines initial value of m_estimationinterval
 
-#define BREATH_TOP_LIMIT 0.8 // in s^-1, it is 36 bpm
-#define BREATH_BOTTOM_LIMIT 0.0 // in s^-1, it is 1 bpm
+#define BREATH_TOP_LIMIT 0.8 // in s^-1, it is 48 rpm
+#define BREATH_BOTTOM_LIMIT 0.0 // in s^-1, it is 0 rpm
 #define BREATH_HALF_INTERVAL 1
-#define BREATH_SNR_TRESHOLD 4.0
+#define BREATH_SNR_TRESHOLD 5.0
 
 class QHarmonicProcessor : public QObject
 {
@@ -36,7 +36,7 @@ signals:
     void heartRateUpdated(qreal freq_value, qreal snr_value, bool reliable_data_flag);
     void PCAProjectionUpdated(const qreal * ppointer_to_vector, quint16 length_of_vector);
     void BinaryOutputUpdated(const qreal *pointer_to_vector, quint16 length_of_vector);
-    void CurrentValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue, qreal freqValue, qreal snrValue);
+    void CurrentValues(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue);
     void heartTooNoisy(qreal snr_value);
 
     void snrUpdated(quint32 id, qreal value);    // signal for mapping

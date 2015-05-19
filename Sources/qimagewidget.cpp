@@ -183,14 +183,22 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                 }
                 painter.drawText(startX, startY + pointsize*1.5, m_snrString);
 
-                startY +=  pointsize * 4.0 ;
+                startY +=  pointsize * 5.0 ;
+                font.setPointSizeF( pointsize * 3 );
+                painter.setFont( font );
+                painter.setPen(QColor(0,145,215));
+                painter.drawText(startX, startY, m_frequencyString);
+                font.setPointSizeF( pointsize );
+                painter.setFont( font );
+                painter.setPen( m_informationColor );
+
                 if(m_breathRateString.isEmpty())
                 {
                     painter.drawText(startX, startY , tr("Unreliable"));
                 }
                 else
                 {
-                    painter.drawText(startX, startY, m_breathRateString + tr(" rpm"));
+                    painter.drawText(startX + m_breathRateString.size() * pointsize * 2.25, startY, tr("rpm"));
                 }
                 painter.drawText(startX, startY + pointsize*1.5, m_breathSNRString);
             }
@@ -249,14 +257,23 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                 }
                 path.addText(startX, startY + pointsize*1.5, font, m_snrString);
 
-                startY += pointsize * 4.0;
+                startY += pointsize * 5.0;
+                QPainterPath breathPath;
+                font.setPointSizeF(pointsize * 3);
+                painter.setFont(font);
+                breathPath.addText(startX, startY, font, m_breathRateString);
+                painter.setBrush(QColor(0,145,215));
+                painter.drawPath(breathPath);
+                painter.setBrush(m_fillColor);
+                font.setPointSizeF( pointsize );
+
                 if(m_breathRateString.isEmpty())
                 {
                     path.addText(startX, startY, font , tr("Unreliable"));
                 }
                 else
                 {
-                    path.addText(startX, startY, font , m_breathRateString + tr(" rpm"));
+                    path.addText(startX + m_breathRateString.size() * pointsize * 2.25, startY, font , tr("rpm"));
                 }
                 path.addText(startX, startY + pointsize*1.5, font, m_breathSNRString);
             }                     
