@@ -587,7 +587,7 @@ unsigned int QHarmonicProcessor::getBufferLength() const
 
 //------------------------------------------------------------------------------------------------
 
-unsigned int QHarmonicProcessor::getEstimationInterval() const
+quint16 QHarmonicProcessor::getEstimationInterval() const
 {
     return m_estimationInterval;
 }
@@ -677,4 +677,58 @@ void QHarmonicProcessor::computeBreathRate()
 
     emit measurementsUpdated(m_HeartRate, m_HeartSNR, m_BreathRate, m_BreathSNR);
 }
+
+//------------------------------------------------------------------------------------------------
+
+void QHarmonicProcessor::setBreathStrobe(int value)
+{
+    if(value > 0)
+    {
+        m_BreathStrobe = value;
+    }
+}
+
+//------------------------------------------------------------------------------------------------
+
+void QHarmonicProcessor::setBreathAverage(int value)
+{
+    if((value > 0) && (value <= m_DataLength))
+    {
+        m_BreathAverageInterval = value;
+    }
+}
+
+//------------------------------------------------------------------------------------------------
+
+void QHarmonicProcessor::setBreathCNInterval(int value)
+{
+    if((value > 1) && (value <= m_DataLength))
+    {
+        m_BreathCNInterval = value;
+    }
+}
+
+//------------------------------------------------------------------------------------------------
+
+quint16 QHarmonicProcessor::getBreathStrobe() const
+{
+    return m_BreathStrobe;
+}
+
+//------------------------------------------------------------------------------------------------
+
+quint16 QHarmonicProcessor::getBreathAverage() const
+{
+    return m_BreathAverageInterval;
+}
+
+//------------------------------------------------------------------------------------------------
+
+quint16 QHarmonicProcessor::getBreathCNInterval() const
+{
+    return m_BreathCNInterval;
+}
+
+//------------------------------------------------------------------------------------------------
+
 

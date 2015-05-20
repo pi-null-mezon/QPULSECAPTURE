@@ -894,10 +894,13 @@ void MainWindow::openProcessingDialog()
         QProcessingDialog *dialog = new QProcessingDialog(this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->setTimer(m_timer.interval());
-        dialog->setMaximumInterval(pt_harmonicProcessor->getDataLength());
-        dialog->setInterval(pt_harmonicProcessor->getEstimationInterval());
+        dialog->setLimits(pt_harmonicProcessor->getDataLength());
+        dialog->setValues(pt_harmonicProcessor->getEstimationInterval(), pt_harmonicProcessor->getBreathStrobe(), pt_harmonicProcessor->getBreathAverage(), pt_harmonicProcessor->getBreathCNInterval());
         connect(dialog, &QProcessingDialog::timerValueUpdated, &m_timer, &QTimer::setInterval);
         connect(dialog, SIGNAL(intervalValueUpdated(int)), pt_harmonicProcessor, SLOT(setEstiamtionInterval(int)));
+        connect(dialog, SIGNAL(breathStrobeUpdated(int)), pt_harmonicProcessor, SLOT(setBreathStrobe(int)));
+        connect(dialog, SIGNAL(breathAverageUpdated(int)), pt_harmonicProcessor, SLOT(setBreathAverage(int)));
+        connect(dialog, SIGNAL(breathCNIntervalUpdated(int)), pt_harmonicProcessor, SLOT(setBreathCNInterval(int)));
         if(pt_map)
         {
             connect(dialog, SIGNAL(intervalValueUpdated(int)), pt_map, SIGNAL(setEstimationInterval(int)));

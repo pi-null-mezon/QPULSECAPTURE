@@ -120,7 +120,7 @@
       <string>Use cascade classifier for region detection</string>
      </property>
      <property name="checked">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="Line" name="line">

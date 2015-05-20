@@ -11,7 +11,7 @@
 #define SNR_TRESHOLD 2.0 // in most cases this value is suitable when (m_BufferLength == 256)
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
-#define MEAN_INTERVAL 16 // should be greater than one, but less than m_DataLength, determines initial value of m_estimationinterval
+#define MEAN_INTERVAL 12 // should be greater than one, but less than m_DataLength, determines initial value of m_estimationinterval
 
 #define BREATH_TOP_LIMIT 0.8 // in s^-1, it is 48 rpm
 #define BREATH_BOTTOM_LIMIT 0.0 // in s^-1, it is 0 rpm
@@ -55,17 +55,24 @@ signals:
 public slots:
     void EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
     void computeHeartRate(); // use FFT algorithm for HeartRate evaluation
+    void computeBreathRate();
     void CountFrequency(); // use simple count algorithm on v_BinaryOutput for HeartRate evaluation
     void setPCAMode(bool value); // controls PCA alignment
     void switchColorMode(int value); // controls colors enrollment
     int  loadWarningRates(const char *fileName, SexID sex, int age, TwoSideAlpha alpha);
     void setID(quint32 value); // use it to set ID, it is used for QHarmonicMapper internal logic management
     void setEstiamtionInterval(int value); // use it to set m_estimationInterval property value
+    void setBreathStrobe(int value);
+    void setBreathAverage(int value);
+    void setBreathCNInterval(int value);
     unsigned int getDataLength() const;
     unsigned int getBufferLength() const;
-    unsigned int getEstimationInterval() const;
+    quint16 getEstimationInterval() const;
+    quint16 getBreathStrobe() const;
+    quint16 getBreathAverage() const;
+    quint16 getBreathCNInterval() const;
     void setSnrControl(bool value);
-    void computeBreathRate();
+
 
 private:
     qreal *v_HeartSignal;  //a pointer to centered and normalized data (typedefinition from fftw3.h, a single precision complex float number type)

@@ -18,11 +18,14 @@ public:
 signals:
     void timerValueUpdated(int value);
     void intervalValueUpdated(int value);
+    void breathAverageUpdated(int value);
+    void breathStrobeUpdated(int value);
+    void breathCNIntervalUpdated(int value);
 
 public slots:
     void setTimer(int value);
-    void setInterval(int value);
-    void setMaximumInterval(int value);
+    void setValues(int heartEstimation, int breathStrobe, int breathAverage, int breathCNInterval);
+    void setLimits(int dataLength);
 
 private slots:
     void on_STimer_valueChanged(int value);
@@ -30,6 +33,12 @@ private slots:
     void on_SInterval_valueChanged(int value);
 
     void on_BDefault_clicked();
+
+    void on_SbreathStrobe_valueChanged(int value);
+
+    void on_SbreathAverage_valueChanged(int value);
+
+    void on_SbreathCNInterval_valueChanged(int value);
 
 private:
     Ui::QProcessingDialog *ui;
