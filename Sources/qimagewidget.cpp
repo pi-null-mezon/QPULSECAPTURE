@@ -196,7 +196,7 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                 font.setPointSizeF( pointsize * 3 );
                 painter.setFont( font );
                 painter.setPen(QColor(0,145,215));
-                painter.drawText(startX, startY, m_frequencyString);
+                painter.drawText(startX, startY, m_breathRateString);
                 font.setPointSizeF( pointsize );
                 painter.setFont( font );
                 painter.setPen( m_informationColor );
