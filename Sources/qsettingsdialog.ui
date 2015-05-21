@@ -67,7 +67,7 @@
     </attribute>
     <widget class="QGroupBox" name="groupBoxCascade">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
