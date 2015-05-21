@@ -11,8 +11,17 @@ QImage instance from cv::Mat image. The QImageWidget should be used as widget fo
 
 //-----------------------------------------------------------------------------------
 
-QImageWidget::QImageWidget(QWidget *parent): QWidget(parent)
+QImageWidget::QImageWidget(QWidget *parent): WIDGET_CLASS(parent)
 {
+    #ifdef REPLACE_WIDGET_TO_OPENGLWIDGET
+        qWarning("QOpenGLWidget default samples: %d", this->format().samples());
+        this->setAutoFillBackground(true);
+        QSurfaceFormat format;
+        format.setSamples(3);   //antialiasing becomes better for high values, but performance becomes too slow (for the instance, 3 is good enought for Pentium IV)
+        this->setFormat(format);
+        qWarning("QOpenGLWidget manual samples: %d", this->format().samples());
+    #endif
+
     pt_data = NULL;
     m_margin = 10;
     m_informationColor = QColor(Qt::black);

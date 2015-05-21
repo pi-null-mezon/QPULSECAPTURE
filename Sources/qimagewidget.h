@@ -9,16 +9,24 @@ QImage instance from cv::Mat image. The QImageWidget should be used as widget fo
 #define QIMAGEWIDGET_H
 //------------------------------------------------------------------------------------------------------
 
-#include <QWidget>
+
 #include <QImage>
 #include <QPainter>
 #include <QMouseEvent>
-
 #include <opencv2/opencv.hpp>
+
+#ifdef REPLACE_WIDGET_TO_OPENGLWIDGET
+    #include <QOpenGLWidget>
+    #include <QSurfaceFormat>
+    #define WIDGET_CLASS QOpenGLWidget
+#else
+    #include <QWidget>
+    #define WIDGET_CLASS QWidget
+#endif
 
 //------------------------------------------------------------------------------------------------------
 
-class QImageWidget : public QWidget
+class QImageWidget : public WIDGET_CLASS
 {
     Q_OBJECT
 

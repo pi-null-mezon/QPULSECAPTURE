@@ -50,15 +50,15 @@ FORMS += qsettingsdialog.ui \
          qprocessingdialog.ui
 
 TRANSLATIONS += $$PWD/../Resources/Docs/Translation_Rus.ts
-
-
 RC_ICONS = $$PWD/../Resources/Docs/App.ico
-CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT \
-                                           QT_NO_DEBUG_OUTPUT
+
+#CONFIG(release, debug|release): DEFINES += QT_NO_WARNING_OUTPUT \
+#                                           QT_NO_DEBUG_OUTPUT
 
 include(OPENCV.pri)
 include(FFTW.pri)
 include(ALGLIB.pri)
+include(OpenGL.pri)
 
 
 

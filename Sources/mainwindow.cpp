@@ -268,7 +268,7 @@ void MainWindow::createThreads()
     qRegisterMetaType<cv::Rect>("cv::Rect");
 
     //----------------------Connections------------------------------
-    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double,quint32)), pt_display, SLOT(updateImage(cv::Mat,double,quint32))/*, Qt::BlockingQueuedConnection*/);
+    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double,quint32)), pt_display, SLOT(updateImage(cv::Mat,double,quint32)), Qt::BlockingQueuedConnection);
     connect(pt_display, SIGNAL(rect_was_entered(cv::Rect)), pt_opencvProcessor, SLOT(setRect(cv::Rect)));
     connect(pt_opencvProcessor, SIGNAL(selectRegion(const char*)), pt_display, SLOT(set_warning_status(const char*)));
     connect(pt_opencvProcessor, SIGNAL(mapRegionUpdated(cv::Rect)), pt_display, SLOT(updadeMapRegion(cv::Rect)));
