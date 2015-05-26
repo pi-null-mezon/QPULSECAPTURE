@@ -18,6 +18,8 @@
 #define BREATH_HALF_INTERVAL 1
 #define BREATH_SNR_TRESHOLD 5.0
 
+#define PRUNING_SKO_COEFF 3
+
 class QHarmonicProcessor : public QObject
 {
     Q_OBJECT

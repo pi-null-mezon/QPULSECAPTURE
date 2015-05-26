@@ -1,5 +1,5 @@
 #Some QWidgets in app will be replaced by QOpenGLWidget class if REPLACE_WIDGET_TO_OPENGLWIDGET is defined
-CONFIG += opengl
+#CONFIG += opengl
 
 opengl {
     DEFINES += REPLACE_WIDGET_TO_OPENGLWIDGET

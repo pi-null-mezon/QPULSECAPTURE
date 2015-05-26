@@ -111,14 +111,48 @@ QHarmonicProcessor::~QHarmonicProcessor()
 
 void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time)
 {
-    quint16 position = loopBuffer(curpos);
-    PCA_RAW_RGB(position, 0) = (qreal)red / area;
-    PCA_RAW_RGB(position, 1) = (qreal)green / area;
-    PCA_RAW_RGB(position, 2) = (qreal)blue / area;
+    quint16 pos = loopBuffer(curpos);   //a variable for position storing
+    qreal m_MeanCh1 = 0.0;    //a variable for mean value in channel1 storing
+    qreal m_MeanCh2 = 0.0;    //a variable for mean value in channel2 storing
+    qreal m_MeanCh3 = 0.0;    //
 
-    qreal m_MeanCh1;   //a variable for mean value in channel1 storing
-    qreal m_MeanCh2;   //a variable for mean value in channel2 storing
-    quint16 pos = 0;   //a variable for position storing
+    PCA_RAW_RGB(pos, 0) = (qreal)red / area;
+    PCA_RAW_RGB(pos, 1) = (qreal)green / area;
+    PCA_RAW_RGB(pos, 2) = (qreal)blue / area;
+
+    //color pruning block, based on statistics
+    for(quint16 i = 0; i < m_estimationInterval; i++)
+    {
+        pos = loopBuffer(curpos - i);
+        m_MeanCh1 += PCA_RAW_RGB(pos, 0);
+        m_MeanCh2 += PCA_RAW_RGB(pos, 1);
+        m_MeanCh3 += PCA_RAW_RGB(pos, 2);
+    }
+    m_MeanCh1 /= m_estimationInterval;
+    m_MeanCh2 /= m_estimationInterval;
+    m_MeanCh3 /= m_estimationInterval;
+    qreal sko1 = 0.0;
+    qreal sko2 = 0.0;
+    qreal sko3 = 0.0;
+    for(quint16 i = 0; i < m_estimationInterval; i++)
+    {
+        pos = loopBuffer(curpos - i);
+        sko1 += (PCA_RAW_RGB(pos, 0) - m_MeanCh1)*(PCA_RAW_RGB(pos, 0) - m_MeanCh1);
+        sko2 += (PCA_RAW_RGB(pos, 1) - m_MeanCh2)*(PCA_RAW_RGB(pos, 1) - m_MeanCh2);
+        sko3 += (PCA_RAW_RGB(pos, 2) - m_MeanCh3)*(PCA_RAW_RGB(pos, 2) - m_MeanCh3);
+    }
+    sko1 = sqrt(sko1 / (m_estimationInterval - 1));
+    sko2 = sqrt(sko2 / (m_estimationInterval - 1));
+    sko3 = sqrt(sko3 / (m_estimationInterval - 1));
+    pos = loopBuffer(curpos);
+    if( ((PCA_RAW_RGB(pos, 0) - m_MeanCh1) < -PRUNING_SKO_COEFF*sko1) || ((PCA_RAW_RGB(pos, 0) - m_MeanCh1) > PRUNING_SKO_COEFF*sko1) )
+        PCA_RAW_RGB(pos, 0) = m_MeanCh1;
+    if( ((PCA_RAW_RGB(pos, 1) - m_MeanCh2) < -PRUNING_SKO_COEFF*sko2) || ((PCA_RAW_RGB(pos, 1) - m_MeanCh2) > PRUNING_SKO_COEFF*sko2) )
+        PCA_RAW_RGB(pos, 1) = m_MeanCh2;
+    if( ((PCA_RAW_RGB(pos, 2) - m_MeanCh3) < -PRUNING_SKO_COEFF*sko3) || ((PCA_RAW_RGB(pos, 2) - m_MeanCh3) > PRUNING_SKO_COEFF*sko3) )
+        PCA_RAW_RGB(pos, 1) = m_MeanCh3;
+    //
+
 
     if(m_ColorChannel == RGB) {
 
@@ -284,7 +318,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
     //----------------------------------------------------------------------------
 
-    emit CurrentValues(v_HeartSignal[curpos], PCA_RAW_RGB(position, 0), PCA_RAW_RGB(position, 1), PCA_RAW_RGB(position, 2));
+    emit CurrentValues(v_HeartSignal[curpos], PCA_RAW_RGB(pos, 0), PCA_RAW_RGB(pos, 1), PCA_RAW_RGB(pos, 2));
     curpos = (++curpos) % m_DataLength; // for loop-like usage of ptData and the other arrays in this class
 }
 
