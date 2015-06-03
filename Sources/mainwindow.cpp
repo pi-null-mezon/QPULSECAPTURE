@@ -301,12 +301,12 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 bool MainWindow::openvideofile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open video file"), "/video", tr("Video (*.avi *.mp4 *.wmv)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open video file"), "/video", tr("Video (*.avi *.mp4 *.wmv *.mpeg1)"));
     while( !pt_videoCapture->openfile(fileName) ) {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not open video file!"), QMessageBox::Open | QMessageBox::Cancel, this, Qt::Dialog);
         if( msgBox.exec() == QMessageBox::Open )
         {
-            fileName = QFileDialog::getOpenFileName(this, tr("Open video file"), "/video", tr("Video (*.avi *.mp4 *.wmv)"));
+            fileName = QFileDialog::getOpenFileName(this, tr("Open video file"), "/video", tr("Video (*.avi *.mp4 *.wmv *.mpeg1)"));
         } else {
             return false;
         }

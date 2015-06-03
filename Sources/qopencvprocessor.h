@@ -39,6 +39,7 @@ public slots:
     void setFullFaceFlag(bool value);           // interface to define if algorithm will process full rectangle region returned by detectmultiscale(...) or parts them
     void mapProcess(const cv::Mat &input);
     void calibrate(bool value);
+    void setBlurSize(int size);
 
     cv::Rect getRect(); // returns current m_cvRect
     void setMapRegion(const cv::Rect &input_rect); // sets up map region, see m_mapRect
@@ -67,6 +68,8 @@ private:
 
     bool isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue);
     bool isCalibColor(unsigned char value);
+
+    int m_blurSize;
 };
 
 inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue)

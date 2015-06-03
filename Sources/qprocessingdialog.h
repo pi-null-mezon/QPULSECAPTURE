@@ -2,6 +2,7 @@
 #define QPROCESSINGDIALOG_H
 
 #include <QDialog>
+#include <qharmonicprocessor.h>
 
 namespace Ui {
 class QProcessingDialog;

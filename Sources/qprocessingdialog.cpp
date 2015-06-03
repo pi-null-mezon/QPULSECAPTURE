@@ -56,10 +56,10 @@ void QProcessingDialog::setLimits(int dataLength)
 void QProcessingDialog::on_BDefault_clicked()
 {
     ui->STimer->setValue(1000);
-    ui->SInterval->setValue(12);
-    ui->SbreathStrobe->setValue(5);
-    ui->SbreathAverage->setValue(80);
-    ui->SbreathCNInterval->setValue(32);
+    ui->SInterval->setValue(DEFAULT_NORMALIZATION_INTERVAL);
+    ui->SbreathStrobe->setValue(DEFAULT_BREATH_STROBE);
+    ui->SbreathAverage->setValue(DEFAULT_BREATH_AVERAGE);
+    ui->SbreathCNInterval->setValue(DEFAULT_NORMALIZATION_INTERVAL);
 }
 
 void QProcessingDialog::on_SbreathStrobe_valueChanged(int value)

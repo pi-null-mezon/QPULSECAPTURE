@@ -11,14 +11,17 @@
 #define SNR_TRESHOLD 2.0 // in most cases this value is suitable when (m_BufferLength == 256)
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
 #define DIGITAL_FILTER_LENGTH 5 // in counts
-#define MEAN_INTERVAL 12 // should be greater than one, but less than m_DataLength, determines initial value of m_estimationinterval
 
-#define BREATH_TOP_LIMIT 0.8 // in s^-1, it is 48 rpm
+#define BREATH_TOP_LIMIT 1.0 // in s^-1, it is 48 rpm
 #define BREATH_BOTTOM_LIMIT 0.0 // in s^-1, it is 0 rpm
 #define BREATH_HALF_INTERVAL 1
-#define BREATH_SNR_TRESHOLD 5.0
+#define BREATH_SNR_TRESHOLD 2.0
 
 #define PRUNING_SKO_COEFF 3
+#define DEFAULT_NORMALIZATION_INTERVAL 15
+#define DEFAULT_BREATH_AVERAGE 32
+#define DEFAULT_BREATH_STROBE 2
+
 
 class QHarmonicProcessor : public QObject
 {
@@ -131,6 +134,8 @@ private:
     quint16 m_BreathAverageInterval;
     quint16 m_BreathCNInterval;
     qreal m_BreathSNR;
+
+    bool m_pruningFlag;
 };
 
 // inline, for speed, must therefore reside in header file

@@ -21,13 +21,14 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_rightTreshold(80),
     m_output(1.0),
     m_ID(0),
-    m_estimationInterval(MEAN_INTERVAL),
+    m_estimationInterval(DEFAULT_NORMALIZATION_INTERVAL),
     m_HeartSNRControlFlag(false),
-    m_BreathStrobe(5),
+    m_BreathStrobe(DEFAULT_BREATH_STROBE),
     m_BreathStrobeCounter(0),
     m_BreathCurpos(0),
-    m_BreathAverageInterval(80),
-    m_BreathCNInterval(32)
+    m_BreathAverageInterval(DEFAULT_BREATH_AVERAGE),
+    m_BreathCNInterval(DEFAULT_NORMALIZATION_INTERVAL),
+    m_pruningFlag(false)
 {
     // Memory allocation
     v_RawCh1 = new qreal[m_DataLength];
@@ -121,43 +122,45 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     PCA_RAW_RGB(pos, 2) = (qreal)blue / area;
 
     //color pruning block, based on statistics
-    for(quint16 i = 0; i < m_estimationInterval; i++)
+    if(m_pruningFlag)
     {
-        pos = loopBuffer(curpos - i);
-        m_MeanCh1 += PCA_RAW_RGB(pos, 0);
-        m_MeanCh2 += PCA_RAW_RGB(pos, 1);
-        m_MeanCh3 += PCA_RAW_RGB(pos, 2);
+        for(quint16 i = 0; i < m_estimationInterval; i++)
+        {
+            pos = loopBuffer(curpos - i);
+            m_MeanCh1 += PCA_RAW_RGB(pos, 0);
+            m_MeanCh2 += PCA_RAW_RGB(pos, 1);
+            m_MeanCh3 += PCA_RAW_RGB(pos, 2);
+        }
+        m_MeanCh1 /= m_estimationInterval;
+        m_MeanCh2 /= m_estimationInterval;
+        m_MeanCh3 /= m_estimationInterval;
+        qreal sko1 = 0.0;
+        qreal sko2 = 0.0;
+        qreal sko3 = 0.0;
+        for(quint16 i = 0; i < m_estimationInterval; i++)
+        {
+            pos = loopBuffer(curpos - i);
+            sko1 += (PCA_RAW_RGB(pos, 0) - m_MeanCh1)*(PCA_RAW_RGB(pos, 0) - m_MeanCh1);
+            sko2 += (PCA_RAW_RGB(pos, 1) - m_MeanCh2)*(PCA_RAW_RGB(pos, 1) - m_MeanCh2);
+            sko3 += (PCA_RAW_RGB(pos, 2) - m_MeanCh3)*(PCA_RAW_RGB(pos, 2) - m_MeanCh3);
+        }
+        sko1 = sqrt(sko1 / (m_estimationInterval - 1));
+        sko2 = sqrt(sko2 / (m_estimationInterval - 1));
+        sko3 = sqrt(sko3 / (m_estimationInterval - 1));
+        pos = loopBuffer(curpos);
+        if( ((PCA_RAW_RGB(pos, 0) - m_MeanCh1) < -PRUNING_SKO_COEFF*sko1) || ((PCA_RAW_RGB(pos, 0) - m_MeanCh1) > PRUNING_SKO_COEFF*sko1) )
+            PCA_RAW_RGB(pos, 0) = m_MeanCh1;
+        if( ((PCA_RAW_RGB(pos, 1) - m_MeanCh2) < -PRUNING_SKO_COEFF*sko2) || ((PCA_RAW_RGB(pos, 1) - m_MeanCh2) > PRUNING_SKO_COEFF*sko2) )
+            PCA_RAW_RGB(pos, 1) = m_MeanCh2;
+        if( ((PCA_RAW_RGB(pos, 2) - m_MeanCh3) < -PRUNING_SKO_COEFF*sko3) || ((PCA_RAW_RGB(pos, 2) - m_MeanCh3) > PRUNING_SKO_COEFF*sko3) )
+            PCA_RAW_RGB(pos, 2) = m_MeanCh3;
     }
-    m_MeanCh1 /= m_estimationInterval;
-    m_MeanCh2 /= m_estimationInterval;
-    m_MeanCh3 /= m_estimationInterval;
-    qreal sko1 = 0.0;
-    qreal sko2 = 0.0;
-    qreal sko3 = 0.0;
-    for(quint16 i = 0; i < m_estimationInterval; i++)
-    {
-        pos = loopBuffer(curpos - i);
-        sko1 += (PCA_RAW_RGB(pos, 0) - m_MeanCh1)*(PCA_RAW_RGB(pos, 0) - m_MeanCh1);
-        sko2 += (PCA_RAW_RGB(pos, 1) - m_MeanCh2)*(PCA_RAW_RGB(pos, 1) - m_MeanCh2);
-        sko3 += (PCA_RAW_RGB(pos, 2) - m_MeanCh3)*(PCA_RAW_RGB(pos, 2) - m_MeanCh3);
-    }
-    sko1 = sqrt(sko1 / (m_estimationInterval - 1));
-    sko2 = sqrt(sko2 / (m_estimationInterval - 1));
-    sko3 = sqrt(sko3 / (m_estimationInterval - 1));
-    pos = loopBuffer(curpos);
-    if( ((PCA_RAW_RGB(pos, 0) - m_MeanCh1) < -PRUNING_SKO_COEFF*sko1) || ((PCA_RAW_RGB(pos, 0) - m_MeanCh1) > PRUNING_SKO_COEFF*sko1) )
-        PCA_RAW_RGB(pos, 0) = m_MeanCh1;
-    if( ((PCA_RAW_RGB(pos, 1) - m_MeanCh2) < -PRUNING_SKO_COEFF*sko2) || ((PCA_RAW_RGB(pos, 1) - m_MeanCh2) > PRUNING_SKO_COEFF*sko2) )
-        PCA_RAW_RGB(pos, 1) = m_MeanCh2;
-    if( ((PCA_RAW_RGB(pos, 2) - m_MeanCh3) < -PRUNING_SKO_COEFF*sko3) || ((PCA_RAW_RGB(pos, 2) - m_MeanCh3) > PRUNING_SKO_COEFF*sko3) )
-        PCA_RAW_RGB(pos, 1) = m_MeanCh3;
-    //
 
 
     if(m_ColorChannel == RGB) {
 
-        v_RawCh1[curpos] = (qreal)(red - green) / area;
-        v_RawCh2[curpos] = (qreal)(red + green - 2 * blue) / area;
+        v_RawCh1[curpos] = PCA_RAW_RGB(pos, 0) - PCA_RAW_RGB(pos, 1);
+        v_RawCh2[curpos] = PCA_RAW_RGB(pos, 0) + PCA_RAW_RGB(pos, 1) - 2 * PCA_RAW_RGB(pos, 2);
 
         m_MeanCh1 = 0.0;
         m_MeanCh2 = 0.0;
@@ -188,7 +191,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
     } else if(m_ColorChannel == Experimental) {
 
-        v_RawCh1[curpos] = (qreal)green / area;
+        v_RawCh1[curpos] = PCA_RAW_RGB(pos, 1);
 
         m_MeanCh1 = 0.0;
         for(quint16 i = 0; i < m_estimationInterval; i++)
@@ -203,54 +206,15 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
         switch(m_ColorChannel) {
             case Red:
-                v_RawCh1[curpos] = (qreal)red / area;
+                v_RawCh1[curpos] = PCA_RAW_RGB(pos, 0);
                 break;
             case Green:
-                v_RawCh1[curpos] = (qreal)green / area;
+                v_RawCh1[curpos] = PCA_RAW_RGB(pos, 1);
                 break;
             case Blue:
-                v_RawCh1[curpos] = (qreal)blue / area;
+                v_RawCh1[curpos] = PCA_RAW_RGB(pos, 2);
                 break;
         }
-
-        ///------------------------------------------Breath signal part-------------------------------------------
-        m_BreathStrobeCounter =  (++m_BreathStrobeCounter) % m_BreathStrobe;
-        if(m_BreathStrobeCounter ==  0)
-        {
-            v_BreathTime[m_BreathCurpos] = time;
-
-            ///Averaging from VPG
-            m_MeanCh1 = 0.0;
-            for(quint16 i = 0; i < m_BreathAverageInterval; i++)
-            {
-                m_MeanCh1 += v_RawCh1[loop(curpos - i)];
-            }
-            v_RawBreathSignal[m_BreathCurpos] = m_MeanCh1 / m_BreathAverageInterval;
-
-            ///Centering and normalization
-            m_MeanCh1 = 0.0;
-            for(quint16 i = 0; i < m_BreathCNInterval; i++)
-            {
-                m_MeanCh1 += v_RawBreathSignal[loop(m_BreathCurpos - i)];
-            }
-            m_MeanCh1 /= m_BreathCNInterval;
-            qreal temp_sko = 0.0;
-            for(quint16 i = 0; i < m_BreathCNInterval; i++)
-            {
-                temp_sko += (v_RawBreathSignal[loop(m_BreathCurpos - i)] - m_MeanCh1)*(v_RawBreathSignal[loop(m_BreathCurpos - i)] - m_MeanCh1);
-            }
-            temp_sko = sqrt(temp_sko / (m_BreathCNInterval - 1 ) );
-            if(temp_sko < 0.01)
-                temp_sko = 1.0;
-            v_BreathSignal[m_BreathCurpos] = ((( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko) + v_BreathSignal[loop(m_BreathCurpos - 1)] + v_BreathSignal[loop(m_BreathCurpos - 2)]  ) / 3.0;
-            emit breathSignalUpdated(v_BreathSignal, m_DataLength);
-            m_BreathCurpos = (++m_BreathCurpos) % m_DataLength;
-        }
-        else
-        {
-            v_BreathTime[m_BreathCurpos] += time;
-        }
-        ///--------------------------------------------End of breath signal part-------------------------------------------------
 
         m_MeanCh1 = 0.0;
         for(quint16 i = 0; i < m_estimationInterval; i++)
@@ -277,7 +241,42 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartCNSignal[loopInput(curpos - 1)] + v_HeartSignal[loop(curpos - 1)] + v_HeartSignal[loop(curpos - 2)] ) / 4.0;
     emit heartSignalUpdated(v_HeartSignal, m_DataLength);
 
-    //----------------------------------------------------------------------------
+    ///------------------------------------------Breath signal part-------------------------------------------
+    v_BreathTime[m_BreathCurpos] += time;
+    m_BreathStrobeCounter =  (++m_BreathStrobeCounter) % m_BreathStrobe;
+    if(m_BreathStrobeCounter ==  0)
+    {
+        ///Averaging from VPG
+        m_MeanCh1 = 0.0;
+        for(quint16 i = 0; i < m_BreathAverageInterval; i++)
+        {
+            m_MeanCh1 += v_RawCh1[loop(curpos - i)];
+        }
+        v_RawBreathSignal[m_BreathCurpos] = m_MeanCh1 / m_BreathAverageInterval;
+
+        ///Centering and normalization
+        m_MeanCh1 = 0.0;
+        for(quint16 i = 0; i < m_BreathCNInterval; i++)
+        {
+            m_MeanCh1 += v_RawBreathSignal[loop(m_BreathCurpos - i)];
+        }
+        m_MeanCh1 /= m_BreathCNInterval;
+        qreal temp_sko = 0.0;
+        for(quint16 i = 0; i < m_BreathCNInterval; i++)
+        {
+            temp_sko += (v_RawBreathSignal[loop(m_BreathCurpos - i)] - m_MeanCh1)*(v_RawBreathSignal[loop(m_BreathCurpos - i)] - m_MeanCh1);
+        }
+        temp_sko = sqrt(temp_sko / (m_BreathCNInterval - 1 ) );
+        if(temp_sko < 0.01)
+            temp_sko = 1.0;
+        v_BreathSignal[m_BreathCurpos] = ((( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko) + v_BreathSignal[loop(m_BreathCurpos - 1)] + v_BreathSignal[loop(m_BreathCurpos - 2)]  ) / 3.0;
+        //v_BreathSignal[m_BreathCurpos] = (v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko;
+        emit breathSignalUpdated(v_BreathSignal, m_DataLength);
+        m_BreathCurpos = (++m_BreathCurpos) % m_DataLength;
+        v_BreathTime[m_BreathCurpos] = 0.0;
+    }
+    ///--------------------------------------------End of breath signal part-------------------------------------------------
+
     qreal outputValue = 0.0;
     for(quint16 i = 0; i < DIGITAL_FILTER_LENGTH ; i++)
     {
@@ -686,7 +685,7 @@ void QHarmonicProcessor::computeBreathRate()
         }
         else
         {
-            noise_power += v_HeartAmplitude[i];
+            noise_power += v_BreathAmplitude[i];
         }
     }
     if((signal_power < 0.01) || (noise_power < 0.01))
