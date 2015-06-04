@@ -119,7 +119,7 @@ void MainWindow::createActions()
     pt_openPlotDialog->setStatusTip(tr("Create a new window for the visualization of appropriate process"));
     connect(pt_openPlotDialog, SIGNAL(triggered()), this, SLOT(createPlotDialog()));
 
-    pt_recordAct = new QAction(tr("&SignalsRec"), this);
+    pt_recordAct = new QAction(tr("&Signals"), this);
     pt_recordAct->setStatusTip(tr("Start to record signals counts in to output text file"));
     connect(pt_recordAct, SIGNAL(triggered()), this, SLOT(startRecord()));
     pt_recordAct->setCheckable(true);
@@ -182,14 +182,19 @@ void MainWindow::createActions()
     connect(pt_imageAct, SIGNAL(triggered(bool)), pt_display, SLOT(setImageFlag(bool)));
 
     pt_calibAct = new QAction(tr("&Calibrate"), this);
-    pt_calibAct->setStatusTip(tr("Calibrate colors on selected region"));
+    pt_calibAct->setStatusTip(tr("Calibrate color screening on selected region"));
     pt_calibAct->setCheckable(true);
     pt_calibAct->setChecked(false);
 
-    pt_measRecAct = new QAction(tr("&MeasureRec"), this);
+    pt_measRecAct = new QAction(tr("&Measurements"), this);
     pt_measRecAct->setStatusTip(tr("Start to record heart rate & breath rate in to output text file"));
     pt_measRecAct->setCheckable(true);
     connect(pt_measRecAct, SIGNAL(triggered()), this, SLOT(startMeasurementsRecord()));
+
+    pt_prunAct = new QAction(tr("Pruning"), this);
+    pt_prunAct->setStatusTip(tr("Toggles color pruning"));
+    pt_prunAct->setCheckable(true);
+    pt_prunAct->setChecked(false);
 }
 
 //------------------------------------------------------------------------------------
@@ -213,6 +218,8 @@ void MainWindow::createMenus()
     pt_modeMenu->addSeparator();
     pt_modeMenu->addAction(pt_skinAct);
     pt_modeMenu->addAction(pt_calibAct);
+    pt_modeMenu->addSeparator();
+    pt_modeMenu->addAction(pt_prunAct);
     pt_optionsMenu->setEnabled(false);
 
     pt_RecordsMenu = this->menuBar()->addMenu(tr("&Records"));
@@ -576,13 +583,20 @@ void MainWindow::configure_and_start_session()
         connect(pt_harmonicProcessor, SIGNAL(breathTooNoisy(qreal)), pt_display, SLOT(clearBreathRateString(qreal)));
         connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));
         connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPCAMode(bool)));
+        connect(pt_prunAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPruning(bool)));
         connect(pt_harmonicProcessor, SIGNAL(CurrentValues(qreal,qreal,qreal,qreal)), this, SLOT(make_record_to_file(qreal,qreal,qreal,qreal)));
         pt_harmonicThread->start();
 
-        m_timer.setInterval( m_settingsDialog.get_timerValue() );
-        pt_optionsMenu->setEnabled(true);
-        pt_RecordsMenu->setEnabled(true);
+        m_timer.setInterval( m_settingsDialog.get_timerValue() );     
         pt_greenAct->trigger(); // because green channel is default in QHarmonicProcessor
+        pt_prunAct->setChecked(false);
+        pt_pcaAct->setChecked(false);
+
+        if(m_sessionsCounter == 0)
+        {
+            pt_optionsMenu->setEnabled(true);
+            pt_RecordsMenu->setEnabled(true);
+        }
 
         if(m_settingsDialog.get_flagVideoFile())
         {
@@ -795,12 +809,12 @@ void MainWindow::startRecord()
         }
     }
 
-    m_signalsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/record.txt", "Text file (*.txt)"));
+    m_signalsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/ID" + QString::number(m_sessionsCounter)+ "_signals.txt", "Text file (*.txt)"));
 
     while(!m_signalsFile.open(QIODevice::WriteOnly))   {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not save file, try another name"), QMessageBox::Save | QMessageBox::Cancel, this, Qt::Dialog);
         if(msgBox.exec() == QMessageBox::Save) {
-            m_signalsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/record.txt", tr("Text file (*.txt)")));
+            m_signalsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/ID" + QString::number(m_sessionsCounter)+ "_signals.txt", tr("Text file (*.txt)")));
         }
         else {
             pt_recordAct->setChecked(false);
@@ -933,12 +947,12 @@ void MainWindow::startMeasurementsRecord()
         }
     }
 
-    m_measurementsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save measurements into a file"),"Records/measurement.txt", "Text file (*.txt)"));
+    m_measurementsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save measurements into a file"),"Records/ID" + QString::number(m_sessionsCounter)+ "_meas.txt", "Text file (*.txt)"));
 
     while(!m_measurementsFile.open(QIODevice::WriteOnly))   {
         QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not save file, try another name"), QMessageBox::Save | QMessageBox::Cancel, this, Qt::Dialog);
         if(msgBox.exec() == QMessageBox::Save) {
-            m_measurementsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/record.txt", tr("Text file (*.txt)")));
+            m_measurementsFile.setFileName(QFileDialog::getSaveFileName(this,tr("Save record to a file"),"Records/ID" + QString::number(m_sessionsCounter)+ "_meas.txt", tr("Text file (*.txt)")));
         }
         else {
             pt_measRecAct->setChecked(false);

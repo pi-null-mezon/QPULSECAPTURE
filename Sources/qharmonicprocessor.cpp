@@ -764,4 +764,8 @@ quint16 QHarmonicProcessor::getBreathCNInterval() const
 
 //------------------------------------------------------------------------------------------------
 
+void QHarmonicProcessor::setPruning(bool value)
+{
+    m_pruningFlag = value;
+}
 

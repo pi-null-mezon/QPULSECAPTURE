@@ -77,6 +77,7 @@ public slots:
     quint16 getBreathAverage() const;
     quint16 getBreathCNInterval() const;
     void setSnrControl(bool value);
+    void setPruning(bool value);
 
 
 private:
