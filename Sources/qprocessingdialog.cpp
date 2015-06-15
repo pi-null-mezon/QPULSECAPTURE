@@ -59,7 +59,7 @@ void QProcessingDialog::on_BDefault_clicked()
     ui->SInterval->setValue(DEFAULT_NORMALIZATION_INTERVAL);
     ui->SbreathStrobe->setValue(DEFAULT_BREATH_STROBE);
     ui->SbreathAverage->setValue(DEFAULT_BREATH_AVERAGE);
-    ui->SbreathCNInterval->setValue(DEFAULT_NORMALIZATION_INTERVAL);
+    ui->SbreathCNInterval->setValue(DEFAULT_BREATH_NORMALIZATION_INTERVAL);
 }
 
 void QProcessingDialog::on_SbreathStrobe_valueChanged(int value)

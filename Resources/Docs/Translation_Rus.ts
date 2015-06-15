@@ -92,7 +92,7 @@
     </message>
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="92"/>
-        <location filename="../../Sources/mainwindow.cpp" line="236"/>
+        <location filename="../../Sources/mainwindow.cpp" line="243"/>
         <source>&amp;Help</source>
         <translation>&amp;Помощь</translation>
     </message>
@@ -195,9 +195,8 @@
         <translation>АЧХ пульсограммы дыхания</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="122"/>
         <source>&amp;SignalsRec</source>
-        <translation>Запись &amp;сигнала</translation>
+        <translation type="vanished">Запись &amp;сигнала</translation>
     </message>
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="123"/>
@@ -320,14 +319,12 @@
         <translation>Ка&amp;либровать</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="185"/>
         <source>Calibrate colors on selected region</source>
-        <translation>Откалибровать доверительный интервал для зелёного цвета  по выделенной области</translation>
+        <translation type="vanished">Откалибровать доверительный интервал для зелёного цвета  по выделенной области</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="189"/>
         <source>&amp;MeasureRec</source>
-        <translation>Запись &amp;измерений</translation>
+        <translation type="vanished">Запись &amp;измерений</translation>
     </message>
     <message>
         <location filename="../../Sources/mainwindow.cpp" line="190"/>
@@ -335,212 +332,237 @@
         <translation>Начать запись измерений частоты аретриального пульса и частоты дыхания в файл на жёский диск</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="199"/>
+        <location filename="../../Sources/mainwindow.cpp" line="204"/>
         <source>&amp;Session</source>
         <translation>&amp;Сессия</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="205"/>
+        <location filename="../../Sources/mainwindow.cpp" line="210"/>
         <source>&amp;Options</source>
         <translation>&amp;Опции</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="209"/>
+        <location filename="../../Sources/mainwindow.cpp" line="214"/>
         <source>&amp;Light</source>
         <translation>&amp;Свет</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="211"/>
+        <location filename="../../Sources/mainwindow.cpp" line="216"/>
         <source>&amp;Mode</source>
         <translation>&amp;Режим</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="218"/>
+        <location filename="../../Sources/mainwindow.cpp" line="225"/>
         <source>&amp;Records</source>
         <translation>&amp;Экспорт</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="223"/>
+        <location filename="../../Sources/mainwindow.cpp" line="230"/>
         <source>&amp;Appearence</source>
         <translation>&amp;Вид</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="229"/>
+        <location filename="../../Sources/mainwindow.cpp" line="236"/>
         <source>&amp;Device</source>
         <translation>&amp;Видеокамера</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="304"/>
-        <location filename="../../Sources/mainwindow.cpp" line="309"/>
+        <location filename="../../Sources/mainwindow.cpp" line="311"/>
+        <location filename="../../Sources/mainwindow.cpp" line="316"/>
         <source>Open video file</source>
         <translation>Открыть файл видеозаписи</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="304"/>
-        <location filename="../../Sources/mainwindow.cpp" line="309"/>
-        <source>Video (*.avi *.mp4 *.wmv)</source>
+        <location filename="../../Sources/mainwindow.cpp" line="122"/>
+        <source>&amp;Signals</source>
+        <translation>&amp;Сигналы</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="185"/>
+        <source>Calibrate color screening algorithm on selected region</source>
+        <translation>Откалибровать алгоритм распознавания целевых оттенков цвета</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="189"/>
+        <source>&amp;Measurements</source>
+        <translation>&amp;Измерения</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="194"/>
+        <source>Pruning</source>
+        <translation>Отсеивание</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="195"/>
+        <source>Toggles experimental color pruning algorithm</source>
+        <translation>Включить/выключить экспериментальный алгоритм отбора значений цветовых дескрипторов</translation>
+    </message>
+    <message>
+        <location filename="../../Sources/mainwindow.cpp" line="311"/>
+        <location filename="../../Sources/mainwindow.cpp" line="316"/>
+        <source>Video (*.avi *.mp4 *.wmv *.mpeg1)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="306"/>
+        <location filename="../../Sources/mainwindow.cpp" line="313"/>
         <source>Can not open video file!</source>
         <translation>Не удаётся открыть файл видеозаписи!</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="343"/>
+        <location filename="../../Sources/mainwindow.cpp" line="350"/>
         <source>Can not open device!</source>
         <translation>Не удаётся открыть устройство видеозахвата!</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="403"/>
+        <location filename="../../Sources/mainwindow.cpp" line="410"/>
         <source>Can not open help file</source>
         <translation>Не удаётся открыть файл помощи</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="466"/>
+        <location filename="../../Sources/mainwindow.cpp" line="473"/>
         <source>Can not open device resolution dialog!</source>
         <translation>Не удаётся открыть диалог!</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="478"/>
+        <location filename="../../Sources/mainwindow.cpp" line="485"/>
         <source>Can not open device settings dialog!</source>
         <translation>Не удаётся открыть диалог!</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="489"/>
+        <location filename="../../Sources/mainwindow.cpp" line="496"/>
         <source>Can not open utility!</source>
         <translation>Не удаётся открыть утилиту!</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="529"/>
+        <location filename="../../Sources/mainwindow.cpp" line="536"/>
         <source>Can not find population distribution file</source>
         <translation>Не удаётся найти файл с популяционной нормой частот</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="541"/>
+        <location filename="../../Sources/mainwindow.cpp" line="548"/>
         <source>Can not load classifier file</source>
         <translation>Не удаётся загрузить фал с шаблоном для классификатора</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="544"/>
+        <location filename="../../Sources/mainwindow.cpp" line="551"/>
         <source>Open file</source>
         <translation>Открыть файл</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="544"/>
+        <location filename="../../Sources/mainwindow.cpp" line="551"/>
         <source>Cascade (*.xml)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="605"/>
+        <location filename="../../Sources/mainwindow.cpp" line="619"/>
         <source>Plot options available through Menu-&gt;Options-&gt;New plot</source>
         <translation>Опции визуализации доступны в меню Опции-&gt;Новое окно</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="610"/>
+        <location filename="../../Sources/mainwindow.cpp" line="624"/>
         <source>You can prolong Paused session by means of Resume option in context menu</source>
         <translation>Вы можете продолжить остановленную сессию выбором пункта Продолжить из контекстного меню</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="623"/>
+        <location filename="../../Sources/mainwindow.cpp" line="637"/>
         <source>Select appropriate plot type:</source>
         <translation>Выберите желаемый вид графика:</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="627"/>
+        <location filename="../../Sources/mainwindow.cpp" line="641"/>
         <source>Accept</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="628"/>
+        <location filename="../../Sources/mainwindow.cpp" line="642"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="644"/>
+        <location filename="../../Sources/mainwindow.cpp" line="658"/>
         <source>Plot select dialog</source>
         <translation>Тип окна</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="663"/>
         <location filename="../../Sources/mainwindow.cpp" line="677"/>
-        <location filename="../../Sources/mainwindow.cpp" line="685"/>
         <location filename="../../Sources/mainwindow.cpp" line="691"/>
-        <location filename="../../Sources/mainwindow.cpp" line="707"/>
+        <location filename="../../Sources/mainwindow.cpp" line="699"/>
+        <location filename="../../Sources/mainwindow.cpp" line="705"/>
+        <location filename="../../Sources/mainwindow.cpp" line="721"/>
         <source>Frame</source>
         <translation>Кадр</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="663"/>
+        <location filename="../../Sources/mainwindow.cpp" line="677"/>
         <source>Centered &amp; normalized signal</source>
         <translation>Центрированный и нормализованный сигнал светоотражения</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="669"/>
-        <location filename="../../Sources/mainwindow.cpp" line="715"/>
+        <location filename="../../Sources/mainwindow.cpp" line="683"/>
+        <location filename="../../Sources/mainwindow.cpp" line="729"/>
         <source>Freq.count</source>
         <translation>Частотный отсчёт</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="669"/>
-        <location filename="../../Sources/mainwindow.cpp" line="715"/>
+        <location filename="../../Sources/mainwindow.cpp" line="683"/>
+        <location filename="../../Sources/mainwindow.cpp" line="729"/>
         <source>DFT amplitude spectrum</source>
         <translation>Амплитудно-частотный спектр ДПФ сигнала светоотражения</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="677"/>
+        <location filename="../../Sources/mainwindow.cpp" line="691"/>
         <source>processing period per frame, ms</source>
         <translation>Время обработки кадра, мс</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="685"/>
+        <location filename="../../Sources/mainwindow.cpp" line="699"/>
         <source>Normalised &amp; centered projection on 1-st PCA direction</source>
         <translation>Проекция на первое направление ГК</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="691"/>
+        <location filename="../../Sources/mainwindow.cpp" line="705"/>
         <source>Digital derivative after smoothing</source>
         <translation>Отклик детектора</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="699"/>
-        <location filename="../../Sources/mainwindow.cpp" line="707"/>
+        <location filename="../../Sources/mainwindow.cpp" line="713"/>
+        <location filename="../../Sources/mainwindow.cpp" line="721"/>
         <source>Signal count</source>
         <translation>Отсчёт центрированного и нормированного сигнала светоотражения</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="723"/>
+        <location filename="../../Sources/mainwindow.cpp" line="737"/>
         <source>Axis font</source>
         <translation>Шрифт системы координат</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="725"/>
+        <location filename="../../Sources/mainwindow.cpp" line="739"/>
         <source>Trace color</source>
         <translation>Цвет линии</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="727"/>
+        <location filename="../../Sources/mainwindow.cpp" line="741"/>
         <source>BG color</source>
         <translation>Цвет фона</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="729"/>
+        <location filename="../../Sources/mainwindow.cpp" line="743"/>
         <source>CS color</source>
         <translation>Цвет системы координат</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="741"/>
+        <location filename="../../Sources/mainwindow.cpp" line="755"/>
         <source>You came up to a limit of dialogs ailable</source>
         <translation>Вы уже достигли предельного количества доступных окон визуализации</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="791"/>
-        <location filename="../../Sources/mainwindow.cpp" line="929"/>
+        <location filename="../../Sources/mainwindow.cpp" line="805"/>
+        <location filename="../../Sources/mainwindow.cpp" line="943"/>
         <source>Another record?</source>
         <translation>Начать новую запись?</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="936"/>
+        <location filename="../../Sources/mainwindow.cpp" line="950"/>
         <source>Save measurements into a file</source>
         <translation>Сохранить измерения в файл</translation>
     </message>
@@ -553,41 +575,41 @@
         <translation type="vanished">Не удаётся сохранить фал, попробуте другое наименование</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="798"/>
-        <location filename="../../Sources/mainwindow.cpp" line="803"/>
-        <location filename="../../Sources/mainwindow.cpp" line="941"/>
+        <location filename="../../Sources/mainwindow.cpp" line="812"/>
+        <location filename="../../Sources/mainwindow.cpp" line="817"/>
+        <location filename="../../Sources/mainwindow.cpp" line="955"/>
         <source>Save record to a file</source>
         <translation>Сохранить запись в файл</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="801"/>
-        <location filename="../../Sources/mainwindow.cpp" line="939"/>
+        <location filename="../../Sources/mainwindow.cpp" line="815"/>
+        <location filename="../../Sources/mainwindow.cpp" line="953"/>
         <source>Can not save file, try another name</source>
         <translation>Не получается сохранить файл, попробуйте другое имя</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="803"/>
-        <location filename="../../Sources/mainwindow.cpp" line="941"/>
+        <location filename="../../Sources/mainwindow.cpp" line="817"/>
+        <location filename="../../Sources/mainwindow.cpp" line="955"/>
         <source>Text file (*.txt)</source>
         <translation>Текстовый файл (*.txt)</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="828"/>
+        <location filename="../../Sources/mainwindow.cpp" line="842"/>
         <source>Select region on image first</source>
         <translation>Сначала выберите область изображения</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="835"/>
+        <location filename="../../Sources/mainwindow.cpp" line="849"/>
         <source>Another map?</source>
         <translation>Новая карта?</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="912"/>
+        <location filename="../../Sources/mainwindow.cpp" line="926"/>
         <source>Warning</source>
         <translation>Внимание</translation>
     </message>
     <message>
-        <location filename="../../Sources/mainwindow.cpp" line="912"/>
+        <location filename="../../Sources/mainwindow.cpp" line="926"/>
         <source>Start new session before!</source>
         <translation>Начните новую сессию измерений!</translation>
     </message>
@@ -628,17 +650,17 @@
         <translation> дБл</translation>
     </message>
     <message>
-        <location filename="../../Sources/qopencvprocessor.cpp" line="265"/>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="266"/>
         <source>Load cascade for detection</source>
         <translation>Загрузите шаблон для распознавания</translation>
     </message>
     <message>
-        <location filename="../../Sources/qopencvprocessor.cpp" line="269"/>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="270"/>
         <source>Come closer or change light</source>
         <translation>Приблизьтесь или поменяйте свет</translation>
     </message>
     <message>
-        <location filename="../../Sources/qopencvprocessor.cpp" line="415"/>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="419"/>
         <source>Select region on image</source>
         <translation>Выберите область изображения</translation>
     </message>
@@ -954,75 +976,75 @@
         <translation>Настройки картирования</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="62"/>
-        <location filename="../../Sources/mappingdialog.ui" line="106"/>
-        <location filename="../../Sources/mappingdialog.ui" line="187"/>
-        <location filename="../../Sources/mappingdialog.ui" line="212"/>
+        <location filename="../../Sources/mappingdialog.ui" line="56"/>
+        <location filename="../../Sources/mappingdialog.ui" line="233"/>
+        <location filename="../../Sources/mappingdialog.ui" line="286"/>
+        <location filename="../../Sources/mappingdialog.ui" line="311"/>
         <source>void</source>
         <translation>void</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="87"/>
+        <location filename="../../Sources/mappingdialog.ui" line="365"/>
         <source>Height:</source>
         <translation>Высота:</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="165"/>
+        <location filename="../../Sources/mappingdialog.ui" line="258"/>
         <source>Image size</source>
         <translation>Регион</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="237"/>
+        <location filename="../../Sources/mappingdialog.ui" line="192"/>
         <source>Width:</source>
         <translation>Ширина:</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="265"/>
+        <location filename="../../Sources/mappingdialog.ui" line="132"/>
         <source>probe 01</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="281"/>
+        <location filename="../../Sources/mappingdialog.ui" line="406"/>
         <source>What to map:</source>
         <translation>Тип:</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="300"/>
+        <location filename="../../Sources/mappingdialog.ui" line="173"/>
         <source>Set detalization level:</source>
         <translation>Уровень детализации:</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="319"/>
+        <location filename="../../Sources/mappingdialog.ui" line="336"/>
         <source>pxels per celll</source>
         <translation>пикселей на клетку</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="341"/>
+        <location filename="../../Sources/mappingdialog.ui" line="211"/>
         <source>Map size</source>
         <translation>Карта</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="370"/>
+        <location filename="../../Sources/mappingdialog.ui" line="88"/>
         <source>Blood Pulse Imaging</source>
         <translation>Амплитуда отсчётов ВПГ</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="375"/>
+        <location filename="../../Sources/mappingdialog.ui" line="93"/>
         <source>Smooth Blood Pulse Imaging</source>
         <translation>Слаженная амплитуда отсчётов ВПГ</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="380"/>
+        <location filename="../../Sources/mappingdialog.ui" line="98"/>
         <source>SNR imaging</source>
         <translation>Отношение сигнал-шум</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="385"/>
+        <location filename="../../Sources/mappingdialog.ui" line="103"/>
         <source>Amplitude of pulse</source>
         <translation>Амплитуда пульсовой гармоники</translation>
     </message>
     <message>
-        <location filename="../../Sources/mappingdialog.ui" line="406"/>
+        <location filename="../../Sources/mappingdialog.ui" line="154"/>
         <source>Update cells with high SNR only</source>
         <translation>Обновлять только клетки с высоким SNR</translation>
     </message>

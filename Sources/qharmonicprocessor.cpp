@@ -27,7 +27,7 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_BreathStrobeCounter(0),
     m_BreathCurpos(0),
     m_BreathAverageInterval(DEFAULT_BREATH_AVERAGE),
-    m_BreathCNInterval(DEFAULT_NORMALIZATION_INTERVAL),
+    m_BreathCNInterval(DEFAULT_BREATH_NORMALIZATION_INTERVAL),
     m_pruningFlag(false)
 {
     // Memory allocation
@@ -238,7 +238,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     v_HeartTime[curpos] = time;
     emit TimeUpdated(v_HeartTime, m_DataLength);
     //v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartSignal[loop(curpos - 1)] ) / 2.0;
-    v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartCNSignal[loopInput(curpos - 1)] + v_HeartSignal[loop(curpos - 1)] + v_HeartSignal[loop(curpos - 2)] ) / 4.0;
+    v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartCNSignal[loopInput(curpos - 1)] + v_HeartCNSignal[loopInput(curpos - 2)] + v_HeartSignal[loop(curpos - 1)] ) / 4.0;
     emit heartSignalUpdated(v_HeartSignal, m_DataLength);
 
     ///------------------------------------------Breath signal part-------------------------------------------
@@ -269,7 +269,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         temp_sko = sqrt(temp_sko / (m_BreathCNInterval - 1 ) );
         if(temp_sko < 0.01)
             temp_sko = 1.0;
-        v_BreathSignal[m_BreathCurpos] = ((( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko) + v_BreathSignal[loop(m_BreathCurpos - 1)] + v_BreathSignal[loop(m_BreathCurpos - 2)]  ) / 3.0;
+        v_BreathSignal[m_BreathCurpos] = ((( v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko) + v_BreathSignal[loop(m_BreathCurpos - 1)] ) / 2.0;
         //v_BreathSignal[m_BreathCurpos] = (v_RawBreathSignal[m_BreathCurpos] - m_MeanCh1 ) / temp_sko;
         emit breathSignalUpdated(v_BreathSignal, m_DataLength);
         m_BreathCurpos = (++m_BreathCurpos) % m_DataLength;

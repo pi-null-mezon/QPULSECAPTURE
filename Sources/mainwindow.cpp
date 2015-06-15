@@ -182,7 +182,7 @@ void MainWindow::createActions()
     connect(pt_imageAct, SIGNAL(triggered(bool)), pt_display, SLOT(setImageFlag(bool)));
 
     pt_calibAct = new QAction(tr("&Calibrate"), this);
-    pt_calibAct->setStatusTip(tr("Calibrate color screening on selected region"));
+    pt_calibAct->setStatusTip(tr("Calibrate color screening algorithm on selected region"));
     pt_calibAct->setCheckable(true);
     pt_calibAct->setChecked(false);
 
@@ -192,7 +192,7 @@ void MainWindow::createActions()
     connect(pt_measRecAct, SIGNAL(triggered()), this, SLOT(startMeasurementsRecord()));
 
     pt_prunAct = new QAction(tr("Pruning"), this);
-    pt_prunAct->setStatusTip(tr("Toggles color pruning"));
+    pt_prunAct->setStatusTip(tr("Toggles experimental color pruning algorithm"));
     pt_prunAct->setCheckable(true);
     pt_prunAct->setChecked(false);
 }

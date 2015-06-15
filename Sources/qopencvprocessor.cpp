@@ -22,7 +22,7 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     v_pixelSet = NULL;
     m_seekCalibColors = false;
     m_calibFlag = false;
-    m_blurSize = 3;
+    m_blurSize = 4;
 }
 
 //-----------------------------------------------------------------------------------------------------
