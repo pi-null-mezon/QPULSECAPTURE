@@ -240,7 +240,7 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     v_HeartTime[curpos] = time;
     emit TimeUpdated(v_HeartTime, m_DataLength);
     //v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartSignal[loop(curpos - 1)] ) / 2.0;
-    v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartCNSignal[loopInput(curpos - 1)] + v_HeartCNSignal[loopInput(curpos - 2)] ) / 3.0;
+    v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartCNSignal[loopInput(curpos - 1)] + v_HeartCNSignal[loopInput(curpos - 2)] + v_HeartSignal[loop(curpos - 1)] ) / 4.0;
     emit heartSignalUpdated(v_HeartSignal, m_DataLength);
 
     ///------------------------------------------Breath signal part-------------------------------------------
