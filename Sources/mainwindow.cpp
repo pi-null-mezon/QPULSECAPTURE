@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent)
 {
     setWindowTitle(APP_NAME);
-    setMinimumSize(320, 240);
+    setMinimumSize(600, 400);
 
     pt_centralWidget = new QBackgroundWidget(NULL, palette().color(backgroundRole()));
     pt_centralWidgetLayout = new QVBoxLayout();

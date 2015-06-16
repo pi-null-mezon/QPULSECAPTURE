@@ -112,10 +112,13 @@ QHarmonicProcessor::~QHarmonicProcessor()
 
 void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time)
 {
-    quint16 pos = loopBuffer(curpos);   //a variable for position storing
+
+    const quint16 pos = loopBuffer(curpos);   //a variable for position storing
+
     qreal m_MeanCh1 = 0.0;    //a variable for mean value in channel1 storing
     qreal m_MeanCh2 = 0.0;    //a variable for mean value in channel2 storing
-    qreal m_MeanCh3 = 0.0;    //
+    qreal m_MeanCh3 = 0.0;
+    quint16 temp_pos;
 
     PCA_RAW_RGB(pos, 0) = (qreal)red / area;
     PCA_RAW_RGB(pos, 1) = (qreal)green / area;
@@ -126,10 +129,10 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
     {
         for(quint16 i = 0; i < m_estimationInterval; i++)
         {
-            pos = loopBuffer(curpos - i);
-            m_MeanCh1 += PCA_RAW_RGB(pos, 0);
-            m_MeanCh2 += PCA_RAW_RGB(pos, 1);
-            m_MeanCh3 += PCA_RAW_RGB(pos, 2);
+            temp_pos = loopBuffer(curpos - i);
+            m_MeanCh1 += PCA_RAW_RGB(temp_pos, 0);
+            m_MeanCh2 += PCA_RAW_RGB(temp_pos, 1);
+            m_MeanCh3 += PCA_RAW_RGB(temp_pos, 2);
         }
         m_MeanCh1 /= m_estimationInterval;
         m_MeanCh2 /= m_estimationInterval;
@@ -139,15 +142,14 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         qreal sko3 = 0.0;
         for(quint16 i = 0; i < m_estimationInterval; i++)
         {
-            pos = loopBuffer(curpos - i);
-            sko1 += (PCA_RAW_RGB(pos, 0) - m_MeanCh1)*(PCA_RAW_RGB(pos, 0) - m_MeanCh1);
-            sko2 += (PCA_RAW_RGB(pos, 1) - m_MeanCh2)*(PCA_RAW_RGB(pos, 1) - m_MeanCh2);
-            sko3 += (PCA_RAW_RGB(pos, 2) - m_MeanCh3)*(PCA_RAW_RGB(pos, 2) - m_MeanCh3);
+            temp_pos = loopBuffer(curpos - i);
+            sko1 += (PCA_RAW_RGB(temp_pos, 0) - m_MeanCh1)*(PCA_RAW_RGB(temp_pos, 0) - m_MeanCh1);
+            sko2 += (PCA_RAW_RGB(temp_pos, 1) - m_MeanCh2)*(PCA_RAW_RGB(temp_pos, 1) - m_MeanCh2);
+            sko3 += (PCA_RAW_RGB(temp_pos, 2) - m_MeanCh3)*(PCA_RAW_RGB(temp_pos, 2) - m_MeanCh3);
         }
         sko1 = sqrt(sko1 / (m_estimationInterval - 1));
         sko2 = sqrt(sko2 / (m_estimationInterval - 1));
         sko3 = sqrt(sko3 / (m_estimationInterval - 1));
-        pos = loopBuffer(curpos);
         if( ((PCA_RAW_RGB(pos, 0) - m_MeanCh1) < -PRUNING_SKO_COEFF*sko1) || ((PCA_RAW_RGB(pos, 0) - m_MeanCh1) > PRUNING_SKO_COEFF*sko1) )
             PCA_RAW_RGB(pos, 0) = m_MeanCh1;
         if( ((PCA_RAW_RGB(pos, 1) - m_MeanCh2) < -PRUNING_SKO_COEFF*sko2) || ((PCA_RAW_RGB(pos, 1) - m_MeanCh2) > PRUNING_SKO_COEFF*sko2) )
@@ -166,9 +168,9 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         m_MeanCh2 = 0.0;
         for(quint16 i = 0; i < m_estimationInterval; i++)
         {
-            pos = loop(curpos - i);
-            m_MeanCh1 += v_RawCh1[pos];
-            m_MeanCh2 += v_RawCh2[pos];
+            temp_pos = loop(curpos - i);
+            m_MeanCh1 += v_RawCh1[temp_pos];
+            m_MeanCh2 += v_RawCh2[temp_pos];
         }
         m_MeanCh1 /= m_estimationInterval;
         m_MeanCh2 /= m_estimationInterval;
@@ -177,9 +179,9 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         qreal ch2_sko = 0.0;
         for (unsigned int i = 0; i < m_estimationInterval; i++)
         {
-            pos = loop(curpos - i);
-            ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
-            ch2_sko += (v_RawCh2[pos] - m_MeanCh2)*(v_RawCh2[pos] - m_MeanCh2);
+            temp_pos = loop(curpos - i);
+            ch1_sko += (v_RawCh1[temp_pos] - m_MeanCh1)*(v_RawCh1[temp_pos] - m_MeanCh1);
+            ch2_sko += (v_RawCh2[temp_pos] - m_MeanCh2)*(v_RawCh2[temp_pos] - m_MeanCh2);
         }
         ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
         if(ch1_sko < 0.01)
@@ -226,8 +228,8 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
         qreal ch1_sko = 0.0;
         for (quint16 i = 0; i < m_estimationInterval; i++)
         {
-            pos = loop(curpos - i);
-            ch1_sko += (v_RawCh1[pos] - m_MeanCh1)*(v_RawCh1[pos] - m_MeanCh1);
+            temp_pos = loop(curpos - i);
+            ch1_sko += (v_RawCh1[temp_pos] - m_MeanCh1)*(v_RawCh1[temp_pos] - m_MeanCh1);
         }
         ch1_sko = sqrt(ch1_sko / (m_estimationInterval - 1));
         if(ch1_sko < 0.01)
@@ -237,8 +239,8 @@ void QHarmonicProcessor::EnrollData(unsigned long red, unsigned long green, unsi
 
     v_HeartTime[curpos] = time;
     emit TimeUpdated(v_HeartTime, m_DataLength);
-    //v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartSignal[loop(curpos - 1)] ) / 2.0;
-    v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartCNSignal[loopInput(curpos - 1)] + v_HeartCNSignal[loopInput(curpos - 2)] + v_HeartSignal[loop(curpos - 1)] ) / 4.0;
+    v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartSignal[loop(curpos - 1)] ) / 2.0;
+    //v_HeartSignal[curpos] = ( v_HeartCNSignal[loopInput(curpos)] + v_HeartCNSignal[loopInput(curpos - 1)] + v_HeartCNSignal[loopInput(curpos - 2)] + v_HeartSignal[loop(curpos - 1)] ) / 4.0;
     emit heartSignalUpdated(v_HeartSignal, m_DataLength);
 
     ///------------------------------------------Breath signal part-------------------------------------------
