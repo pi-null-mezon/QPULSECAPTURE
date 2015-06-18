@@ -2,7 +2,8 @@
 CONFIG += opengl
 
 opengl {
-    DEFINES += REPLACE_WIDGET_TO_OPENGLWIDGET
+    DEFINES += REPLACE_WIDGET_TO_OPENGLWIDGET\
+               SAMPLES_FOR_OPENGLWIDGET=3
     message(Compiles with OpenGL support)
 } else {
     message(Compiles without OpenGL support)

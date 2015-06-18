@@ -58,6 +58,7 @@ protected:
     void paintEvent(QPaintEvent*);
     void mousePressEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent *event);
+    void setSamplesNumber(int value);
 
 private:
     QImage qt_image;        // stores current QImage instance

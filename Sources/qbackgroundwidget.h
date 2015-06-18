@@ -1,9 +1,16 @@
 #ifndef QBACKGROUNDWIDGET_H
 #define QBACKGROUNDWIDGET_H
 
-#include <QWidget>
+#ifdef REPLACE_WIDGET_TO_OPENGLWIDGET
+    #include <QOpenGLWidget>
+    #include <QSurfaceFormat>
+    #define WIDGET_CLASS QOpenGLWidget
+#else
+    #include <QWidget>
+    #define WIDGET_CLASS QWidget
+#endif
 
-class QBackgroundWidget : public QWidget
+class QBackgroundWidget : public WIDGET_CLASS
 {
     Q_OBJECT
 public:
@@ -13,6 +20,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *);
+    void setSamplesNumber(int value);
 
 private:
     QBrush m_backgroundBrush;

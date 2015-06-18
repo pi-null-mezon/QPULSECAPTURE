@@ -13,14 +13,7 @@ QImage instance from cv::Mat image. The QImageWidget should be used as widget fo
 
 QImageWidget::QImageWidget(QWidget *parent): WIDGET_CLASS(parent)
 {
-    #ifdef REPLACE_WIDGET_TO_OPENGLWIDGET
-        qWarning("QOpenGLWidget default samples: %d", this->format().samples());
-        this->setAutoFillBackground(true);
-        QSurfaceFormat format;
-        format.setSamples(3);   //antialiasing becomes better for high values, but performance becomes too slow (for the instance, 3 is good enought for Pentium IV)
-        this->setFormat(format);
-        qWarning("QOpenGLWidget manual samples: %d", this->format().samples());
-    #endif
+    setSamplesNumber(SAMPLES_FOR_OPENGLWIDGET);
 
     pt_data = NULL;
     m_margin = 10;
@@ -33,6 +26,19 @@ QImageWidget::QImageWidget(QWidget *parent): WIDGET_CLASS(parent)
     m_imageFlag = true;
     m_opacity = DEFAULT_OPACITY;
     computeColorTable();
+}
+//-----------------------------------------------------------------------------------
+
+void QImageWidget::setSamplesNumber(int value)
+{
+    #ifdef REPLACE_WIDGET_TO_OPENGLWIDGET
+        qWarning("QOpenGLWidget default samples: %d", this->format().samples());
+        this->setAutoFillBackground(true);
+        QSurfaceFormat format;
+        format.setSamples(value);   //antialiasing becomes better for high values, but performance becomes too slow (for the instance, 3 is good enought for Pentium IV)
+        this->setFormat(format);
+        qWarning("QOpenGLWidget manual samples: %d", this->format().samples());
+    #endif
 }
 
 //-----------------------------------------------------------------------------------
