@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QPULSECAPTURE"
-#define MyAppVersion "3.0.0.6"
+#define MyAppVersion "3.0.0.7"
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
@@ -13,7 +13,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{0D5E15E7-3920-40AC-BE5F-3509BA52B51C}
+AppId={{45C1AF96-3559-4E94-BA89-5A8BED29C374}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
