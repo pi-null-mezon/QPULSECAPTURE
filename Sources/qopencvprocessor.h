@@ -12,6 +12,8 @@ The simplest way to use it - rewrite appropriate section in QOpencvProcessor::cu
 #include <opencv2/opencv.hpp>
 
 #define CALIBRATION_VECTOR_LENGTH 25
+#define FACE_RECT_VECTOR_LENGTH 9
+#define FRAMES_WITHOUT_FACE_TRESHOLD 7
 
 //------------------------------------------------------------------------------------------------------
 
@@ -36,7 +38,6 @@ public slots:
     void faceProcess(const cv::Mat &input);     // an algorithm that evaluates PPG from skin region, region evaluates by means of opencv's cascadeclassifier functions
     void rectProcess(const cv::Mat &input);     // an algorithm that evaluates PPG from skin region defined by user
     bool loadClassifier(const std::string& filename); // an interface to CascadeClassifier::load(...) function
-    void setFullFaceFlag(bool value);           // interface to define if algorithm will process full rectangle region returned by detectmultiscale(...) or parts them
     void mapProcess(const cv::Mat &input);
     void calibrate(bool value);
     void setBlurSize(int size);
@@ -70,6 +71,15 @@ private:
     bool isCalibColor(unsigned char value);
 
     int m_blurSize;
+
+    bool f_frameWasEmpty;
+    quint8 m_emptyFrames;
+    cv::Rect v_faceRect[FACE_RECT_VECTOR_LENGTH];
+    quint8 m_facePos;
+    cv::Rect m_ellipsRect;
+    cv::Rect getAverageFaceRect() const;
+    cv::Rect enrollFaceRect(const cv::Rect &rect);
+    bool isInEllips(int x, int y) const;
 };
 
 inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue)
@@ -107,6 +117,15 @@ inline bool QOpencvProcessor::isCalibColor(unsigned char value)
     {
         return true;
     } else return false;
+}
+
+inline bool QOpencvProcessor::isInEllips(int x, int y) const
+{
+    qreal cx = (m_ellipsRect.x + m_ellipsRect.width / 2.0 - x) / (m_ellipsRect.width / 2.0);
+    qreal cy = (m_ellipsRect.y + m_ellipsRect.height/ 2.0 - y) / (m_ellipsRect.height / 2.0);
+    if( (cx*cx + cy*cy) < 1.0 )
+        return true;
+    return false;
 }
 
 
