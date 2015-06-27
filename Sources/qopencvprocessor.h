@@ -72,7 +72,6 @@ private:
 
     int m_blurSize;
 
-    bool f_frameWasEmpty;
     quint16 m_emptyFrames;
     cv::Rect v_faceRect[FACE_RECT_VECTOR_LENGTH];
     quint8 m_facePos;

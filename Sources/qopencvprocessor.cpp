@@ -25,7 +25,6 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_calibFlag = false;
     m_blurSize = 4;
     //------------
-    f_frameWasEmpty = false;
     m_emptyFrames = 0;
     m_facePos = 0;
     //------------
