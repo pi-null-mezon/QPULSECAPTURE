@@ -108,10 +108,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
 
     cv::Rect face(0,0,0,0);
     if(faces_vector.size() == 0) {
-        if(f_frameWasEmpty) {
-            m_emptyFrames++;
-        }
-        f_frameWasEmpty = true;
+        m_emptyFrames++;
         if(m_emptyFrames < FRAMES_WITHOUT_FACE_TRESHOLD) {
             face = getAverageFaceRect();
         }

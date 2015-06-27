@@ -13,7 +13,7 @@ The simplest way to use it - rewrite appropriate section in QOpencvProcessor::cu
 
 #define CALIBRATION_VECTOR_LENGTH 25
 #define FACE_RECT_VECTOR_LENGTH 9
-#define FRAMES_WITHOUT_FACE_TRESHOLD 7
+#define FRAMES_WITHOUT_FACE_TRESHOLD 9
 
 //------------------------------------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ private:
     int m_blurSize;
 
     bool f_frameWasEmpty;
-    quint8 m_emptyFrames;
+    quint16 m_emptyFrames;
     cv::Rect v_faceRect[FACE_RECT_VECTOR_LENGTH];
     quint8 m_facePos;
     cv::Rect m_ellipsRect;
