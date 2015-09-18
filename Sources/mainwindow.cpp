@@ -988,7 +988,7 @@ void MainWindow::updateMeasurementsRecord(qreal heartRate, qreal heartSNR, qreal
 
 void MainWindow::updateStatus(qreal value)
 {
-    pt_statusLabel->setText("spO2: " + QString::number(value, 'f', 3));
+    pt_statusLabel->setText(" spO2: " + QString::number(value, 'f', 3));
 }
 
 

@@ -53,11 +53,11 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_BreathPlan = fftw_plan_dft_r2c_1d(m_BufferLength, v_BreathForFFT, v_BreathSpectrum, FFTW_ESTIMATE);;
 
     v_BlueForFFT = new qreal[m_BufferLength];
-    m_BluePlan = fftw_plan_dft_r2c_1d(m_BufferLength, v_BlueForFFT, v_BlueSpectrum, FFTW_ESTIMATE);
     v_BlueSpectrum = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * (m_BufferLength/2 + 1));
+    m_BluePlan = fftw_plan_dft_r2c_1d(m_BufferLength, v_BlueForFFT, v_BlueSpectrum, FFTW_ESTIMATE);
     v_RedForFFT = new qreal[m_BufferLength];
-    m_RedPlan = fftw_plan_dft_r2c_1d(m_BufferLength, v_RedForFFT, v_RedSpectrum, FFTW_ESTIMATE);
     v_RedSpectrum = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * (m_BufferLength/2 + 1));
+    m_RedPlan = fftw_plan_dft_r2c_1d(m_BufferLength, v_RedForFFT, v_RedSpectrum, FFTW_ESTIMATE);
 
     // Vectors initialization
     for (quint16 i = 0; i < m_DataLength; i++)
@@ -378,7 +378,8 @@ void QHarmonicProcessor::computeHeartRate()
         quint16 pos;
         for (unsigned int i = 0; i < m_BufferLength; i++)
         {
-            pos = loop(temp_position - (m_BufferLength - 1) + i);
+            //pos = loop(temp_position - (m_BufferLength - 1) + i);
+            pos = loop(temp_position - i);
             v_HeartForFFT[i] = v_HeartSignal[pos];
             buffer_duration += v_HeartTime[pos];
         }
@@ -791,9 +792,9 @@ void QHarmonicProcessor::setPruning(bool value)
 
 void QHarmonicProcessor::computeSPO2(quint16 index)
 {
-    if( (HALF_INTERVAL < index) && (index < (m_BufferLength - HALF_INTERVAL)) )
+    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) )
     {
-        /*qint16 position = curpos - 1;
+        qint16 position = curpos - 1;
         quint16 pos;
         for(quint16 i = 0; i < m_BufferLength; i++)
         {
@@ -803,12 +804,10 @@ void QHarmonicProcessor::computeSPO2(quint16 index)
         }
         fftw_execute(m_BluePlan);
         fftw_execute(m_RedPlan);
-
         qreal dcRed = 0.0;
         qreal acRed = 0.0;
         qreal dcBlue = 0.0;
         qreal acBlue = 0.0;
-
         for(quint16 i = 0; i < HALF_INTERVAL; i++)
         {
             dcRed += v_RedSpectrum[i][0]*v_RedSpectrum[i][0] + v_RedSpectrum[i][1]*v_RedSpectrum[i][1];
@@ -823,10 +822,8 @@ void QHarmonicProcessor::computeSPO2(quint16 index)
             acBlue += v_BlueSpectrum[i][0]*v_BlueSpectrum[i][0] + v_BlueSpectrum[i][1]*v_BlueSpectrum[i][1];
         }
         acRed /= (2 * HALF_INTERVAL + 1);
-        acBlue /= (2 * HALF_INTERVAL + 1);*/
-
-
-        //m_SPO2 = (acRed * dcBlue)/(acBlue*dcRed);
+        acBlue /= (2 * HALF_INTERVAL + 1);
+        m_SPO2 = (m_SPO2 + (acRed * dcBlue)/(acBlue*dcRed))/2.0;
         emit spO2Updated(m_SPO2);
     }
 }
