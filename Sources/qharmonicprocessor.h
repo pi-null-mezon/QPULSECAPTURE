@@ -58,11 +58,14 @@ signals:
     void breathSnrUpdated(quint32 id, qreal snr_value);
     void measurementsUpdated(qreal heart_rate, qreal heart_snr, qreal breath_rate, qreal breath_snr);
 
+    void spO2Updated(const qreal value);
+
 public slots:
     void EnrollData(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double time);
-    void computeHeartRate(); // use FFT algorithm for HeartRate evaluation
-    void computeBreathRate();
-    void CountFrequency(); // use simple count algorithm on v_BinaryOutput for HeartRate evaluation
+    void computeHeartRate(); // computes Heart Rate by means of frequency analysis
+    void computeBreathRate(); // computes Breath Rate by means of frequency analysis
+    void computeSPO2(quint16 index); // computes SPO2 by means of frequency analysis and ratio of the ration method
+    void CountFrequency(); //simple time domain algorithm for HeartRate evaluation, not very accurate
     void setPCAMode(bool value); // controls PCA alignment
     void switchColorMode(int value); // controls colors enrollment
     int  loadWarningRates(const char *fileName, SexID sex, int age, TwoSideAlpha alpha);
@@ -136,6 +139,14 @@ private:
     quint16 m_BreathAverageInterval;
     quint16 m_BreathCNInterval;
     qreal m_BreathSNR;
+
+    fftw_plan m_BluePlan;
+    fftw_complex *v_BlueSpectrum;
+    qreal *v_BlueForFFT;
+    fftw_plan m_RedPlan;
+    fftw_complex *v_RedSpectrum;
+    qreal *v_RedForFFT;
+    qreal m_SPO2;
 
     bool m_pruningFlag;
 };

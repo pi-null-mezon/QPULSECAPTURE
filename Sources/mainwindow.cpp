@@ -46,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent):
     pt_infoLabel->setFont( QFont("MS Shell Dlg 2", 14, QFont::Normal) );
     pt_mainLayout->addWidget(pt_infoLabel);
 
+    pt_statusLabel = new QLabel();
+    this->statusBar()->addWidget(pt_statusLabel);
+
     //--------------------------------------------------------------
     createActions();
     createMenus();
@@ -581,6 +584,7 @@ void MainWindow::configure_and_start_session()
         connect(pt_harmonicProcessor, SIGNAL(heartRateUpdated(qreal,qreal,bool)), pt_display, SLOT(updateValues(qreal,qreal,bool)));
         connect(pt_harmonicProcessor, SIGNAL(breathRateUpdated(qreal,qreal)), pt_display, SLOT(updateBreathStrings(qreal,qreal)));
         connect(pt_harmonicProcessor, SIGNAL(breathTooNoisy(qreal)), pt_display, SLOT(clearBreathRateString(qreal)));
+        connect(pt_harmonicProcessor, SIGNAL(spO2Updated(qreal)), this, SLOT(updateStatus(qreal)));
         connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));
         connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPCAMode(bool)));
         connect(pt_prunAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPruning(bool)));
@@ -980,6 +984,11 @@ void MainWindow::updateMeasurementsRecord(qreal heartRate, qreal heartSNR, qreal
                              << heartSNR << "\t" << qRound(breathRate)
                              << "\t" << breathSNR << "\n";
     }
+}
+
+void MainWindow::updateStatus(qreal value)
+{
+    pt_statusLabel->setText("spO2: " + QString::number(value, 'f', 3));
 }
 
 

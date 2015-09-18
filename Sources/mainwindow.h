@@ -80,6 +80,7 @@ private:
     QVBoxLayout *pt_centralWidgetLayout;
     QVideoSlider *pt_videoSlider;
     QLabel *pt_infoLabel;
+    QLabel *pt_statusLabel;
     QAction *pt_openSessionAct;
     QAction *pt_exitAct;
     QAction *pt_aboutAct;
@@ -144,6 +145,7 @@ private slots:
     void closeAllDialogs();
     void make_record_to_file(qreal signalValue, qreal meanRed, qreal meanGreen, qreal meanBlue);
     void updateMeasurementsRecord(qreal heartRate, qreal heartSNR, qreal breathRate, qreal breathSNR);
+    void updateStatus(qreal value);
 };
 //------------------------------------------------------------------------------------------------------
 #endif // MAINWINDOW_H
