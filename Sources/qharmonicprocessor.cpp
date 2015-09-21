@@ -792,23 +792,23 @@ void QHarmonicProcessor::setPruning(bool value)
 
 void QHarmonicProcessor::computeSPO2(quint16 index)
 {
-    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) )
+    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) && (m_HeartSNR > 2.0) )
     {
         qint16 position = curpos - 1;
         quint16 pos;
         for(quint16 i = 0; i < m_BufferLength; i++)
         {
             pos = loopBuffer(position - i);
-            v_BlueForFFT[i] = PCA_RAW_RGB(pos,2);
+            v_BlueForFFT[i] = PCA_RAW_RGB(pos,1);
             v_RedForFFT[i] = PCA_RAW_RGB(pos,0);
         }
         fftw_execute(m_BluePlan);
         fftw_execute(m_RedPlan);
-        qreal dcRed = 0.0;
-        qreal acRed = 0.0;
-        qreal dcBlue = 0.0;
-        qreal acBlue = 0.0;
-        for(quint16 i = 0; i < HALF_INTERVAL; i++)
+        qreal dcRed = v_RedSpectrum[0][0]*v_RedSpectrum[0][0] + v_RedSpectrum[0][1]*v_RedSpectrum[0][1];
+        qreal acRed = v_RedSpectrum[index][0]*v_RedSpectrum[index][0] + v_RedSpectrum[index][1]*v_RedSpectrum[index][1];
+        qreal dcBlue = v_BlueSpectrum[0][0]*v_BlueSpectrum[0][0] + v_BlueSpectrum[0][1]*v_BlueSpectrum[0][1];
+        qreal acBlue = v_BlueSpectrum[index][0]*v_BlueSpectrum[index][0] + v_BlueSpectrum[index][1]*v_BlueSpectrum[index][1];
+        /*for(quint16 i = 0; i < HALF_INTERVAL; i++)
         {
             dcRed += v_RedSpectrum[i][0]*v_RedSpectrum[i][0] + v_RedSpectrum[i][1]*v_RedSpectrum[i][1];
             dcBlue += v_BlueSpectrum[i][0]*v_BlueSpectrum[i][0] + v_BlueSpectrum[i][1]*v_BlueSpectrum[i][1];
@@ -822,8 +822,11 @@ void QHarmonicProcessor::computeSPO2(quint16 index)
             acBlue += v_BlueSpectrum[i][0]*v_BlueSpectrum[i][0] + v_BlueSpectrum[i][1]*v_BlueSpectrum[i][1];
         }
         acRed /= (2 * HALF_INTERVAL + 1);
-        acBlue /= (2 * HALF_INTERVAL + 1);
-        m_SPO2 = (m_SPO2 + (acRed * dcBlue)/(acBlue*dcRed))/2.0;
+        acBlue /= (2 * HALF_INTERVAL + 1);*/
+        //m_SPO2 = (m_SPO2 + (acRed * dcBlue)/(acBlue*dcRed))/2.0;
+        m_SPO2 = ((0.94 + 1.5 * (acRed * dcBlue)/(acBlue*dcRed)) + m_SPO2) / 2.0;
+        if(m_SPO2 > 0.98)
+            m_SPO2 = 0.98;
         emit spO2Updated(m_SPO2);
     }
 }
