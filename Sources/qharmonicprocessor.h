@@ -15,7 +15,7 @@
 #define BREATH_TOP_LIMIT 1.0 // in s^-1, it is 60 rpm
 #define BREATH_BOTTOM_LIMIT 0.05 // in s^-1, it is 3 rpm
 #define BREATH_HALF_INTERVAL 2 // it will be (value * 2 + 1)
-#define BREATH_SNR_TRESHOLD 4.0
+#define BREATH_SNR_TRESHOLD 5.0
 
 #define PRUNING_SKO_COEFF 3
 #define DEFAULT_NORMALIZATION_INTERVAL 15

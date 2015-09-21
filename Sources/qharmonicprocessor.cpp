@@ -792,7 +792,7 @@ void QHarmonicProcessor::setPruning(bool value)
 
 void QHarmonicProcessor::computeSPO2(quint16 index)
 {
-    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) && (m_HeartSNR > 2.0) )
+    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) && (m_HeartSNR > 7.0) )
     {
         qint16 position = curpos - 1;
         quint16 pos;
@@ -823,10 +823,10 @@ void QHarmonicProcessor::computeSPO2(quint16 index)
         }
         acRed /= (2 * HALF_INTERVAL + 1);
         acBlue /= (2 * HALF_INTERVAL + 1);*/
-        //m_SPO2 = (m_SPO2 + (acRed * dcBlue)/(acBlue*dcRed))/2.0;
-        m_SPO2 = ((0.94 + 1.5 * (acRed * dcBlue)/(acBlue*dcRed)) + m_SPO2) / 2.0;
-        if(m_SPO2 > 0.98)
-            m_SPO2 = 0.98;
+        //m_SPO2 = (acRed * dcBlue)/(acBlue*dcRed);
+        m_SPO2 = ((0.93 + 1.0 * (acRed * dcBlue)/(acBlue*dcRed)) + m_SPO2) / 2.0;
+        if(m_SPO2 > 0.985)
+            m_SPO2 = 0.985;
         emit spO2Updated(m_SPO2);
     }
 }

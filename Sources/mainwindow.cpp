@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent):
     pt_mainLayout->addWidget(pt_infoLabel);
 
     pt_statusLabel = new QLabel();
-    this->statusBar()->addWidget(pt_statusLabel);
+    this->statusBar()->addPermanentWidget(pt_statusLabel);
 
     //--------------------------------------------------------------
     createActions();
@@ -271,6 +271,7 @@ void MainWindow::createThreads()
     pt_videoCapture = new QVideoCapture();
     pt_videoCapture->moveToThread(pt_videoThread);
     connect(pt_videoThread, &QThread::started, pt_videoCapture, &QVideoCapture::initiallizeTimer);
+    connect(pt_videoThread, &QThread::finished, pt_videoCapture, &QVideoCapture::close);
     connect(pt_videoThread, &QThread::finished, pt_videoCapture, &QVideoCapture::deleteLater);
 
     //----------Register openCV types in Qt meta-type system---------
@@ -419,8 +420,6 @@ void MainWindow::show_help()
 
 MainWindow::~MainWindow()
 {
-    emit closeVideo();
-
     if(m_signalsFile.isOpen())
     {
         m_signalsFile.close();
@@ -988,7 +987,7 @@ void MainWindow::updateMeasurementsRecord(qreal heartRate, qreal heartSNR, qreal
 
 void MainWindow::updateStatus(qreal value)
 {
-    pt_statusLabel->setText(" spO2: " + QString::number(value, 'f', 3));
+    pt_statusLabel->setText("Estimation of spO2: " + QString::number(value, 'f', 3));
 }
 
 
