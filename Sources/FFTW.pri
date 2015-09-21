@@ -1,5 +1,5 @@
 #------------------------------------------------FFTW---------------------------------------------------------
-FFTW_DIR = C:/Programing/3rdParties/FFTW
+FFTW_DIR = C:/Programming/3rdParties/FFTW
 
 INCLUDEPATH += $${FFTW_DIR}
 
