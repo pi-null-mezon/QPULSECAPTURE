@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QPULSECAPTURE"
-#define MyAppVersion "3.0.0.7"
+#define MyAppVersion "3.0.1.0"
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
@@ -13,7 +13,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{45C1AF96-3559-4E94-BA89-5A8BED29C374}
+AppId={{82B8C6F7-E010-403B-A634-0C1EB1CE93C8}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -22,12 +22,12 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=C:\Programing\QPULSECAPTURE\LICENSE
-InfoBeforeFile=C:\Programing\QPULSECAPTURE\README.md
-InfoAfterFile=C:\Programing\QPULSECAPTURE\Resources\Docs\Show after installation.txt
-OutputDir=C:\Programing\QPULSECAPTURE\Install
+LicenseFile=C:\Programming\QPULSECAPTURE\LICENSE
+InfoBeforeFile=C:\Programming\QPULSECAPTURE\README.md
+InfoAfterFile=C:\Programming\QPULSECAPTURE\Resources\Docs\Show after installation.txt
+OutputDir=C:\Programming\QPULSECAPTURE\Install
 OutputBaseFilename={#MyAppName}_v{#MyAppVersion}_setup
-SetupIconFile=C:\Programing\QPULSECAPTURE\Resources\Docs\Setup.ico
+SetupIconFile=C:\Programming\QPULSECAPTURE\Resources\Docs\Setup.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -39,7 +39,7 @@ Name: "Russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Programing\QPULSECAPTURE\Install\build-Sources-Desktop_Qt_5_4_MSVC2010_OpenGL_32bit-Release\release\QPULSECAPTURE.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programming\QPULSECAPTURE\Install\build-Sources-Desktop_Qt_5_4_MSVC2010_OpenGL_32bit-Release\release\QPULSECAPTURE.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\icudt53.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\icuin53.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\icuuc53.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -59,9 +59,9 @@ Source: "{#QtLibs}\..\plugins\platforms\qwindows.dll"; DestDir: "{app}\platforms
 Source: "{#QtLibs}\..\plugins\mediaservice\dsengine.dll"; DestDir: "{app}\mediaservice"; Flags: ignoreversion
 Source: "{#QtLibs}\..\plugins\mediaservice\qtmedia_audioengine.dll"; DestDir: "{app}\mediaservice"; Flags: ignoreversion
 Source: "{#QtLibs}\..\plugins\mediaservice\wmfengine.dll"; DestDir: "{app}\mediaservice"; Flags: ignoreversion
-Source: "C:\Programing\QPULSECAPTURE\Resources\normal_heart_rate_at_rest.xml"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Programing\3rdParties\WVCF_utility.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Programing\3rdParties\FFTW\fftw3-32\libfftw3-3.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programming\QPULSECAPTURE\Resources\normal_heart_rate_at_rest.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programming\3rdParties\WVCF_utility.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programming\3rdParties\FFTW\fftw3-32\libfftw3-3.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\opencv_core248.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\opencv_ffmpeg248.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\opencv_highgui248.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -71,7 +71,7 @@ Source: "{#OpencvLibs}\..\..\..\..\sources\data\haarcascades\haarcascade_frontal
 Source: "{#OpencvLibs}\..\..\..\..\sources\data\haarcascades\haarcascade_frontalface_default.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
 Source: "{#OpencvLibs}\..\..\..\..\sources\data\lbpcascades\lbpcascade_frontalface.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
 ;Source: "C:\programing\qpulsecapture\resources\docs\Manual (RUS, v1.0.0.6).pdf"; DestDir: "{app}\Docs"; Flags: ignoreversion
-Source: "C:\Programing\QPULSECAPTURE\Resources\Docs\Translation_Rus.qm"; DestDir: "{app}"; Flags: ignoreversion; Languages: "Russian"
+Source: "C:\Programming\QPULSECAPTURE\Resources\Docs\Translation_Rus.qm"; DestDir: "{app}"; Flags: ignoreversion; Languages: "Russian"
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
