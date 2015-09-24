@@ -12,7 +12,7 @@ The simplest way to use it - rewrite appropriate section in QOpencvProcessor::cu
 #include <opencv2/opencv.hpp>
 
 #define CALIBRATION_VECTOR_LENGTH 25
-#define FACE_RECT_VECTOR_LENGTH 9
+#define FACE_RECT_VECTOR_LENGTH 12
 #define FRAMES_WITHOUT_FACE_TRESHOLD 9
 
 //------------------------------------------------------------------------------------------------------

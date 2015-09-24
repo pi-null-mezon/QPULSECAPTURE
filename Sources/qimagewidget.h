@@ -53,6 +53,7 @@ public slots:
     void selectWholeImage();
     void clearMap();
     void setImageFlag(bool value);
+    void updateSPO2(qreal value);
 
 protected:
     void paintEvent(QPaintEvent*);
@@ -69,6 +70,7 @@ private:
     QString m_snrString;    // stores SNR string value
     QString m_breathRateString;  // stores frequency
     QString m_breathSNRString;    // stores SNR string value
+    QString m_spO2String;
     quint16 x0;             // stores coordinate of mousePressEvenr
     quint16 y0;             // stores coordinate of mousePressEvent
     const qreal *pt_data;         // stores pointer to external data, wich is used to draw on this widget, point it to external data vector by menas of updatePointer(...) slot

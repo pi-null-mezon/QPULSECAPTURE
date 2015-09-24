@@ -177,43 +177,59 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
             }
             else
             {
+                startY += pointsize * 3.0 + m_margin;
+                painter.drawText(startX, startY, tr("HR:"));
                 font.setPointSizeF( pointsize * 3 );
                 painter.setFont( font );
-                painter.setPen( m_frequencyColor );
-
-                startY += font.pointSize() + m_margin;
-                painter.drawText(startX, startY, m_frequencyString); // Draws frequency value
-
+                painter.setPen( m_frequencyColor );          
+                painter.drawText(startX + pointsize * 3.0, startY, m_frequencyString); // Draws frequency value
                 font.setPointSizeF( pointsize );
                 painter.setFont( font );
                 painter.setPen( m_informationColor );
-
                 if(m_frequencyString.isEmpty())
                 {
-                    painter.drawText(startX, startY, tr("Unreliable"));
+                    painter.drawText(startX + pointsize * 3.0, startY, tr("Unreliable"));
                 }
                 else
                 {
-                    painter.drawText(startX + m_frequencyString.size() * pointsize * 2.25, startY, tr("bpm"));
+                    painter.drawText(startX + pointsize * 3.0 + m_frequencyString.size() * pointsize * 2.25, startY, tr("bpm"));
                 }
                 painter.drawText(startX, startY + pointsize*1.5, m_snrString);
 
                 startY +=  pointsize * 5.0 ;
+                painter.drawText(startX, startY, tr("O2:"));
                 font.setPointSizeF( pointsize * 3 );
                 painter.setFont( font );
                 painter.setPen(QColor(0,145,215));
-                painter.drawText(startX, startY, m_breathRateString);
+                painter.drawText(startX + pointsize * 3.0, startY, m_spO2String);
                 font.setPointSizeF( pointsize );
                 painter.setFont( font );
                 painter.setPen( m_informationColor );
-
-                if(m_breathRateString.isEmpty())
+                if(m_spO2String.isEmpty())
                 {
-                    painter.drawText(startX, startY , tr("Unreliable"));
+                    painter.drawText(startX + pointsize * 3.0, startY , tr("Unreliable"));
                 }
                 else
                 {
-                    painter.drawText(startX + m_breathRateString.size() * pointsize * 2.25, startY, tr("rpm"));
+                    painter.drawText(startX + pointsize * 3.0 + m_spO2String.size() * pointsize * 2.25, startY, tr("%"));
+                }
+
+                startY +=  pointsize * 3.5;
+                painter.drawText(startX, startY, tr("BR:"));
+                font.setPointSizeF( pointsize * 3 );
+                painter.setFont( font );
+                painter.setPen(Qt::yellow);
+                painter.drawText(startX + pointsize * 3.0, startY, m_breathRateString);
+                font.setPointSizeF( pointsize );
+                painter.setFont( font );
+                painter.setPen( m_informationColor );
+                if(m_breathRateString.isEmpty())
+                {
+                    painter.drawText(startX + pointsize * 3.0, startY , tr("Unreliable"));
+                }
+                else
+                {
+                    painter.drawText(startX + pointsize * 3.0 + m_breathRateString.size() * pointsize * 2.25, startY, tr("rpm"));
                 }
                 painter.drawText(startX, startY + pointsize*1.5, m_breathSNRString);
             }
@@ -252,51 +268,68 @@ void QImageWidget::drawStrings(QPainter &painter, const QRect &input_rect)
                 m_warningString.clear();
             }
             else
-            {
+            {                          
+                startY += pointsize * 3.0 + m_margin;
+                path.addText(startX, startY, font, tr("HR:"));
                 QPainterPath path_freq;
-                font.setPointSizeF( pointsize * 3 );                          
-                startY += font.pointSize() + m_margin;
-                path_freq.addText(startX, startY, font, m_frequencyString); // Draws frequency value
+                font.setPointSizeF( pointsize * 3 );
+                path_freq.addText(startX + 3 * pointsize, startY, font, m_frequencyString); // Draws frequency value
                 painter.setBrush(m_frequencyColor);
                 painter.drawPath(path_freq);
-
                 painter.setBrush(m_fillColor);
                 font.setPointSizeF( pointsize );
                 if(m_frequencyString.isEmpty())
                 {
-                    path.addText(startX, startY, font , tr("Unreliable"));
+                    path.addText(startX + 3 * pointsize, startY, font , tr("Unreliable"));
                 }
                 else
                 {
-                    path.addText(startX + m_frequencyString.size() * pointsize * 2.25, startY, font , tr("bpm"));
+                    path.addText(startX + 3 * pointsize + m_frequencyString.size() * pointsize * 2.25, startY, font , tr("bpm"));
                 }
                 path.addText(startX, startY + pointsize*1.5, font, m_snrString);
 
                 startY += pointsize * 5.0;
-                QPainterPath breathPath;
+                path.addText(startX, startY, font, tr("O2:"));
+                QPainterPath spO2Path;
                 font.setPointSizeF(pointsize * 3);
                 painter.setFont(font);
-                breathPath.addText(startX, startY, font, m_breathRateString);
+                spO2Path.addText(startX + 3 * pointsize, startY, font, m_spO2String);
                 painter.setBrush(QColor(0,145,215));
-                painter.drawPath(breathPath);
+                painter.drawPath(spO2Path);
                 painter.setBrush(m_fillColor);
                 font.setPointSizeF( pointsize );
-
-                if(m_breathRateString.isEmpty())
+                if(m_spO2String.isEmpty())
                 {
-                    path.addText(startX, startY, font , tr("Unreliable"));
+                    path.addText(startX + 3 * pointsize, startY, font , tr("Unreliable"));
                 }
                 else
                 {
-                    path.addText(startX + m_breathRateString.size() * pointsize * 2.25, startY, font , tr("rpm"));
+                    path.addText(startX + 3 * pointsize + m_spO2String.size() * pointsize * 2.25, startY, font , tr("%"));
+                }
+
+                startY += pointsize * 3.5;
+                path.addText(startX, startY, font, tr("BR:"));
+                QPainterPath breathPath;
+                font.setPointSizeF(pointsize * 3);
+                painter.setFont(font);
+                breathPath.addText(startX + 3 * pointsize, startY, font, m_breathRateString);
+                painter.setBrush(Qt::yellow);
+                painter.drawPath(breathPath);
+                painter.setBrush(m_fillColor);
+                font.setPointSizeF( pointsize );
+                if(m_breathRateString.isEmpty())
+                {
+                    path.addText(startX + 3 * pointsize, startY, font , tr("Unreliable"));
+                }
+                else
+                {
+                    path.addText(startX + 3 * pointsize + m_breathRateString.size() * pointsize * 2.25, startY, font , tr("rpm"));
                 }
                 path.addText(startX, startY + pointsize*1.5, font, m_breathSNRString);
             }                     
             painter.drawPath(path);
         }
     }
-
-
 }
 
 //-----------------------------------------------------------------------------------
@@ -330,6 +363,13 @@ void QImageWidget::updateBreathStrings(qreal breath_rate, qreal snr_value)
 {
     m_breathRateString = QString::number(breath_rate, 'f', 0);
     m_breathSNRString = "SNR: " + QString::number(snr_value,'f',2) + tr(" dB");
+}
+
+//-----------------------------------------------------------------------------------
+
+void QImageWidget::updateSPO2(qreal value)
+{
+    m_spO2String = QString::number(qRound(value*100));
 }
 
 //-----------------------------------------------------------------------------------
@@ -419,8 +459,9 @@ void QImageWidget::set_drawDataFlag(bool value)
 
 void QImageWidget::clearFrequencyString(qreal value)
 {
-    m_frequencyString.clear();
+    m_frequencyString.clear();  
     m_snrString = "SNR: " + QString::number(value,'f',2) + tr(" dB");
+    m_spO2String.clear();
 }
 
 //----------------------------------------------------------------------------------

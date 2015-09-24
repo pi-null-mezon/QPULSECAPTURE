@@ -46,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent):
     pt_infoLabel->setFont( QFont("MS Shell Dlg 2", 14, QFont::Normal) );
     pt_mainLayout->addWidget(pt_infoLabel);
 
+    /*pt_statusLabel = new QLabel();
+    this->statusBar()->addPermanentWidget(pt_statusLabel);*/
+
     //--------------------------------------------------------------
     createActions();
     createMenus();
@@ -268,6 +271,7 @@ void MainWindow::createThreads()
     pt_videoCapture = new QVideoCapture();
     pt_videoCapture->moveToThread(pt_videoThread);
     connect(pt_videoThread, &QThread::started, pt_videoCapture, &QVideoCapture::initiallizeTimer);
+    connect(pt_videoThread, &QThread::finished, pt_videoCapture, &QVideoCapture::close);
     connect(pt_videoThread, &QThread::finished, pt_videoCapture, &QVideoCapture::deleteLater);
 
     //----------Register openCV types in Qt meta-type system---------
@@ -416,8 +420,6 @@ void MainWindow::show_help()
 
 MainWindow::~MainWindow()
 {
-    emit closeVideo();
-
     if(m_signalsFile.isOpen())
     {
         m_signalsFile.close();
@@ -581,6 +583,7 @@ void MainWindow::configure_and_start_session()
         connect(pt_harmonicProcessor, SIGNAL(heartRateUpdated(qreal,qreal,bool)), pt_display, SLOT(updateValues(qreal,qreal,bool)));
         connect(pt_harmonicProcessor, SIGNAL(breathRateUpdated(qreal,qreal)), pt_display, SLOT(updateBreathStrings(qreal,qreal)));
         connect(pt_harmonicProcessor, SIGNAL(breathTooNoisy(qreal)), pt_display, SLOT(clearBreathRateString(qreal)));
+        connect(pt_harmonicProcessor, SIGNAL(spO2Updated(qreal)), pt_display, SLOT(updateSPO2(qreal)));
         connect(pt_colorMapper, SIGNAL(mapped(int)), pt_harmonicProcessor, SLOT(switchColorMode(int)));
         connect(pt_pcaAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPCAMode(bool)));
         connect(pt_prunAct, SIGNAL(triggered(bool)), pt_harmonicProcessor, SLOT(setPruning(bool)));
@@ -980,6 +983,11 @@ void MainWindow::updateMeasurementsRecord(qreal heartRate, qreal heartSNR, qreal
                              << heartSNR << "\t" << qRound(breathRate)
                              << "\t" << breathSNR << "\n";
     }
+}
+
+void MainWindow::updateStatus(qreal value)
+{
+
 }
 
 
