@@ -792,7 +792,7 @@ void QHarmonicProcessor::setPruning(bool value)
 
 void QHarmonicProcessor::computeSPO2(quint16 index)
 {
-    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) && (m_HeartSNR > 7.0) )
+    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) && (m_HeartSNR > 5.0) )
     {
         qint16 position = curpos - 1;
         quint16 pos;
