@@ -16,7 +16,8 @@ const char * MainWindow::QPlotDialogName[]=
     QT_TR_NOOP("Filter output vs frame"),
     QT_TR_NOOP("Heart signal phase diagram"),
     QT_TR_NOOP("Breath signal vs frame"),
-    QT_TR_NOOP("Breath amplitude spectrum")
+    QT_TR_NOOP("Breath amplitude spectrum"),
+    QT_TR_NOOP("Green channel histogram")
 };
 //------------------------------------------------------------------------------------
 
@@ -24,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent)
 {
     setWindowTitle(APP_NAME);
-    setMinimumSize(600, 400);
 
     pt_centralWidget = new QBackgroundWidget(NULL, palette().color(backgroundRole()));
     pt_centralWidgetLayout = new QVBoxLayout();
@@ -65,8 +65,7 @@ MainWindow::MainWindow(QWidget *parent):
     m_timer.stop();
 
     //--------------------------------------------------------------
-    resize(570, 480);
-    statusBar()->showMessage(tr("A context menu is available by right-clicking"));
+    resize(640, 480);
 }
 //------------------------------------------------------------------------------------
 
@@ -742,6 +741,15 @@ void MainWindow::createPlotDialog()
                         pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
                         pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(255,0,0));
                     break;
+                    case 8: // Green channel histogram trace
+                        connect(pt_opencvProcessor, SIGNAL(histUpdated(const qreal*,quint16)), pt_plot, SLOT(set_externalArray(const qreal*,quint16)));
+                        pt_plot->set_axis_names(tr("green"),tr("Relative frequency"));
+                        pt_plot->set_vertical_Borders(0.0,0.1);
+                        pt_plot->set_Y_Ticks(6);
+                        pt_plot->set_coordinatesPrecision(0,2);
+                        pt_plot->set_DrawRegime(QEasyPlot::FilledTraceRegime);
+                        pt_plot->set_tracePen(QPen(Qt::NoBrush,1.0), QColor(0,255,0));
+                    break;
                 }
             pt_dialogSet[ m_dialogSetCounter ]->setContextMenuPolicy(Qt::ActionsContextMenu);
             QAction *pt_actionFont = new QAction(tr("Axis font"), pt_dialogSet[ m_dialogSetCounter ]);
@@ -994,7 +1002,7 @@ void MainWindow::updateMeasurementsRecord(qreal heartRate, qreal heartSNR, qreal
 
 void MainWindow::updateStatus(qreal value)
 {
-
+    //pt_statusLabel->setText();
 }
 
 

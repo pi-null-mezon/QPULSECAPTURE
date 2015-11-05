@@ -130,6 +130,9 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
 
     if(face.area() > 0)
     {
+        for(int i = 0; i < 256; i++)
+            v_temphist[i] = 0;
+
         cv::Mat blurRegion(output, face);
         cv::blur(blurRegion, blurRegion, cv::Size(m_blurSize, m_blurSize));
         m_ellipsRect = cv::Rect(X + dX, Y - 6 * dY, rectwidth - 2 * dX, rectheight + 6 * dY);
@@ -159,6 +162,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                                 //p[3*i+1] %= LEVEL_SHIFT;
                                 p[3*i+2] %= LEVEL_SHIFT;
                             }
+                            v_temphist[tempGreen]++;
                         }
                     }
                 }
@@ -176,6 +180,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                             //p[3*i+1] %= LEVEL_SHIFT;
                             p[3*i+2] %= LEVEL_SHIFT;
                         }
+                        v_temphist[p[3*i+1]]++;
                     }
                 }
                 area = rectwidth*rectheight;
@@ -189,8 +194,9 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                     green += p[i];
                     //Uncomment if want to see the enrolled domain on image
                     if(f_fill)  {
-                        //p[i] %= LEVEL_SHIFT;
+                        p[i] %= LEVEL_SHIFT;
                     }
+                    v_temphist[p[i]]++;
                 }
             }
             blue = green;
@@ -205,10 +211,17 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     m_timeCounter = cv::getTickCount();
     if(area > 0)
     {
-        if(!f_fill)  {
-            cv::rectangle( output, face , cv::Scalar(15,15,250));
-        }
+        if(!f_fill)
+            cv::rectangle( output, face , cv::Scalar(15,15,250));   
         emit dataCollected( red , green, blue, area, m_framePeriod);
+
+        unsigned int mass = 0;
+        for(int i = 0; i < 256; i++)
+            mass += v_temphist[i];
+        if(mass > 0)
+        for(int i = 0; i < 256; i++)
+            v_hist[i] = (qreal)v_temphist[i]/mass;
+        emit histUpdated(v_hist, 256);
     }
     else
     {
@@ -247,6 +260,9 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     //-------------------------------------------------------------------------
     if((rectheight > 0) && (rectwidth > 0))
     {
+        for(int i = 0; i < 256; i++)
+            v_temphist[i] = 0;
+
         cv::Mat blurRegion(output, m_cvRect);
         cv::blur(blurRegion, blurRegion, cv::Size(m_blurSize, m_blurSize));
 
@@ -276,6 +292,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                                 //p[3*i+1] %= LEVEL_SHIFT;
                                 p[3*i+2] %= LEVEL_SHIFT;
                             }
+                            v_temphist[tempGreen]++;
                         }
                     }
                 }
@@ -303,6 +320,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                                 //p[3*i+1] %= LEVEL_SHIFT;
                                 p[3*i+2] %= LEVEL_SHIFT;
                             }
+                            v_temphist[tempGreen]++;
                         }
                     }
                 }
@@ -322,6 +340,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                             //p[3*i+1] %= LEVEL_SHIFT;
                             p[3*i+2] %= LEVEL_SHIFT;
                         }
+                        v_temphist[p[3*i+1]]++;
                     }
                 }
                 area = rectwidth*rectheight;
@@ -338,8 +357,8 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                     green += p[i];
                     if(f_fill)  {
                         p[i] %= LEVEL_SHIFT;
-
                     }
+                    v_temphist[p[i]]++;
                 }
             }
             area = rectwidth*rectheight;
@@ -351,7 +370,16 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     if( area > 0 )
     {
         cv::rectangle( output , m_cvRect, cv::Scalar(15,250,15));
-        emit dataCollected(red, green, blue, area, m_framePeriod);      
+        emit dataCollected(red, green, blue, area, m_framePeriod);
+
+        unsigned int mass = 0;
+        for(int i = 0; i < 256; i++)
+            mass += v_temphist[i];
+        if(mass > 0)
+        for(int i = 0; i < 256; i++)
+            v_hist[i] = (qreal)v_temphist[i]/mass;
+        emit histUpdated(v_hist, 256);
+
         if(m_calibFlag)
         {
             v_calibValues[m_calibSamples] = (qreal)green/area;

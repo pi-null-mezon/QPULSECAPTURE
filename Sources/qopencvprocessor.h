@@ -30,6 +30,7 @@ signals:
     void mapCellProcessed(unsigned long red, unsigned long green, unsigned long blue, unsigned long area, double period);
     void mapRegionUpdated(const cv::Rect& rect);
     void calibrationDone(qreal mean, qreal stdev, quint16 samples);
+    void histUpdated(const qreal *pt, quint16 length);
 
 public slots:
     void customProcess(const cv::Mat &input);   // just a template of how a program logic should work
@@ -55,33 +56,30 @@ private:
     double m_framePeriod;   // stores time of frame processing
     cv::Rect m_cvRect;      // this rect is used by process_rectregion_pulse slot
     cv::CascadeClassifier m_classifier; //object that manages opencv's image recognition functions
-
     quint16 m_mapCellSizeX;
     quint16 m_mapCellSizeY;
     cv::Rect m_mapRect;
     unsigned char **v_pixelSet; // memory should be allocated in setMapCellSize() call
-
     bool m_calibFlag;
     bool m_seekCalibColors;
     quint16 m_calibSamples;
     qreal m_calibMean;
     qreal m_calibError;
-    quint8 v_calibValues[CALIBRATION_VECTOR_LENGTH];
-
-    bool isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue);
-    bool isCalibColor(unsigned char value);
-
+    quint8 v_calibValues[CALIBRATION_VECTOR_LENGTH];   
     int m_blurSize;
-
-    bool f_fill;
-
+    bool f_fill;   
+    qreal v_hist[256];
+    unsigned int v_temphist[256];
     quint16 m_emptyFrames;
     cv::Rect v_faceRect[FACE_RECT_VECTOR_LENGTH];
     quint8 m_facePos;
     cv::Rect m_ellipsRect;
+
     cv::Rect getAverageFaceRect() const;
     cv::Rect enrollFaceRect(const cv::Rect &rect);
     bool isInEllips(int x, int y) const;
+    bool isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue);
+    bool isCalibColor(unsigned char value);
 };
 
 inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue)
