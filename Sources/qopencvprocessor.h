@@ -46,6 +46,7 @@ public slots:
     void setMapRegion(const cv::Rect &input_rect); // sets up map region, see m_mapRect
     void setMapCellSize(quint16 sizeX, quint16 sizeY);
     void setSkinSearchingFlag(bool value);
+    void setFillFlag(bool value);
 
 private:
     bool m_fullFaceFlag;
@@ -71,6 +72,8 @@ private:
     bool isCalibColor(unsigned char value);
 
     int m_blurSize;
+
+    bool f_fill;
 
     quint16 m_emptyFrames;
     cv::Rect v_faceRect[FACE_RECT_VECTOR_LENGTH];

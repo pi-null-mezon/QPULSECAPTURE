@@ -198,6 +198,11 @@ void MainWindow::createActions()
     pt_prunAct->setStatusTip(tr("Toggles experimental color pruning algorithm"));
     pt_prunAct->setCheckable(true);
     pt_prunAct->setChecked(false);
+
+    pt_fillAct = new QAction(tr("Fill"), this);
+    pt_fillAct->setStatusTip(tr("Toggles color filling of the analyzed object"));
+    pt_fillAct->setCheckable(true);
+    pt_fillAct->setChecked(true);
 }
 
 //------------------------------------------------------------------------------------
@@ -234,6 +239,7 @@ void MainWindow::createMenus()
     pt_appearenceMenu->addAction(pt_fastVisualizationAct);
     pt_appearenceMenu->addAction(pt_changeColorsAct);
     pt_appearenceMenu->addAction(pt_imageAct);
+    pt_appearenceMenu->addAction(pt_fillAct);
 
     //-------------------------------------------------
     pt_deviceMenu = menuBar()->addMenu(tr("&Device"));
@@ -287,6 +293,7 @@ void MainWindow::createThreads()
     connect(this, &MainWindow::resumeVideo, pt_videoCapture, &QVideoCapture::resume);
     connect(this, &MainWindow::closeVideo, pt_videoCapture, &QVideoCapture::close);
     connect(this, &MainWindow::updateTimer, pt_opencvProcessor, &QOpencvProcessor::updateTime);
+    connect(pt_fillAct, SIGNAL(triggered(bool)), pt_opencvProcessor, SLOT(setFillFlag(bool)));
     //----------------------Thread start-----------------------------
     pt_improcThread->start();
     pt_videoThread->start();

@@ -102,6 +102,7 @@ private:
     QAction *pt_calibAct;
     QAction *pt_measRecAct;
     QAction *pt_prunAct;
+    QAction *pt_fillAct;
     QMenu *pt_RecordsMenu;
     QMenu *pt_fileMenu;
     QMenu *pt_optionsMenu;

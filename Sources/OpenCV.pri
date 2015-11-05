@@ -1,7 +1,7 @@
 #--------------------------------------------------------OPENCV----------------------------------------------------
 #Specify a path to the build directory of opencv library and library version
 OPENCV_VERSION = 248
-OPENCV_DIR = C:/opencv/build
+OPENCV_DIR = C:/opencv$${OPENCV_VERSION}/build
 INCLUDEPATH += $${OPENCV_DIR}/include
 
 #Specify the part of OpenCV path corresponding to compiler version

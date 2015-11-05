@@ -24,6 +24,7 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     m_seekCalibColors = false;
     m_calibFlag = false;
     m_blurSize = 4;
+    f_fill = true;
     //------------
     m_emptyFrames = 0;
     m_facePos = 0;
@@ -153,9 +154,11 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                             blue += tempBlue;
                             green += tempGreen;
                             red += tempRed;
-                            //p[3*i] = 255;
-                            //p[3*i+1] %= LEVEL_SHIFT;
-                            p[3*i+2] %= LEVEL_SHIFT;
+                            if(f_fill)  {
+                                //p[3*i] = 255;
+                                //p[3*i+1] %= LEVEL_SHIFT;
+                                p[3*i+2] %= LEVEL_SHIFT;
+                            }
                         }
                     }
                 }
@@ -168,10 +171,11 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                         blue += p[3*i];
                         green += p[3*i+1];
                         red += p[3*i+2];
-                        //Uncomment if want to see the enrolled domain on image
-                        //p[3*i] = 0;
-                        //p[3*i+1] %= LEVEL_SHIFT;
-                        p[3*i+2] %= LEVEL_SHIFT;
+                        if(f_fill)  {
+                            //p[3*i] = 255;
+                            //p[3*i+1] %= LEVEL_SHIFT;
+                            p[3*i+2] %= LEVEL_SHIFT;
+                        }
                     }
                 }
                 area = rectwidth*rectheight;
@@ -184,7 +188,9 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
                 {
                     green += p[i];
                     //Uncomment if want to see the enrolled domain on image
-                    //p[i] = 0;
+                    if(f_fill)  {
+                        //p[i] %= LEVEL_SHIFT;
+                    }
                 }
             }
             blue = green;
@@ -199,7 +205,9 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     m_timeCounter = cv::getTickCount();
     if(area > 0)
     {
-        //cv::rectangle( output, face , cv::Scalar(255,25,25));
+        if(!f_fill)  {
+            cv::rectangle( output, face , cv::Scalar(15,15,250));
+        }
         emit dataCollected( red , green, blue, area, m_framePeriod);
     }
     else
@@ -263,9 +271,11 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                             blue += tempBlue;
                             green += tempGreen;
                             red += tempRed;
-                            p[3*i] %= LEVEL_SHIFT;
-                            //p[3*i+1] %= LEVEL_SHIFT;
-                            p[3*i+2] %= LEVEL_SHIFT;
+                            if(f_fill)  {
+                                //p[3*i] = 255;
+                                //p[3*i+1] %= LEVEL_SHIFT;
+                                p[3*i+2] %= LEVEL_SHIFT;
+                            }
                         }
                     }
                 }
@@ -288,9 +298,11 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                             blue += tempBlue;
                             green += tempGreen;
                             red += tempRed;
-                            //p[3*i] = 255;
-                            //p[3*i+1] %= LEVEL_SHIFT;
-                            p[3*i+2] %= LEVEL_SHIFT;
+                            if(f_fill)  {
+                                //p[3*i] = 255;
+                                //p[3*i+1] %= LEVEL_SHIFT;
+                                p[3*i+2] %= LEVEL_SHIFT;
+                            }
                         }
                     }
                 }
@@ -305,9 +317,11 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                         blue += p[3*i];
                         green += p[3*i+1];
                         red += p[3*i+2];
+                        if(f_fill)  {
                             //p[3*i] = 255;
-                            //p[3*i+1] = 255;
-                            //p[3*i+2] = 0;
+                            //p[3*i+1] %= LEVEL_SHIFT;
+                            p[3*i+2] %= LEVEL_SHIFT;
+                        }
                     }
                 }
                 area = rectwidth*rectheight;
@@ -322,7 +336,10 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
                 for(unsigned int i = X; i < X + rectwidth; i++)
                 {
                     green += p[i];
-                        //p[i] = 0;
+                    if(f_fill)  {
+                        p[i] %= LEVEL_SHIFT;
+
+                    }
                 }
             }
             area = rectwidth*rectheight;
@@ -333,7 +350,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     m_timeCounter = cv::getTickCount();
     if( area > 0 )
     {
-        cv::rectangle( output , m_cvRect, cv::Scalar(255,25,25));
+        cv::rectangle( output , m_cvRect, cv::Scalar(15,250,15));
         emit dataCollected(red, green, blue, area, m_framePeriod);      
         if(m_calibFlag)
         {
@@ -500,4 +517,9 @@ cv::Rect QOpencvProcessor::enrollFaceRect(const cv::Rect &rect)
     v_faceRect[m_facePos] = rect;
     m_facePos = (++m_facePos) % FACE_RECT_VECTOR_LENGTH;
     return getAverageFaceRect();
+}
+
+void QOpencvProcessor::setFillFlag(bool value)
+{
+    f_fill = value;
 }
