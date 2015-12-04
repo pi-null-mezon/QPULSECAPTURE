@@ -275,16 +275,16 @@ void MainWindow::createThreads()
     pt_videoThread = new QThread(this);
     pt_videoCapture = new QVideoCapture();
     pt_videoCapture->moveToThread(pt_videoThread);
-    connect(pt_videoThread, &QThread::started, pt_videoCapture, &QVideoCapture::initiallizeTimer);
-    connect(pt_videoThread, &QThread::finished, pt_videoCapture, &QVideoCapture::close);
-    connect(pt_videoThread, &QThread::finished, pt_videoCapture, &QVideoCapture::deleteLater);
+    connect(pt_videoThread, SIGNAL(started()), pt_videoCapture, SLOT(initiallizeTimer()));
+    connect(pt_videoThread, SIGNAL(finished()), pt_videoCapture, SLOT(close()));
+    connect(pt_videoThread, SIGNAL(finished()), pt_videoCapture, SLOT(deleteLater()));
 
     //----------Register openCV types in Qt meta-type system---------
     qRegisterMetaType<cv::Mat>("cv::Mat");
     qRegisterMetaType<cv::Rect>("cv::Rect");
 
     //----------------------Connections------------------------------
-    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double,quint32)), pt_display, SLOT(updateImage(cv::Mat,double,quint32)), Qt::BlockingQueuedConnection);
+    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double,quint32)), pt_display, SLOT(updateImage(cv::Mat,double,quint32))/*, Qt::BlockingQueuedConnection*/);
     connect(pt_display, SIGNAL(rect_was_entered(cv::Rect)), pt_opencvProcessor, SLOT(setRect(cv::Rect)));
     connect(pt_opencvProcessor, SIGNAL(selectRegion(const char*)), pt_display, SLOT(set_warning_status(const char*)));
     connect(pt_opencvProcessor, SIGNAL(mapRegionUpdated(cv::Rect)), pt_display, SLOT(updadeMapRegion(cv::Rect)));
@@ -294,8 +294,8 @@ void MainWindow::createThreads()
     connect(this, &MainWindow::updateTimer, pt_opencvProcessor, &QOpencvProcessor::updateTime);
     connect(pt_fillAct, SIGNAL(triggered(bool)), pt_opencvProcessor, SLOT(setFillFlag(bool)));
     //----------------------Thread start-----------------------------
-    pt_improcThread->start();
-    pt_videoThread->start();
+    pt_improcThread->start(QThread::HighPriority);
+    pt_videoThread->start(QThread::LowPriority);
 }
 
 //------------------------------------------------------------------------------------
