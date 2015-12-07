@@ -32,6 +32,8 @@
 #include "mappingdialog.h"
 #include "qvideoslider.h"
 
+#include "QKeyEvent"
+
 #define LIMIT_OF_DIALOGS_NUMBER 5
 //------------------------------------------------------------------------------------------------------
 class MainWindow : public QMainWindow
@@ -140,6 +142,9 @@ private:
     QSettingsDialog m_settingsDialog;
 
     quint16 m_sessionsCounter;
+
+protected:
+    void keyPressEvent(QKeyEvent *event);
 
 private slots:
     void decrease_dialogSetCounter();

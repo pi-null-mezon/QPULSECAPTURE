@@ -41,13 +41,14 @@ public slots:
     bool loadClassifier(const std::string& filename); // an interface to CascadeClassifier::load(...) function
     void mapProcess(const cv::Mat &input);
     void calibrate(bool value);
-    void setBlurSize(int size);
+    void setBlurSize(uint size);
 
     cv::Rect getRect(); // returns current m_cvRect
     void setMapRegion(const cv::Rect &input_rect); // sets up map region, see m_mapRect
     void setMapCellSize(quint16 sizeX, quint16 sizeY);
     void setSkinSearchingFlag(bool value);
     void setFillFlag(bool value);
+    uint getBlurSize() const;
 
 private:
     bool m_fullFaceFlag;
@@ -66,7 +67,7 @@ private:
     qreal m_calibMean;
     qreal m_calibError;
     quint8 v_calibValues[CALIBRATION_VECTOR_LENGTH];   
-    int m_blurSize;
+    uint m_blurSize;
     bool f_fill;   
     qreal v_hist[256];
     unsigned int v_temphist[256];
@@ -74,12 +75,14 @@ private:
     cv::Rect v_faceRect[FACE_RECT_VECTOR_LENGTH];
     quint8 m_facePos;
     cv::Rect m_ellipsRect;
+    cv::Rect m_searchRect;
 
     cv::Rect getAverageFaceRect() const;
     cv::Rect enrollFaceRect(const cv::Rect &rect);
     bool isInEllips(int x, int y) const;
     bool isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue);
     bool isCalibColor(unsigned char value);
+    void setAverageFaceRect(uint x, uint y, uint w, uint h);
 };
 
 inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue)

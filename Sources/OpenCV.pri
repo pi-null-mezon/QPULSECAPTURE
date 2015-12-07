@@ -1,6 +1,6 @@
 #--------------------------------------------------------OPENCV----------------------------------------------------
 #Specify a path to the build directory of opencv library and library version
-OPENCV_VERSION = 248
+OPENCV_VERSION = 300
 OPENCV_DIR = C:/opencv$${OPENCV_VERSION}/build
 INCLUDEPATH += $${OPENCV_DIR}/include
 
@@ -35,6 +35,7 @@ win32-g++:  LIBS += -L$${OPENCV_DIR}/$${OPENCV_ARCHITECTURE_DIR}/$${OPENCV_COMPI
 LIBS += -l$$qtLibraryName(opencv_core$${OPENCV_VERSION}) \
         -l$$qtLibraryName(opencv_highgui$${OPENCV_VERSION}) \
         -l$$qtLibraryName(opencv_imgproc$${OPENCV_VERSION}) \
-        -l$$qtLibraryName(opencv_objdetect$${OPENCV_VERSION})
+        -l$$qtLibraryName(opencv_objdetect$${OPENCV_VERSION}) \
+        -l$$qtLibraryName(opencv_videoio$${OPENCV_VERSION})
 
 message(OpenCV library version $${OPENCV_DIR}/$${OPENCV_ARCHITECTURE_DIR}/$${OPENCV_COMPILER_DIR} will be used)

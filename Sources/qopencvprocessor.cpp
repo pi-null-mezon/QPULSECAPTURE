@@ -99,22 +99,30 @@ bool QOpencvProcessor::loadClassifier(const std::string &filename)
 //------------------------------------------------------------------------------------------------------
 void QOpencvProcessor::faceProcess(const cv::Mat &input)
 {
-    cv::Mat output(input);  // Copy the header and pointer to data of input object
+    cv::Mat output(input);  // Copy the header and pointer to data of input object      
+
+    m_searchRect = getAverageFaceRect();
+    m_searchRect -= cv::Point(m_searchRect.width/2.0, m_searchRect.height/2.0);
+    m_searchRect += cv::Size(m_searchRect.width, m_searchRect.height);
+    m_searchRect &= cv::Rect(0,0,input.cols, input.rows);
+
+    cv::Mat temp(input, m_searchRect);
     cv::Mat gray; // Create an instance of cv::Mat for temporary image storage
-    cv::cvtColor(output, gray, CV_BGR2GRAY);
+    cv::cvtColor(temp, gray, CV_BGR2GRAY);
     cv::equalizeHist(gray, gray);
     std::vector<cv::Rect> faces_vector;
-    m_classifier.detectMultiScale(gray, faces_vector, 1.1, 11, cv::CASCADE_DO_ROUGH_SEARCH|cv::CASCADE_FIND_BIGGEST_OBJECT, cv::Size(OBJECT_MINSIZE, OBJECT_MINSIZE)); // Detect faces (list of flags CASCADE_DO_CANNY_PRUNING, CASCADE_DO_ROUGH_SEARCH, CASCADE_FIND_BIGGEST_OBJECT, CASCADE_SCALE_IMAGE )
+
+    m_classifier.detectMultiScale(gray, faces_vector, 1.1, 9, cv::CASCADE_FIND_BIGGEST_OBJECT, cv::Size(OBJECT_MINSIZE, OBJECT_MINSIZE)); // Detect faces (list of flags CASCADE_DO_CANNY_PRUNING, CASCADE_DO_ROUGH_SEARCH, CASCADE_FIND_BIGGEST_OBJECT, CASCADE_SCALE_IMAGE )
 
     cv::Rect face(0,0,0,0);
     if(faces_vector.size() == 0) {
         m_emptyFrames++;
         if(m_emptyFrames < FRAMES_WITHOUT_FACE_TRESHOLD) {
             face = getAverageFaceRect();
-        }
+        } else setAverageFaceRect(0,0,input.cols, input.rows);
     } else {
         m_emptyFrames = 0;
-        face = enrollFaceRect(faces_vector[0]);
+        face = enrollFaceRect(faces_vector[0] + cv::Point(m_searchRect.x, m_searchRect.y));
     }
 
     unsigned int X = face.x; // the top-left corner horizontal coordinate of future rectangle
@@ -144,7 +152,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
         {
             if(m_skinFlag)
             {
-                for(unsigned int j = Y - 2*dY; j < Y + rectheight; j++) // it is lucky that unsigned int saves from out of image memory cells processing from image top bound, but not from bottom where you should check this issue explicitly
+                for(unsigned int j = Y /*- 2*dY*/; j < Y + rectheight; j++) // it is lucky that unsigned int saves from out of image memory cells processing from image top bound, but not from bottom where you should check this issue explicitly
                 {
                     p = output.ptr(j); //takes pointer to beginning of data on row
                     for(unsigned int i = X; i < X + rectwidth; i++)
@@ -513,7 +521,7 @@ void QOpencvProcessor::calibrate(bool value)
     }
 }
 
-void QOpencvProcessor::setBlurSize(int size)
+void QOpencvProcessor::setBlurSize(uint size)
 {
     if(size > 1)
     {
@@ -550,4 +558,19 @@ cv::Rect QOpencvProcessor::enrollFaceRect(const cv::Rect &rect)
 void QOpencvProcessor::setFillFlag(bool value)
 {
     f_fill = value;
+}
+
+void QOpencvProcessor::setAverageFaceRect(uint x, uint y, uint w, uint h)
+{
+    for(quint8 i = 0; i < FACE_RECT_VECTOR_LENGTH; i++) {
+        v_faceRect[i].x = x;
+        v_faceRect[i].y = y;
+        v_faceRect[i].width = w;
+        v_faceRect[i].height = h;
+    }
+}
+
+uint QOpencvProcessor::getBlurSize() const
+{
+    return m_blurSize;
 }

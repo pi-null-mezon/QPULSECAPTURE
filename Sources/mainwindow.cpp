@@ -63,9 +63,9 @@ MainWindow::MainWindow(QWidget *parent):
     m_timer.setTimerType(Qt::PreciseTimer);
     m_timer.setInterval(MS_INTERVAL);
     m_timer.stop();
-
     //--------------------------------------------------------------
-    resize(640, 480);
+    statusBar()->showMessage(tr("Ready to work"));
+    resize(640,480);
 }
 //------------------------------------------------------------------------------------
 
@@ -284,7 +284,7 @@ void MainWindow::createThreads()
     qRegisterMetaType<cv::Rect>("cv::Rect");
 
     //----------------------Connections------------------------------
-    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double,quint32)), pt_display, SLOT(updateImage(cv::Mat,double,quint32))/*, Qt::BlockingQueuedConnection*/);
+    connect(pt_opencvProcessor, SIGNAL(frameProcessed(cv::Mat,double,quint32)), pt_display, SLOT(updateImage(cv::Mat,double,quint32)), Qt::BlockingQueuedConnection);
     connect(pt_display, SIGNAL(rect_was_entered(cv::Rect)), pt_opencvProcessor, SLOT(setRect(cv::Rect)));
     connect(pt_opencvProcessor, SIGNAL(selectRegion(const char*)), pt_display, SLOT(set_warning_status(const char*)));
     connect(pt_opencvProcessor, SIGNAL(mapRegionUpdated(cv::Rect)), pt_display, SLOT(updadeMapRegion(cv::Rect)));
@@ -611,7 +611,7 @@ void MainWindow::configure_and_start_session()
         {
             if(this->openvideofile()) {
                 if(m_sessionsCounter == 0)
-                    QTimer::singleShot(1500, this, SLOT(onresume())); // should solve issue with first launch suspension
+                    QTimer::singleShot(1000, this, SLOT(onresume())); // should solve issue with first launch suspension
                 else
                     this->onresume();
             }
@@ -620,12 +620,12 @@ void MainWindow::configure_and_start_session()
         {
             if(this->opendevice()) {
                 if(m_sessionsCounter == 0)
-                    QTimer::singleShot(1500, this, SLOT(onresume())); // should solve issue with first launch suspension
+                    QTimer::singleShot(1000, this, SLOT(onresume())); // should solve issue with first launch suspension
                 else
                     this->onresume();     // should solve issue with first launch suspension
             }
         }
-        this->statusBar()->showMessage(tr("Plot options available through Menu->Options->New plot"));
+        this->statusBar()->showMessage(tr("Use +/- key to adjust blur"));
         m_sessionsCounter++;
     } else {
         //pt_optionsMenu->setEnabled(false);
@@ -1005,4 +1005,16 @@ void MainWindow::updateStatus(qreal value)
     //pt_statusLabel->setText();
 }
 
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key()) {
+        case Qt::Key_Plus:
+            pt_opencvProcessor->setBlurSize(pt_opencvProcessor->getBlurSize() + 1);
+            break;
+        case Qt::Key_Minus:
+            pt_opencvProcessor->setBlurSize(pt_opencvProcessor->getBlurSize() - 1);
+            break;
+    }
+}
 

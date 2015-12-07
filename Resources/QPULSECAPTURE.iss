@@ -2,18 +2,18 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QPULSECAPTURE"
-#define MyAppVersion "3.0.1.0"
+#define MyAppVersion "3.0.1.2"
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
 #define QtLibs "C:\Qt\5.4\msvc2010_opengl\bin"
-#define OpencvLibs "C:\opencv\build\x86\vc10\bin"
+#define OpencvLibs "C:\opencv300\build\x86\vc10\bin"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{82B8C6F7-E010-403B-A634-0C1EB1CE93C8}
+AppId={{99147324-C27F-4266-9208-44830C8FBD0F}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -26,7 +26,7 @@ LicenseFile=C:\Programming\QPULSECAPTURE\LICENSE
 InfoBeforeFile=C:\Programming\QPULSECAPTURE\README.md
 InfoAfterFile=C:\Programming\QPULSECAPTURE\Resources\Docs\Show after installation.txt
 OutputDir=C:\Programming\QPULSECAPTURE\Install
-OutputBaseFilename={#MyAppName}_v{#MyAppVersion}_setup
+OutputBaseFilename=SETUP_{#MyAppName}_v{#MyAppVersion}
 SetupIconFile=C:\Programming\QPULSECAPTURE\Resources\Docs\Setup.ico
 Compression=lzma
 SolidCompression=yes
@@ -62,14 +62,13 @@ Source: "{#QtLibs}\..\plugins\mediaservice\wmfengine.dll"; DestDir: "{app}\media
 Source: "C:\Programming\QPULSECAPTURE\Resources\normal_heart_rate_at_rest.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Programming\3rdParties\WVCF_utility.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Programming\3rdParties\FFTW\fftw3-32\libfftw3-3.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#OpencvLibs}\opencv_core248.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#OpencvLibs}\opencv_ffmpeg248.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#OpencvLibs}\opencv_highgui248.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#OpencvLibs}\opencv_imgproc248.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#OpencvLibs}\opencv_objdetect248.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#OpencvLibs}\opencv_core300.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#OpencvLibs}\opencv_ffmpeg300.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#OpencvLibs}\opencv_highgui300.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#OpencvLibs}\opencv_imgproc300.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#OpencvLibs}\opencv_objdetect300.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#OpencvLibs}\opencv_videoio300.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#OpencvLibs}\..\..\..\..\sources\data\haarcascades\haarcascade_frontalface_alt.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
-Source: "{#OpencvLibs}\..\..\..\..\sources\data\haarcascades\haarcascade_frontalface_default.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
-Source: "{#OpencvLibs}\..\..\..\..\sources\data\lbpcascades\lbpcascade_frontalface.xml"; DestDir: "{app}\haarcascades"; Flags: ignoreversion
 ;Source: "C:\programing\qpulsecapture\resources\docs\Manual (RUS, v1.0.0.6).pdf"; DestDir: "{app}\Docs"; Flags: ignoreversion
 Source: "C:\Programming\QPULSECAPTURE\Resources\Docs\Translation_Rus.qm"; DestDir: "{app}"; Flags: ignoreversion; Languages: "Russian"
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
