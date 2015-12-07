@@ -28,6 +28,7 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     //------------
     m_emptyFrames = 0;
     m_facePos = 0;
+    setAverageFaceRect(0,0,640,480);
     //------------
 }
 
