@@ -12,8 +12,8 @@ The simplest way to use it - rewrite appropriate section in QOpencvProcessor::cu
 #include <opencv2/opencv.hpp>
 
 #define CALIBRATION_VECTOR_LENGTH 25
-#define FACE_RECT_VECTOR_LENGTH 12
-#define FRAMES_WITHOUT_FACE_TRESHOLD 9
+#define FACE_RECT_VECTOR_LENGTH 16
+#define FRAMES_WITHOUT_FACE_TRESHOLD 16
 
 //------------------------------------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ private:
     cv::Rect m_searchRect;
 
     cv::Rect getAverageFaceRect() const;
-    cv::Rect enrollFaceRect(const cv::Rect &rect);
+    void enrollFaceRect(const cv::Rect &rect);
     bool isInEllips(int x, int y) const;
     bool isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue);
     bool isCalibColor(unsigned char value);
@@ -87,38 +87,11 @@ private:
 
 inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char valueGreen, unsigned char valueBlue)
 {
-    //from Ghazali Osman Muhammad, Suzuri Hitam and Mohd Nasir Ismail
-    //"ENHANCED SKIN COLOUR CLASSIFIER USING RGB RATIO MODEL" International Journal on Soft Computing (IJSC) Vol.3, No.4, November 2012
-    //Swift’s rule
-    /*if( (valueBlue > valueRed)    &&
-        (valueGreen < valueBlue)    &&
-        (valueGreen > valueRed)     &&
-        ( (valueBlue < (valueRed >> 2))  || (valueBlue > 200) ) ) {
-        return false;
-    } else return true;*/
-
-    //Kovac's rule
-    /*if( (valueRed > 95) && (valueRed > valueGreen)    &&
-        (valueGreen > 40) && (valueBlue > 20)           &&
-        ((valueRed - qMin(valueGreen,valueBlue)) > 15)  &&
-        ((valueRed - valueGreen) > 15 ) ) {
-        return true;
-    } else return false;*/
-
-    //Modified Kovac's rule
-    /*if( (valueRed > 115) &&
-        (valueRed > valueGreen) && (valueBlue > 45)     &&
-        ((valueRed - qMin(valueGreen,valueBlue)) > 35)  &&
-        ((valueRed - valueGreen) > 25 ) ) {
-        return true;
-    } else return false;*/
-
-    //Modified Peers et al. rule
     if( (valueRed > 95) && (valueRed > valueGreen)    &&
-            (valueGreen > 40) && (valueBlue > 20)           &&
-            ((valueRed - qMin(valueGreen,valueBlue)) > 7)  &&
-            ((valueRed - valueGreen) > 7 ) ) {
-            return true;
+        (valueGreen > 40) && (valueBlue > 20)           &&
+        ((valueRed - qMin(valueGreen,valueBlue)) > 7)  &&
+        ((valueRed - valueGreen) > 7 ) ) {
+        return true;
         } else return false;
 }
 

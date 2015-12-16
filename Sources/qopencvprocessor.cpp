@@ -111,24 +111,22 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     m_searchRect += cv::Size(m_searchRect.width, m_searchRect.height);
     m_searchRect &= cv::Rect(0,0,input.cols, input.rows);
 
-    cv::Mat temp(input, m_searchRect);
     cv::Mat gray; // Create an instance of cv::Mat for temporary image storage
-    cv::cvtColor(temp, gray, CV_BGR2GRAY);
+    cv::cvtColor(input, gray, CV_BGR2GRAY);
     cv::equalizeHist(gray, gray);
     std::vector<cv::Rect> faces_vector;
 
     m_classifier.detectMultiScale(gray, faces_vector, 1.1, 7, cv::CASCADE_FIND_BIGGEST_OBJECT, cv::Size(OBJECT_MINSIZE, OBJECT_MINSIZE)); // Detect faces (list of flags CASCADE_DO_CANNY_PRUNING, CASCADE_DO_ROUGH_SEARCH, CASCADE_FIND_BIGGEST_OBJECT, CASCADE_SCALE_IMAGE )
 
-    cv::Rect face(0,0,0,0);
     if(faces_vector.size() == 0) {
         m_emptyFrames++;
-        if(m_emptyFrames < FRAMES_WITHOUT_FACE_TRESHOLD) {
-            face = getAverageFaceRect();
-        } else setAverageFaceRect(0,0,input.cols, input.rows);
+        if(m_emptyFrames > FRAMES_WITHOUT_FACE_TRESHOLD)
+            setAverageFaceRect(0, 0, 0, 0);
     } else {
         m_emptyFrames = 0;
-        face = enrollFaceRect(faces_vector[0] + cv::Point(m_searchRect.x, m_searchRect.y));
+        enrollFaceRect(faces_vector[0]);
     }
+    cv::Rect face = getAverageFaceRect();
 
     unsigned int X = face.x; // the top-left corner horizontal coordinate of future rectangle
     unsigned int Y = face.y; // the top-left corner vertical coordinate of future rectangle
@@ -141,7 +139,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     unsigned int dY = rectheight/30;
     unsigned long area = 0;
 
-    if(face.area() > 1000)
+    if(face.area() > 10000)
     {
         for(int i = 0; i < 256; i++)
             v_temphist[i] = 0;
@@ -241,7 +239,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     //-----end of if(faces_vector.size() != 0)-----
     m_framePeriod = ((double)cv::getTickCount() -  m_timeCounter)*1000.0 / cv::getTickFrequency();
     m_timeCounter = cv::getTickCount();
-    if(area > 1000)
+    if(area > 5000)
     {
         if(!f_fill)
             cv::rectangle( cv::Mat(input), face, cv::Scalar(15,15,250));
@@ -568,11 +566,10 @@ cv::Rect QOpencvProcessor::getAverageFaceRect() const
     return cv::Rect(x, y, w, h);
 }
 
-cv::Rect QOpencvProcessor::enrollFaceRect(const cv::Rect &rect)
+void QOpencvProcessor::enrollFaceRect(const cv::Rect &rect)
 {
     v_faceRect[m_facePos] = rect;
     m_facePos = (++m_facePos) % FACE_RECT_VECTOR_LENGTH;
-    return getAverageFaceRect();
 }
 
 void QOpencvProcessor::setFillFlag(bool value)
