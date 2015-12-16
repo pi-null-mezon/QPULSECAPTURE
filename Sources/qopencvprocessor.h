@@ -106,12 +106,20 @@ inline bool QOpencvProcessor::isSkinColor(unsigned char valueRed, unsigned char 
     } else return false;*/
 
     //Modified Kovac's rule
-    if( (valueRed > 115) &&
+    /*if( (valueRed > 115) &&
         (valueRed > valueGreen) && (valueBlue > 45)     &&
         ((valueRed - qMin(valueGreen,valueBlue)) > 35)  &&
         ((valueRed - valueGreen) > 25 ) ) {
         return true;
-    } else return false;
+    } else return false;*/
+
+    //Modified Peers et al. rule
+    if( (valueRed > 95) && (valueRed > valueGreen)    &&
+            (valueGreen > 40) && (valueBlue > 20)           &&
+            ((valueRed - qMin(valueGreen,valueBlue)) > 7)  &&
+            ((valueRed - valueGreen) > 7 ) ) {
+            return true;
+        } else return false;
 }
 
 inline bool QOpencvProcessor::isCalibColor(unsigned char value)

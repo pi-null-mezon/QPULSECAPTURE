@@ -100,7 +100,11 @@ bool QOpencvProcessor::loadClassifier(const std::string &filename)
 //------------------------------------------------------------------------------------------------------
 void QOpencvProcessor::faceProcess(const cv::Mat &input)
 {
-    cv::Mat output(input);  // Copy the header and pointer to data of input object      
+    cv::Mat output;
+    if(f_fill)
+        output = input;
+    else
+        output = input.clone();
 
     m_searchRect = getAverageFaceRect();
     m_searchRect -= cv::Point(m_searchRect.width/2.0, m_searchRect.height/2.0);
@@ -113,7 +117,7 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     cv::equalizeHist(gray, gray);
     std::vector<cv::Rect> faces_vector;
 
-    m_classifier.detectMultiScale(gray, faces_vector, 1.1, 9, cv::CASCADE_FIND_BIGGEST_OBJECT, cv::Size(OBJECT_MINSIZE, OBJECT_MINSIZE)); // Detect faces (list of flags CASCADE_DO_CANNY_PRUNING, CASCADE_DO_ROUGH_SEARCH, CASCADE_FIND_BIGGEST_OBJECT, CASCADE_SCALE_IMAGE )
+    m_classifier.detectMultiScale(gray, faces_vector, 1.1, 7, cv::CASCADE_FIND_BIGGEST_OBJECT, cv::Size(OBJECT_MINSIZE, OBJECT_MINSIZE)); // Detect faces (list of flags CASCADE_DO_CANNY_PRUNING, CASCADE_DO_ROUGH_SEARCH, CASCADE_FIND_BIGGEST_OBJECT, CASCADE_SCALE_IMAGE )
 
     cv::Rect face(0,0,0,0);
     if(faces_vector.size() == 0) {
@@ -137,14 +141,15 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     unsigned int dY = rectheight/30;
     unsigned long area = 0;
 
-    if(face.area() > 0)
+    if(face.area() > 1000)
     {
         for(int i = 0; i < 256; i++)
             v_temphist[i] = 0;
-
         cv::Mat blurRegion(output, face);
         cv::blur(blurRegion, blurRegion, cv::Size(m_blurSize, m_blurSize));
         m_ellipsRect = cv::Rect(X + dX, Y - 6 * dY, rectwidth - 2 * dX, rectheight + 6 * dY);
+        X = m_ellipsRect.x;
+        rectwidth = m_ellipsRect.width;
         unsigned char *p; // this pointer will be used to store adresses of the image rows
         unsigned char tempBlue;
         unsigned char tempRed;
@@ -153,25 +158,43 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
         {
             if(m_skinFlag)
             {
-                for(unsigned int j = Y /*- 2*dY*/; j < Y + rectheight; j++) // it is lucky that unsigned int saves from out of image memory cells processing from image top bound, but not from bottom where you should check this issue explicitly
-                {
-                    p = output.ptr(j); //takes pointer to beginning of data on row
-                    for(unsigned int i = X; i < X + rectwidth; i++)
+                if(f_fill){
+                    for(unsigned int j = Y; j < Y + rectheight; j++) // it is lucky that unsigned int saves from out of image memory cells processing from image top bound, but not from bottom where you should check this issue explicitly
                     {
-                        tempBlue = p[3*i];
-                        tempGreen = p[3*i+1];
-                        tempRed = p[3*i+2];
-                        if( isSkinColor(tempRed, tempGreen, tempBlue) && isInEllips(i, j)) {
-                            area++;
-                            blue += tempBlue;
-                            green += tempGreen;
-                            red += tempRed;
-                            if(f_fill)  {
+                        p = output.ptr(j); //takes pointer to beginning of data on row
+                        for(unsigned int i = X; i < X + rectwidth; i++)
+                        {
+                            tempBlue = p[3*i];
+                            tempGreen = p[3*i+1];
+                            tempRed = p[3*i+2];
+                            if( isSkinColor(tempRed, tempGreen, tempBlue) && isInEllips(i, j)) {
+                                area++;
+                                blue += tempBlue;
+                                green += tempGreen;
+                                red += tempRed;
                                 //p[3*i] = 255;
                                 //p[3*i+1] %= LEVEL_SHIFT;
                                 p[3*i+2] %= LEVEL_SHIFT;
+                                v_temphist[tempGreen]++;
                             }
-                            v_temphist[tempGreen]++;
+                        }
+                    }
+                } else {
+                    for(unsigned int j = Y; j < Y + rectheight; j++) // it is lucky that unsigned int saves from out of image memory cells processing from image top bound, but not from bottom where you should check this issue explicitly
+                    {
+                        p = output.ptr(j); //takes pointer to beginning of data on row
+                        for(unsigned int i = X; i < X + rectwidth; i++)
+                        {
+                            tempBlue = p[3*i];
+                            tempGreen = p[3*i+1];
+                            tempRed = p[3*i+2];
+                            if( isSkinColor(tempRed, tempGreen, tempBlue) && isInEllips(i, j)) {
+                                area++;
+                                blue += tempBlue;
+                                green += tempGreen;
+                                red += tempRed;
+                                v_temphist[tempGreen]++;
+                            }
                         }
                     }
                 }
@@ -218,10 +241,10 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     //-----end of if(faces_vector.size() != 0)-----
     m_framePeriod = ((double)cv::getTickCount() -  m_timeCounter)*1000.0 / cv::getTickFrequency();
     m_timeCounter = cv::getTickCount();
-    if(area > 0)
+    if(area > 1000)
     {
         if(!f_fill)
-            cv::rectangle( output, face , cv::Scalar(15,15,250));   
+            cv::rectangle( cv::Mat(input), face, cv::Scalar(15,15,250));
         emit dataCollected( red , green, blue, area, m_framePeriod);
 
         unsigned int mass = 0;
@@ -235,15 +258,11 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     else
     {
         if(m_classifier.empty())
-        {
             emit selectRegion( QT_TRANSLATE_NOOP("QImageWidget", "Load cascade for detection") );
-        }
         else
-        {
             emit selectRegion( QT_TRANSLATE_NOOP("QImageWidget", "Come closer or change light") );
-        }
     }
-    emit frameProcessed(output, m_framePeriod, area);
+    emit frameProcessed(input, m_framePeriod, area);
 }
 
 //------------------------------------------------------------------------------------------------
