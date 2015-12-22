@@ -75,7 +75,6 @@ private:
     cv::Rect v_faceRect[FACE_RECT_VECTOR_LENGTH];
     quint8 m_facePos;
     cv::Rect m_ellipsRect;
-    cv::Rect m_searchRect;
 
     cv::Rect getAverageFaceRect() const;
     void enrollFaceRect(const cv::Rect &rect);

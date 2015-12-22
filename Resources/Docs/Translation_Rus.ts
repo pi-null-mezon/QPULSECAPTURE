@@ -709,17 +709,17 @@
         <translation> дБл</translation>
     </message>
     <message>
-        <location filename="../../Sources/qopencvprocessor.cpp" line="261"/>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="254"/>
         <source>Load cascade for detection</source>
         <translation>Загрузите шаблон для распознавания</translation>
     </message>
     <message>
-        <location filename="../../Sources/qopencvprocessor.cpp" line="263"/>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="256"/>
         <source>Come closer or change light</source>
         <translation>Приблизьтесь или поменяйте свет</translation>
     </message>
     <message>
-        <location filename="../../Sources/qopencvprocessor.cpp" line="435"/>
+        <location filename="../../Sources/qopencvprocessor.cpp" line="428"/>
         <source>Select region on image</source>
         <translation>Выберите область изображения</translation>
     </message>

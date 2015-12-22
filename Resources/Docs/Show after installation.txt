@@ -1,8 +1,8 @@
-For the proper work You may need to manually install the so called
-msvc2010 redistributable package (x86), search it on:	
-- Microsoft web site www.microsoft.com 
-- or try direct link below: http://www.microsoft.com/en-us/download/details.aspx?id=5555
+You may need to manually install msvc2013x86 redistributable package.
+Try this link: https://www.microsoft.com/en-US/download/details.aspx?id=40784
 
 Please, report about all bugs and errors by e-mail that you can
-find in application's about section. Pi-null-mezon, 2015.
+find in application's about section.
+
+Taranov Alex, 2015.
   

@@ -825,8 +825,8 @@ void QHarmonicProcessor::computeSPO2(quint16 index)
         acBlue /= (2 * HALF_INTERVAL + 1);*/
         //m_SPO2 = (acRed * dcBlue)/(acBlue*dcRed);
         m_SPO2 = ((0.93 + 1.0 * (acRed * dcBlue)/(acBlue*dcRed)) + m_SPO2) / 2.0;
-        if(m_SPO2 > 0.985)
-            m_SPO2 = 0.985;
+        if(m_SPO2 > 0.98)
+            m_SPO2 = 0.98;
         emit spO2Updated(m_SPO2);
     }
 }

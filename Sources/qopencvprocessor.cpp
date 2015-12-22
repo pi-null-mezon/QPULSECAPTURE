@@ -106,11 +106,6 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     else
         output = input.clone();
 
-    m_searchRect = getAverageFaceRect();
-    m_searchRect -= cv::Point(m_searchRect.width/2.0, m_searchRect.height/2.0);
-    m_searchRect += cv::Size(m_searchRect.width, m_searchRect.height);
-    m_searchRect &= cv::Rect(0,0,input.cols, input.rows);
-
     cv::Mat gray; // Create an instance of cv::Mat for temporary image storage
     cv::cvtColor(input, gray, CV_BGR2GRAY);
     cv::equalizeHist(gray, gray);

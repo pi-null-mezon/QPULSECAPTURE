@@ -2,18 +2,18 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QPULSECAPTURE"
-#define MyAppVersion "3.0"
+#define MyAppVersion "3.0.2.0"
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
-#define QtLibs "C:\Qt\5.4\msvc2010_opengl\bin"
-#define OpencvLibs "C:\opencv300\build\x86\vc10\bin"
+#define QtLibs "C:\Qt\5.5\msvc2013\bin"
+#define OpencvLibs "C:\Programming\3rdParties\opencv300\build\x86\vc12\bin"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{CA7FB9AC-5590-4092-8E20-B5556095D1F1}
+AppId={{51965140-89B0-49E1-B611-9CC0C0D6BFA0}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -39,10 +39,10 @@ Name: "Russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Programming\QPULSECAPTURE\Install\build-Sources-Desktop_Qt_5_4_MSVC2010_OpenGL_32bit-Release\release\QPULSECAPTURE.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\icudt53.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\icuin53.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#QtLibs}\icuuc53.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programming\Qpulsecapture\Install\build-Sources-Desktop_Qt_5_5_1_MSVC2013_32bit-Release\release\QPULSECAPTURE.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#QtLibs}\icudt54.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#QtLibs}\icuin54.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#QtLibs}\icuuc54.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\enginio.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\Qt5Concurrent.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
