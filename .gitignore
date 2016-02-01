@@ -33,6 +33,7 @@
 /Resources/WVCF_utility
 /Resources/FFTW
 /Resources/ALGLIB
+/build
 
 *.avi
 *.mp4
