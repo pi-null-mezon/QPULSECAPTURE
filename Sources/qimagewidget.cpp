@@ -353,7 +353,7 @@ void QImageWidget::updateValues(qreal value1, qreal value2, bool flag) // value1
     {
         m_frequencyColor = QColor(Qt::red);
     }
-    m_frequencyString = QString::number(value1, 'f', 0);
+    m_frequencyString = QString::number(qRound(value1));
     m_snrString = "SNR: " +QString::number(value2,'f',2) + tr(" dB");
 }
 
@@ -361,7 +361,7 @@ void QImageWidget::updateValues(qreal value1, qreal value2, bool flag) // value1
 
 void QImageWidget::updateBreathStrings(qreal breath_rate, qreal snr_value)
 {
-    m_breathRateString = QString::number(breath_rate, 'f', 0);
+    m_breathRateString = QString::number(qRound(breath_rate));
     m_breathSNRString = "SNR: " + QString::number(snr_value,'f',2) + tr(" dB");
 }
 
@@ -369,7 +369,7 @@ void QImageWidget::updateBreathStrings(qreal breath_rate, qreal snr_value)
 
 void QImageWidget::updateSPO2(qreal value)
 {
-    m_spO2String = QString::number(qRound(value*100));
+    m_spO2String = QString::number(qRound(value*100.0));
 }
 
 //-----------------------------------------------------------------------------------

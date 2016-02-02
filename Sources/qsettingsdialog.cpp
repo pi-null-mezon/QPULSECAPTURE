@@ -37,13 +37,7 @@ void QSettingsDialog::on_ButtonCancel_clicked()
 
 void QSettingsDialog::on_dialDatalength_valueChanged(int value)
 {
-    ui->lineEditDatalength->setText(QString::number(get_power_of_two(value)));
-    ui->dialBufferlength->setMaximum(value);
-}
-
-void QSettingsDialog::on_dialBufferlength_valueChanged(int value)
-{
-    ui->lineEditBufferlength->setText(QString::number(get_power_of_two(value)));
+    ui->lineEditDatalength->setText(QString::number(value*2));
 }
 
 void QSettingsDialog::on_ButtonCascade_clicked()
@@ -57,8 +51,7 @@ void QSettingsDialog::on_ButtonCascade_clicked()
 
 void QSettingsDialog::on_ButtonDefault_clicked()
 {
-    ui->dialDatalength->setValue(8);
-    ui->dialBufferlength->setValue(8);
+    ui->dialDatalength->setValue(94);
     ui->checkBoxCascade->setChecked(false);
     ui->lineEditCascade->setText("haarcascades/haarcascade_frontalface_alt.xml");
     ui->checkBoxVideoFile->setChecked(false);
@@ -86,13 +79,9 @@ QString QSettingsDialog::get_stringCascade() const
 
 quint32 QSettingsDialog::get_datalength() const
 {
-    return get_power_of_two(ui->dialDatalength->value());
+    return ui->lineEditDatalength->text().toInt();
 }
 
-quint32 QSettingsDialog::get_bufferlength() const
-{
-    return get_power_of_two(ui->dialBufferlength->value());
-}
 
 void QSettingsDialog::on_checkBoxCascade_stateChanged(int arg1)
 {

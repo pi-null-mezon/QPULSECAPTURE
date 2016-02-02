@@ -9,7 +9,6 @@ The simplest way to use it - rewrite appropriate section in QOpencvProcessor::cu
 #define OBJECT_MINSIZE 128
 #define LEVEL_SHIFT 32
 
-
 //------------------------------------------------------------------------------------------------------
 
 QOpencvProcessor::QOpencvProcessor(QObject *parent):

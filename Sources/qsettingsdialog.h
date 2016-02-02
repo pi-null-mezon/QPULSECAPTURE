@@ -24,7 +24,6 @@ public:
     bool get_flagVideoFile() const;
     QString get_stringCascade() const;
     quint32 get_datalength() const;
-    quint32 get_bufferlength() const;
     int get_timerValue() const;
     int get_patientPercentile() const;
     QString get_stringDistribution() const;
@@ -39,8 +38,6 @@ private slots:
     void on_ButtonCancel_clicked();
 
     void on_dialDatalength_valueChanged(int value);
-
-    void on_dialBufferlength_valueChanged(int value);
 
     void on_ButtonCascade_clicked();
 

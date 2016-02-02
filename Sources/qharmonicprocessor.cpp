@@ -10,7 +10,7 @@ QHarmonicProcessor::QHarmonicProcessor(QObject *parent, quint16 length_of_data, 
     m_BufferLength(length_of_buffer),
     curpos(0),
     m_HeartSNR(-5.0),
-    m_HeartRate(0.0),
+    m_HeartRate(80.0),
     m_BreathRate(0.0),
     m_BreathSNR(-5.0),
     f_PCA(false),
@@ -600,6 +600,7 @@ int QHarmonicProcessor::loadWarningRates(const char *fileName, SexID sex, int ag
             if(ConversionResult1 && ConversionResult2) {
                 m_leftThreshold = tempLeft;
                 m_rightTreshold = tempRight;
+                m_HeartRate = (tempLeft + tempRight)/2.0;
                 return NoError;
             }
         }

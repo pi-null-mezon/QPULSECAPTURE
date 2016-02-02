@@ -56,7 +56,7 @@
     <enum>QTabWidget::North</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="documentMode">
     <bool>false</bool>
@@ -248,13 +248,22 @@
        </rect>
       </property>
       <property name="minimum">
-       <number>5</number>
+       <number>32</number>
       </property>
       <property name="maximum">
-       <number>11</number>
+       <number>256</number>
+      </property>
+      <property name="singleStep">
+       <number>2</number>
+      </property>
+      <property name="pageStep">
+       <number>8</number>
+      </property>
+      <property name="value">
+       <number>188</number>
       </property>
       <property name="sliderPosition">
-       <number>8</number>
+       <number>188</number>
       </property>
       <property name="tracking">
        <bool>true</bool>
@@ -282,85 +291,13 @@
        </font>
       </property>
       <property name="text">
-       <string>256</string>
+       <string>188</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
       <property name="readOnly">
        <bool>true</bool>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QGroupBox" name="groupBoxBufferlength">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>130</y>
-       <width>271</width>
-       <height>91</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Length of buffer</string>
-     </property>
-     <widget class="QDial" name="dialBufferlength">
-      <property name="geometry">
-       <rect>
-        <x>190</x>
-        <y>20</y>
-        <width>60</width>
-        <height>60</height>
-       </rect>
-      </property>
-      <property name="minimum">
-       <number>4</number>
-      </property>
-      <property name="maximum">
-       <number>8</number>
-      </property>
-      <property name="value">
-       <number>8</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="invertedAppearance">
-       <bool>false</bool>
-      </property>
-      <property name="wrapping">
-       <bool>false</bool>
-      </property>
-      <property name="notchesVisible">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEditBufferlength">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>30</y>
-        <width>151</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>MicraC</family>
-        <pointsize>16</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>256</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-      <property name="clearButtonEnabled">
-       <bool>false</bool>
       </property>
      </widget>
     </widget>

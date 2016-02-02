@@ -521,7 +521,7 @@ void MainWindow::configure_and_start_session()
         }       
         //---------------------Harmonic processor------------------------
         pt_harmonicThread = new QThread(this);
-        pt_harmonicProcessor = new QHarmonicProcessor(NULL, m_settingsDialog.get_datalength(), m_settingsDialog.get_bufferlength());
+        pt_harmonicProcessor = new QHarmonicProcessor(NULL, m_settingsDialog.get_datalength(), m_settingsDialog.get_datalength());
         pt_harmonicProcessor->moveToThread(pt_harmonicThread);
         connect(pt_harmonicThread, SIGNAL(finished()),pt_harmonicProcessor, SLOT(deleteLater()));
         connect(pt_harmonicThread, SIGNAL(finished()),pt_harmonicThread, SLOT(deleteLater()));
@@ -553,7 +553,7 @@ void MainWindow::configure_and_start_session()
             QString filename = m_settingsDialog.get_stringCascade();
             while(!pt_opencvProcessor->loadClassifier(filename.toStdString()))
             {
-                QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not load classifier file"), QMessageBox::Ok | QMessageBox::Open, this, Qt::Dialog);
+                QMessageBox msgBox(QMessageBox::Information, this->windowTitle(), tr("Can not load classifier file"), QMessageBox::Open, this, Qt::Dialog);
                 if(msgBox.exec() == QMessageBox::Open)
                 {
                     QString temp_filename = QFileDialog::getOpenFileName(this, tr("Open file"), "haarcascades/", tr("Cascade (*.xml)"));
