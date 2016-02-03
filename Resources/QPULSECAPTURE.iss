@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QPULSECAPTURE"
-#define MyAppVersion "3.0.2.0"
+#define MyAppVersion "3.0.3.0"
 #define MyAppURL "https://github.com/pi-null-mezon/QPULSECAPTURE.git"
 #define MyAppExeName "QPULSECAPTURE.exe"
 
@@ -13,7 +13,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{51965140-89B0-49E1-B611-9CC0C0D6BFA0}
+AppId={{4B5DC88C-8BDC-46FD-8D26-267D8D676A9A}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -39,7 +39,7 @@ Name: "Russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Programming\Qpulsecapture\Install\build-Sources-Desktop_Qt_5_5_1_MSVC2013_32bit-Release\release\QPULSECAPTURE.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Programming\Qpulsecapture\build\build-Sources-Desktop_Qt_5_5_1_MSVC2013_32bit-Release\release\QPULSECAPTURE.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\icudt54.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\icuin54.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtLibs}\icuuc54.dll"; DestDir: "{app}"; Flags: ignoreversion

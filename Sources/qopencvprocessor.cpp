@@ -27,7 +27,6 @@ QOpencvProcessor::QOpencvProcessor(QObject *parent):
     //------------
     m_emptyFrames = 0;
     m_facePos = 0;
-    setAverageFaceRect(0,0,0,0);
     //------------
 }
 
@@ -584,4 +583,9 @@ void QOpencvProcessor::setAverageFaceRect(uint x, uint y, uint w, uint h)
 uint QOpencvProcessor::getBlurSize() const
 {
     return m_blurSize;
+}
+
+void QOpencvProcessor::resetFaceRect()
+{
+    setAverageFaceRect(0,0,0,0);
 }

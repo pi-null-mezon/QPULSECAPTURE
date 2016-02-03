@@ -49,6 +49,7 @@ public slots:
     void setSkinSearchingFlag(bool value);
     void setFillFlag(bool value);
     uint getBlurSize() const;
+    void resetFaceRect();
 
 private:
     bool m_fullFaceFlag;

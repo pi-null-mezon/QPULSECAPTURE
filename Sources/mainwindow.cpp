@@ -600,7 +600,7 @@ void MainWindow::configure_and_start_session()
         pt_greenAct->trigger(); // because green channel is default in QHarmonicProcessor
         pt_prunAct->setChecked(false);
         pt_pcaAct->setChecked(false);
-
+        pt_opencvProcessor->resetFaceRect();
         if(m_sessionsCounter == 0)
         {
             pt_optionsMenu->setEnabled(true);
