@@ -248,22 +248,22 @@
        </rect>
       </property>
       <property name="minimum">
-       <number>32</number>
+       <number>128</number>
       </property>
       <property name="maximum">
-       <number>256</number>
+       <number>512</number>
       </property>
       <property name="singleStep">
-       <number>2</number>
+       <number>16</number>
       </property>
       <property name="pageStep">
-       <number>8</number>
+       <number>32</number>
       </property>
       <property name="value">
-       <number>188</number>
+       <number>181</number>
       </property>
       <property name="sliderPosition">
-       <number>188</number>
+       <number>181</number>
       </property>
       <property name="tracking">
        <bool>true</bool>
@@ -291,7 +291,7 @@
        </font>
       </property>
       <property name="text">
-       <string>188</string>
+       <string>181</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
