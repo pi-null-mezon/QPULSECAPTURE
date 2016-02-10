@@ -442,7 +442,7 @@ void QHarmonicProcessor::computeHeartRate()
     emit snrUpdated(m_ID, m_HeartSNR); // signal for mapper
 
     if(m_HeartSNR > SNR_TRESHOLD)
-    {
+    {       
         m_HeartRate = (power_multiplyed_by_index / signal_power) * 60000.0 / buffer_duration;
         if((m_HeartRate <= m_rightTreshold) && (m_HeartRate >= m_leftThreshold))
             emit heartRateUpdated(m_HeartRate, m_HeartSNR, true);
@@ -793,13 +793,12 @@ void QHarmonicProcessor::setPruning(bool value)
 
 void QHarmonicProcessor::computeSPO2(quint16 index)
 {
-    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) && (m_HeartSNR > 5.0) )
+    if( (HALF_INTERVAL < index) && (index < (m_BufferLength/2 + 1 - HALF_INTERVAL)) && (m_HeartSNR > 6.0) )
     {
-        qint16 position = curpos - 1;
         quint16 pos;
         for(quint16 i = 0; i < m_BufferLength; i++)
         {
-            pos = loopBuffer(position - i);
+            pos = loopBuffer(curpos - 1 - i);
             v_BlueForFFT[i] = PCA_RAW_RGB(pos,1);
             v_RedForFFT[i] = PCA_RAW_RGB(pos,0);
         }

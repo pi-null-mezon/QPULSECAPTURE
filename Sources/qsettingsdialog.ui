@@ -260,10 +260,10 @@
        <number>32</number>
       </property>
       <property name="value">
-       <number>181</number>
+       <number>256</number>
       </property>
       <property name="sliderPosition">
-       <number>181</number>
+       <number>256</number>
       </property>
       <property name="tracking">
        <bool>true</bool>
@@ -291,7 +291,7 @@
        </font>
       </property>
       <property name="text">
-       <string>181</string>
+       <string>256</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET =    QPULSECAPTURE
 TEMPLATE =  app
-VERSION =   3.0.3.1
+VERSION =   3.0.4.0
 
 DEFINES +=  APP_NAME=\\\"$${TARGET}\\\" \
             APP_VERSION=\\\"$${VERSION}\\\"

@@ -459,16 +459,16 @@ void QImageWidget::set_drawDataFlag(bool value)
 
 void QImageWidget::clearFrequencyString(qreal value)
 {
-    m_frequencyString.clear();  
+   // m_frequencyString.clear();
     m_snrString = "SNR: " + QString::number(value,'f',2) + tr(" dB");
-    m_spO2String.clear();
+    //m_spO2String.clear();
 }
 
 //----------------------------------------------------------------------------------
 
 void QImageWidget::clearBreathRateString(qreal value)
 {
-    m_breathRateString.clear();
+    //m_breathRateString.clear();
     m_breathSNRString = "SNR: " + QString::number(value,'f',2) + tr(" dB");
 }
 
