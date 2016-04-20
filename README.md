@@ -1,5 +1,8 @@
 QPULSECAPTURE	
 =========================================================================================
+
+Hey if you interested to integrate pulse measurements from face video in to you projects see [vpglib](https://github.com/pi-null-mezon/vpglib)
+
 An application for the contactless heart rate and breath (respiration) rate measurements
 by means of video processing.
 
