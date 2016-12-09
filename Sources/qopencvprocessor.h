@@ -71,6 +71,7 @@ private:
     uint m_blurSize;
     bool f_fill;   
     qreal v_hist[256];
+    qreal v_previoushist[256];
     unsigned int v_temphist[256];
     quint16 m_emptyFrames;
     cv::Rect v_faceRect[FACE_RECT_VECTOR_LENGTH];

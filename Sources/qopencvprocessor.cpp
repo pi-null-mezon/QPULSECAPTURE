@@ -232,11 +232,12 @@ void QOpencvProcessor::faceProcess(const cv::Mat &input)
     //-----end of if(faces_vector.size() != 0)-----
     m_framePeriod = ((double)cv::getTickCount() -  m_timeCounter)*1000.0 / cv::getTickFrequency();
     m_timeCounter = cv::getTickCount();
-    if(area > 5000)
+    if(area > 1000)
     {
         if(!f_fill)
-            cv::rectangle( cv::Mat(input), face, cv::Scalar(15,15,250));
-        emit dataCollected( red , green, blue, area, m_framePeriod);
+            cv::rectangle( cv::Mat(input), face, cv::Scalar(15,15,250),1,CV_AA);
+
+        emit dataCollected(red, green, blue, area, m_framePeriod);
 
         unsigned int mass = 0;
         for(int i = 0; i < 256; i++)
@@ -388,7 +389,7 @@ void QOpencvProcessor::rectProcess(const cv::Mat &input)
     m_timeCounter = cv::getTickCount();
     if( area > 0 )
     {
-        cv::rectangle( output , m_cvRect, cv::Scalar(15,250,15));
+        cv::rectangle( output , m_cvRect, cv::Scalar(15,250,15), 1, CV_AA);
         emit dataCollected(red, green, blue, area, m_framePeriod);
 
         unsigned int mass = 0;

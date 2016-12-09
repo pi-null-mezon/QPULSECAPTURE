@@ -102,6 +102,10 @@ void QImageWidget::updateImage(const cv::Mat& image, qreal frame_period, quint32
 void QImageWidget::paintEvent(QPaintEvent* )
 {
     QPainter painter( this );
+    #ifdef REPLACE_WIDGET_TO_OPENGLWIDGET
+    painter.fillRect(rect(), palette().background());
+    #endif
+
     QRect temp_rect = make_proportional_rect(this->rect(), opencv_image.cols, opencv_image.rows);
 
     if(m_imageFlag)

@@ -10,7 +10,7 @@
 #define TOP_LIMIT 3.5 // in s^-1, it is 210 bpm
 #define SNR_TRESHOLD 2.0 // in most cases this value is suitable when (m_BufferLength == 256)
 #define HALF_INTERVAL 2 // defines the number of averaging indexes when frequency is evaluated, this value should be >= 1
-#define DIGITAL_FILTER_LENGTH 3 // in counts
+#define DIGITAL_FILTER_LENGTH 9 // in counts
 
 #define BREATH_TOP_LIMIT 0.5 // in s^-1, it is 30 rpm
 #define BREATH_BOTTOM_LIMIT 0.2 // in s^-1, it is 12 rpm
@@ -27,7 +27,7 @@ class QHarmonicProcessor : public QObject
 {
     Q_OBJECT
 public:
-    explicit QHarmonicProcessor(QObject *parent = NULL, quint16 length_of_data = 256, quint16 length_of_buffer = 256 );
+    explicit QHarmonicProcessor(QObject *parent = NULL, quint16 length_of_data = 221, quint16 length_of_buffer = 221 );
     ~QHarmonicProcessor();
     enum ColorChannel { Red, Green, Blue, RGB, Experimental };
     enum XMLparserError { NoError, FileOpenError, FileExistanceError, ReadError, ParseFailure };
